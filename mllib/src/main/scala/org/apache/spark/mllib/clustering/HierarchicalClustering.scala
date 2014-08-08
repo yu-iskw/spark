@@ -18,47 +18,35 @@
 package org.apache.spark.mllib.clustering
 
 import org.apache.spark.Logging
+import org.apache.spark.annotation.Experimental
+import org.apache.spark.mllib.feature.{EuclideanLSHTransformer, EuclideanLSH}
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 
+@Experimental
 class HierarchicalClusteringModel extends Serializable {
 }
 
-class HierarchicalClustering private (
-  private var L: Int,
-  private var w: Int
-) extends Serializable with Logging {
+@Experimental
+class HierarchicalClustering private extends Serializable with Logging {
 
-  var seed: Long = _
-
-  def run(data: RDD[Vector]): HierarchicalClusteringModel = {
+  def run(data: RDD[Vector], L: Int, w: Int): HierarchicalClusteringModel = {
+    val dimension = data.first().size
+    val randomVector = EuclideanLSH.generateRandomVectors(L, data.first().size)
+    val vectorTransformer = new EuclideanLSHTransformer(dimension, L, w)
     new HierarchicalClusteringModel
-  }
-
-  def setHashes(L: Integer): this.type = {
-    this.L = L
-    this
-  }
-
-  def setQuantificationLevels(w: Integer): this.type = {
-    this.w = w
-    this
-  }
-
-  def setSeed(seed: Long): this.type = {
-    this.seed = seed
-    this
   }
 }
 
 /**
  * Top-level methods for calling Hierarchical Clustering
  */
+@Experimental
 object HierarchicalClustering {
-  val DEFAULT_SEED = 12345
 
-  def train(L: Integer, w: Integer, seed: Long = DEFAULT_SEED): HierarchicalClustering = {
-    new HierarchicalClustering(L, w)
-      .setSeed(seed)
+  def train(data: RDD[Vector], L: Int, w: Int): HierarchicalClusteringModel = {
+    new HierarchicalClustering()
+      .run(data, L, w)
   }
+
 }

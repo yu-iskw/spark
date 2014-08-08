@@ -17,25 +17,27 @@
 
 package org.apache.spark.mllib.clustering
 
+import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.util.LocalSparkContext
 import org.scalatest.FunSuite
 
-class HierarchicalClustering$Suite extends FunSuite {
+class HierarchicalClustering$Suite extends FunSuite with LocalSparkContext {
 
   test("train") {
-    /*    val data = sc.parallelize(Array(
-          Vectors.dense(0.0, 0.0),
-          Vectors.dense(0.0, 0.1),
-          Vectors.dense(0.1, 0.0),
+    val data = sc.parallelize(Array(
+      Vectors.dense(0.0, 0.0),
+      Vectors.dense(0.0, 0.1),
+      Vectors.dense(0.1, 0.0),
 
-          Vectors.dense(1.0, 1.0),
-          Vectors.dense(0.9, 1.0),
-          Vectors.dense(1.0, 0.9),
-          Vectors.dense(0.9, 0.9)
-        ), 2)
+      Vectors.dense(10.0, 10.0),
+      Vectors.dense(9.9, 10.0),
+      Vectors.dense(10.0, 9.9),
+      Vectors.dense(9.9, 9.9)
+    ), 2)
 
-        val (L, w, seed) = (3, 2, 12345)
-        val hierarchicalClustering = HierarchicalClustering.train(L, w)
-        hierarchicalClustering.run(data)*/
+    val L = 3
+    val w = 2
+    val hierarchicalClustering = HierarchicalClustering.train(data, L, w)
   }
 
 }
