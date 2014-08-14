@@ -29,7 +29,17 @@ class CosineDistanceMeasure extends DistanceMeasure {
    */
   override def distance(v1: linalg.Vector, v2: linalg.Vector): Double = {
     val dotProduct = v1.toBreeze.dot(v2.toBreeze)
-    val denominator = v1.toBreeze.norm(2) * v2.toBreeze.norm(2)
-    1 - (dotProduct / denominator)
+    var denominator = v1.toBreeze.norm(2) * v2.toBreeze.norm(2)
+
+    // correct for floating-point rounding errors
+    if (denominator < dotProduct) {
+      denominator = dotProduct
+    }
+
+    // correct for zero-vector corner case
+    if (denominator == 0 && dotProduct == 0) {
+      return 0.0
+    }
+    1.0 - (dotProduct / denominator)
   }
 }

@@ -46,25 +46,21 @@ object GeneralDistanceMeasureSuite {
 
     val distanceMatrix = Matrices.dense(vectors.size, vectors.size, denseMatrixElements)
 
-    assert(distanceMatrix(0, 0) < distanceMatrix(0, 1))
-    assert(distanceMatrix(0, 1) < distanceMatrix(0, 2))
+    assert(distanceMatrix(0, 0) <= distanceMatrix(0, 1))
+    assert(distanceMatrix(0, 1) <= distanceMatrix(0, 2))
 
-    assert(distanceMatrix(1, 0) > distanceMatrix(1, 1))
-    assert(distanceMatrix(1, 2) > distanceMatrix(1, 0))
+    assert(distanceMatrix(1, 0) >= distanceMatrix(1, 1))
+    assert(distanceMatrix(1, 2) >= distanceMatrix(1, 0))
 
-    assert(distanceMatrix(2, 0) > distanceMatrix(2, 1))
-    assert(distanceMatrix(2, 1) > distanceMatrix(2, 2))
+    assert(distanceMatrix(2, 0) >= distanceMatrix(2, 1))
+    assert(distanceMatrix(2, 1) >= distanceMatrix(2, 2))
 
     for (i <- 0 to (vectors.size - 1); j <- 0 to (vectors.size - 1)) {
-      i match {
-        // diagonal element in the distance matrix
-        case j => {
-          assert(distanceMatrix(i, i) == 0.0, "Diagonal elements in the distance matrix is equal to zero")
-        }
-        // not diagnola element in the distance matrix
-        case _ => {
-          assert(distanceMatrix(i, j) > 0, "Distance between vectors greater than zero")
-        }
+      if (i.equals(j)) {
+        assert(distanceMatrix(i, i) == 0.0, "Diagonal elements in the distance matrix is equal to zero")
+      }
+      else {
+        assert(distanceMatrix(i, j) >= 0, "Distance between vectors greater than zero")
       }
     }
   }

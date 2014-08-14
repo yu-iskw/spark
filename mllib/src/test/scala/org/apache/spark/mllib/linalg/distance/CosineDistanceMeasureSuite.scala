@@ -30,4 +30,13 @@ class CosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
     val coefficient = 100000
     Math.floor(distance * coefficient) / coefficient should be(0.01613)
   }
+
+  test("two vectors have the same magnitude") {
+    val vector1 = Vectors.dense(1.0, 1.0)
+    val vector2 = Vectors.dense(2.0, 2.0)
+    val distance = distanceMeasureFactory.distance(vector1, vector2)
+
+    val coefficient = 100000
+    Math.floor(distance * coefficient) / coefficient should be(0.0)
+  }
 }
