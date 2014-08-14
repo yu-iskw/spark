@@ -17,20 +17,6 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import org.apache.spark.annotation.Experimental
-import org.apache.spark.mllib.linalg.Vector
-
-/** This trait is used for objects which can determine a distance metric between two points */
-@Experimental
-trait DistanceMeasure extends Serializable {
-
-  /**
-   * Calculates the distance metric between 2 points
-   *
-   * @param v1 a Vector defining a multidimensional point in some feature space
-   * @param v2 a Vector defining a multidimensional point in some feature space
-   * @return a scalar doubles of the distance
-   */
-  def distance(v1: Vector, v2: Vector): Double
-
+class ManhattanDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
+  val distanceMeasureFactory = new ManhattanDistanceMeasure()
 }

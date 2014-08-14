@@ -17,12 +17,9 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
-/** This trait is used for objects which can determine a distance metric between two points */
-@Experimental
-trait DistanceMeasure extends Serializable {
+class ManhattanDistanceMeasure extends DistanceMeasure {
 
   /**
    * Calculates the distance metric between 2 points
@@ -30,7 +27,13 @@ trait DistanceMeasure extends Serializable {
    * @param v1 a Vector defining a multidimensional point in some feature space
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return a scalar doubles of the distance
+   * @throws IllegalArgumentException if the size of both vector is not same
    */
-  def distance(v1: Vector, v2: Vector): Double
+  override def distance(v1: Vector, v2: Vector): Double = {
+    if(! v1.size.equals(v2.size)) {
+      throw new IllegalArgumentException("The number of features must be same")
+    }
+    (v1.toBreeze - v2.toBreeze).norm(1)
+  }
 
 }
