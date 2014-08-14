@@ -17,20 +17,18 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.mllib.linalg
 
-class EuclideanDistanceMeasure extends SquaredEuclideanDistanceMeasure {
+class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
 
   /**
-   * Calculates the euclidean distance (L2 distance) between 2 points
+   * Calculates the squared euclidean distance between 2 points
    *
    * @param v1 a Vector defining a multidimensional point in some feature space
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return a scalar doubles of the distance
    */
-  override def distance(v1: Vector, v2: Vector): Double = {
-    val squaredDistance = (v1.toArray zip v2.toArray)
-      .map { case (elm1: Double, elm2: Double) => Math.pow(elm1 - elm2, 2)}.sum
-    Math.sqrt(squaredDistance)
+  override def distance(v1: linalg.Vector, v2: linalg.Vector): Double = {
+    (v1.toArray zip v2.toArray).map { case (elm1: Double, elm2: Double) => Math.pow(elm1 - elm2, 2)}.sum
   }
 }
