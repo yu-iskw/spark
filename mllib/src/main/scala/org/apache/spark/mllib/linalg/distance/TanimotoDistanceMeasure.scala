@@ -17,22 +17,45 @@
 
 package org.apache.spark.mllib.linalg.distance
 
+import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
+/**
+ * Tanimoto distance implementation
+ *
+ * @see http://en.wikipedia.org/wiki/Jaccard_index
+ */
+@Experimental
 class TanimotoDistanceMeasure extends DistanceMeasure {
 
   /**
    * Calculates the tanimoto distance between 2 points
    *
+   * The coefficient (a measure of similarity) is: Td(a, b) = a.b / (|a|^2 + |b|^2 - a.b)
+   * The distance d(a,b) = 1 - T(a,b)
+   *
    * @param v1 a Vector defining a multidimensional point in some feature space
    * @param v2 a Vector defining a multidimensional point in some feature space
-   * @return a scalar doubles of the distance
+   * @return 0 for perfect match, > 0 for greater distance
    */
   override def distance(v1: Vector, v2: Vector): Double = {
     val calcSquaredSum = (vector: Vector) => vector.toBreeze.map(x => x * x).reduce(_ + _).apply(0)
 
     val dotProduct = v1.toBreeze.dot(v2.toBreeze)
-    val denominator = (calcSquaredSum(v1) + calcSquaredSum(v2) - dotProduct)
-    1 - dotProduct / denominator
+    var denominator = (calcSquaredSum(v1) + calcSquaredSum(v2) - dotProduct)
+
+    // correct for floating-point round-off: distance >= 0
+    if(denominator < dotProduct) {
+      denominator = dotProduct
+    }
+
+    // denominator == 0 only when dot(a,a) == dot(b,b) == dot(a,b) == 0
+    val distance = if(denominator > 0) {
+      1 - dotProduct / denominator
+    }
+    else {
+      0.0
+    }
+    distance
   }
 }
