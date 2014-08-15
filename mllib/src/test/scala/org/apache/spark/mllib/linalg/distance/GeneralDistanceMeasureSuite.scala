@@ -75,12 +75,17 @@ abstract class GeneralDistanceMeasureSuite extends FunSuite with ShouldMatchers 
   }
 }
 
-private object GeneralDistanceMeasureSuite {
+private[distance]
+object GeneralDistanceMeasureSuite {
 
   def calcDistanceMatrix(distanceMeasure: DistanceMeasure, vectors: Array[Vector]): Matrix = {
     val denseMatrixElements = for (v1 <- vectors; v2 <- vectors) yield {
       distanceMeasure.distance(v2, v1)
     }
     Matrices.dense(vectors.size, vectors.size, denseMatrixElements)
+  }
+
+  def roundValue(value: Double, numDigits: Int): Double = {
+    Math.round(value * Math.pow(10, numDigits)) / Math.pow(10, numDigits)
   }
 }
