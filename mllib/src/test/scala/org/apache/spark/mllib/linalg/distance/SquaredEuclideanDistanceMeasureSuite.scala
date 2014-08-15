@@ -18,5 +18,5 @@
 package org.apache.spark.mllib.linalg.distance
 
 class SquaredEuclideanDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
-  val distanceMeasureFactory = new SquaredEuclideanDistanceMeasure
+  override def distanceMeasureFactory = new SquaredEuclideanDistanceMeasure
 }

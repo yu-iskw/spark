@@ -18,5 +18,5 @@
 package org.apache.spark.mllib.linalg.distance
 
 class ManhattanDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
-  val distanceMeasureFactory = new ManhattanDistanceMeasure()
+  override def distanceMeasureFactory = new ManhattanDistanceMeasure()
 }

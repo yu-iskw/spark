@@ -17,34 +17,22 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import org.apache.spark.mllib.linalg.{Matrices, Vector, Vectors}
+import org.apache.spark.mllib.linalg.{Matrices, Matrix, Vector, Vectors}
 import org.scalatest.{FunSuite, ShouldMatchers}
 
 private[distance]
 abstract class GeneralDistanceMeasureSuite extends FunSuite with ShouldMatchers {
-  val distanceMeasureFactory: DistanceMeasure
-
-  val vectors = Array(
-    Vectors.dense(1, 1, 1, 1, 1, 1),
-    Vectors.dense(2, 2, 2, 2, 2, 2),
-    Vectors.dense(6, 6, 6, 6, 6, 6),
-    Vectors.dense(-1, -1, -1, -1, -1, -1)
-  )
-
+  def distanceMeasureFactory: DistanceMeasure
 
   test("measure the distances between two vector") {
-    GeneralDistanceMeasureSuite.compare(distanceMeasureFactory, vectors)
-  }
-}
+    val vectors = Array(
+      Vectors.dense(1, 1, 1, 1, 1, 1),
+      Vectors.dense(2, 2, 2, 2, 2, 2),
+      Vectors.dense(6, 6, 6, 6, 6, 6),
+      Vectors.dense(-1, -1, -1, -1, -1, -1)
+    )
 
-object GeneralDistanceMeasureSuite {
-
-  def compare(distanceMeasure: DistanceMeasure, vectors: Array[Vector]) {
-    val denseMatrixElements = for (v1 <- vectors; v2 <- vectors) yield {
-      distanceMeasure.distance(v2, v1)
-    }
-
-    val distanceMatrix = Matrices.dense(vectors.size, vectors.size, denseMatrixElements)
+    val distanceMatrix = GeneralDistanceMeasureSuite.calcDistanceMatrix(distanceMeasureFactory, vectors)
 
     assert(distanceMatrix(0, 0) <= distanceMatrix(0, 1))
     assert(distanceMatrix(0, 1) <= distanceMatrix(0, 2))
@@ -56,8 +44,8 @@ object GeneralDistanceMeasureSuite {
     assert(distanceMatrix(2, 1) >= distanceMatrix(2, 2))
 
     for (i <- 0 to (vectors.size - 1); j <- 0 to (vectors.size - 1)) {
-      if (i.equals(j)) {
-        assert(distanceMatrix(i, i) == 0.0, "Diagonal elements in the distance matrix is equal to zero")
+      if(i.equals(j)) {
+        assert(distanceMatrix(i, i) == 0.0, "Diagonal elements must be equal to zero")
       }
       else {
         assert(distanceMatrix(i, j) >= 0, "Distance between vectors greater than zero")
@@ -65,4 +53,25 @@ object GeneralDistanceMeasureSuite {
     }
   }
 
+  test("the distance of a long vector should be greater than that of a small vector") {
+    val vectors = Array(
+      Vectors.dense(1, 1, 1),
+      Vectors.dense(2, 3, 4),
+      Vectors.dense(20, 30, 40)
+    )
+    val distanceMatrix = GeneralDistanceMeasureSuite.calcDistanceMatrix(distanceMeasureFactory, vectors)
+
+    assert(distanceMatrix(0, 1) < distanceMatrix(0, 2),
+      s"${distanceMatrix(0, 1)} should be greater than ${distanceMatrix(0, 2)}")
+  }
+}
+
+private object GeneralDistanceMeasureSuite {
+
+  def calcDistanceMatrix(distanceMeasure: DistanceMeasure, vectors: Array[Vector]): Matrix = {
+    val denseMatrixElements = for (v1 <- vectors; v2 <- vectors) yield {
+      distanceMeasure.distance(v2, v1)
+    }
+    Matrices.dense(vectors.size, vectors.size, denseMatrixElements)
+  }
 }

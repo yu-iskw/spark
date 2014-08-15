@@ -20,7 +20,7 @@ package org.apache.spark.mllib.linalg.distance
 import org.apache.spark.mllib.linalg.Vectors
 
 class CosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
-  val distanceMeasureFactory = new CosineDistanceMeasure
+  override def distanceMeasureFactory = new CosineDistanceMeasure
 
   test("concreate distance check") {
     val vector1 = Vectors.dense(1.0, 2.0)
