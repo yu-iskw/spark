@@ -28,6 +28,8 @@ class CosineDistanceMeasure extends DistanceMeasure {
    * @return a scalar doubles of the distance
    */
   override def distance(v1: linalg.Vector, v2: linalg.Vector): Double = {
+    validate(v1, v2)
+
     val dotProduct = v1.toBreeze.dot(v2.toBreeze)
     var denominator = v1.toBreeze.norm(2) * v2.toBreeze.norm(2)
 

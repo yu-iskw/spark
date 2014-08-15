@@ -39,8 +39,9 @@ class TanimotoDistanceMeasure extends DistanceMeasure {
    * @return 0 for perfect match, > 0 for greater distance
    */
   override def distance(v1: Vector, v2: Vector): Double = {
-    val calcSquaredSum = (vector: Vector) => vector.toBreeze.map(x => x * x).reduce(_ + _).apply(0)
+    validate(v1, v2)
 
+    val calcSquaredSum = (vector: Vector) => vector.toBreeze.map(x => x * x).reduce(_ + _).apply(0)
     val dotProduct = v1.toBreeze.dot(v2.toBreeze)
     var denominator = (calcSquaredSum(v1) + calcSquaredSum(v2) - dotProduct)
 

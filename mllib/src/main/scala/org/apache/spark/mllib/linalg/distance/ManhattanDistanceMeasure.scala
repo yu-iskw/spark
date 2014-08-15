@@ -27,12 +27,9 @@ class ManhattanDistanceMeasure extends DistanceMeasure {
    * @param v1 a Vector defining a multidimensional point in some feature space
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return a scalar doubles of the distance
-   * @throws IllegalArgumentException if the size of both vector is not same
    */
   override def distance(v1: Vector, v2: Vector): Double = {
-    if(! v1.size.equals(v2.size)) {
-      throw new IllegalArgumentException("The number of features must be same")
-    }
+    validate(v1, v2)
     (v1.toBreeze - v2.toBreeze).norm(1)
   }
 

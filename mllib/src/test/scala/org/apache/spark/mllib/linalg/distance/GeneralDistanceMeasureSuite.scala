@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,15 @@ import org.scalatest.{FunSuite, ShouldMatchers}
 private[distance]
 abstract class GeneralDistanceMeasureSuite extends FunSuite with ShouldMatchers {
   def distanceMeasureFactory: DistanceMeasure
+
+  test("the length of two vectors should be same") {
+    val vector1 = Vectors.dense(1, 1, 1)
+    val vector2 = Vectors.dense(1, 1, 1, 1)
+
+    intercept[IllegalArgumentException] {
+      distanceMeasureFactory.distance(vector1, vector2)
+    }
+  }
 
   test("measure the distances between two vector") {
     val vectors = Array(

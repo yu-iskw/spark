@@ -29,6 +29,8 @@ class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
    * @return a scalar doubles of the distance
    */
   override def distance(v1: linalg.Vector, v2: linalg.Vector): Double = {
+    validate(v1, v2)
+
     (v1.toArray zip v2.toArray).map {
       case (elm1: Double, elm2: Double) => Math.pow(elm1 - elm2, 2)
     }.sum

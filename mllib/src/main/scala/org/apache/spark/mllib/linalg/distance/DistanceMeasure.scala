@@ -33,4 +33,17 @@ trait DistanceMeasure extends Serializable {
    */
   def distance(v1: Vector, v2: Vector): Double
 
+  /**
+   * Checks whether both of the length are same
+   *
+   * @param v1 a Vector defining a multidimensional point in some feature space
+   * @param v2 a Vector defining a multidimensional point in some feature space
+   * @throws IllegalArgumentException if the size of both vector is not same
+   */
+  def validate(v1: Vector, v2: Vector) {
+    if(!v1.size.equals(v2.size)) {
+      throw new IllegalArgumentException("The number of features must be same")
+    }
+  }
+
 }

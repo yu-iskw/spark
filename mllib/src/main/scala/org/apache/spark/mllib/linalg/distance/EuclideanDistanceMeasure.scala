@@ -29,8 +29,7 @@ class EuclideanDistanceMeasure extends SquaredEuclideanDistanceMeasure {
    * @return a scalar doubles of the distance
    */
   override def distance(v1: Vector, v2: Vector): Double = {
-    val squaredDistance = (v1.toArray zip v2.toArray)
-      .map { case (elm1: Double, elm2: Double) => Math.pow(elm1 - elm2, 2)}.sum
+    val squaredDistance = super.distance(v1, v2)
     Math.sqrt(squaredDistance)
   }
 }
