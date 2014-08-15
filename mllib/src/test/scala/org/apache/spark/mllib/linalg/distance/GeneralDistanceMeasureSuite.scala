@@ -64,9 +64,9 @@ abstract class GeneralDistanceMeasureSuite extends FunSuite with ShouldMatchers 
 
   test("the distance of a long vector should be greater than that of a small vector") {
     val vectors = Array(
-      Vectors.dense(1, 1, 1),
-      Vectors.dense(2, 3, 4),
-      Vectors.dense(20, 30, 40)
+      Vectors.dense(1, 1, 1, 1, 1, 1),
+      Vectors.dense(2, 3, 4, 5, 6, 7),
+      Vectors.dense(20, 30, 40, 50, 60, 70)
     )
     val distanceMatrix = GeneralDistanceMeasureSuite.calcDistanceMatrix(distanceMeasureFactory, vectors)
 
