@@ -17,8 +17,14 @@
 
 package org.apache.spark.mllib.linalg.distance
 
+import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
+/**
+ * :: Experimental ::
+ * Manhattan distance (L1 distance) implementation
+ */
+@Experimental
 class ManhattanDistanceMeasure extends DistanceMeasure {
 
   /**

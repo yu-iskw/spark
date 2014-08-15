@@ -21,6 +21,7 @@ import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
 /**
+ * :: Experimental ::
  * Tanimoto distance implementation
  *
  * @see http://en.wikipedia.org/wiki/Jaccard_index

@@ -20,7 +20,10 @@ package org.apache.spark.mllib.linalg.distance
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
-/** This trait is used for objects which can determine a distance metric between two points */
+/**
+ * :: Experimental ::
+ * This trait is used for objects which can determine a distance metric between two points
+ */
 @Experimental
 trait DistanceMeasure extends Serializable {
 

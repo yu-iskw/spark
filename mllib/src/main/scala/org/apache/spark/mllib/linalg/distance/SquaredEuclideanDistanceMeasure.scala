@@ -17,8 +17,14 @@
 
 package org.apache.spark.mllib.linalg.distance
 
+import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg
 
+/**
+ * :: Experimental ::
+ * Squared euclidean distance implementation
+ */
+@Experimental
 class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
 
   /**

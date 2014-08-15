@@ -20,6 +20,7 @@ package org.apache.spark.mllib.linalg.distance
 import org.apache.spark.mllib.linalg.Vector
 
 /**
+ * :: Experimental ::
  * Chebyshev distance implementation
  *
  * @see http://en.wikipedia.org/wiki/Chebyshev_distance
