@@ -34,15 +34,7 @@ import scala.language.implicitConversions
  * However, classes which inherits aren't require to satisfy triangle inequality
  */
 @Experimental
-trait DistanceMeasure extends Function2[BV[Double], BV[Double], Double] with Serializable {
-
-  // each measure/metric defines for itself:
-  override def apply(v1: BV[Double], v2: BV[Double]): Double
-
-  // a catch-all overloading of "()" for spark vectors
-  // can also be overridden on a per-class basis, if it is advantageous
-  def apply(v1: Vector, v2: Vector): Double = this(v1.toBreeze, v2.toBreeze)
-}
+trait DistanceMeasure extends Function2[Vector, Vector, Double] with Serializable
 
 
 object DistanceMeasure {
@@ -66,8 +58,8 @@ object DistanceMeasure {
 @Experimental
 class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
 
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val d = v1 - v2
+  override def apply(v1: Vector, v2: Vector): Double = {
+    val d = v1.toBreeze - v2.toBreeze
     d dot d
   }
 }
@@ -88,9 +80,9 @@ class CosineDistanceMeasure extends DistanceMeasure {
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return a scalar doubles of the distance
    */
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val dotProduct = v1 dot v2
-    var denominator = v1.norm(2) * v2.norm(2)
+  override def apply(v1: Vector, v2: Vector): Double = {
+    val dotProduct = v1.toBreeze dot v2.toBreeze
+    var denominator = v1.toBreeze.norm(2) * v2.toBreeze.norm(2)
 
     // correct for floating-point rounding errors
     if (denominator < dotProduct) {
@@ -124,10 +116,10 @@ class TanimotoDistanceMeasure extends DistanceMeasure {
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return 0 for perfect match, > 0 for greater distance
    */
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+  override def apply(v1: Vector, v2: Vector): Double = {
     val calcSquaredSum = (bv: BV[Double]) => sum(bv.map(x => x * x))
-    val dotProduct = v1 dot v2
-    var denominator = calcSquaredSum(v1) + calcSquaredSum(v2) - dotProduct
+    val dotProduct = v1.toBreeze dot v2.toBreeze
+    var denominator = calcSquaredSum(v1.toBreeze) + calcSquaredSum(v2.toBreeze) - dotProduct
 
     // correct for floating-point round-off: distance >= 0
     if(denominator < dotProduct) {

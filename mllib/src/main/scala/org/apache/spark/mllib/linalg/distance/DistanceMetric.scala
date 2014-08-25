@@ -52,29 +52,10 @@ class EuclideanDistanceMetric extends DistanceMetric {
    * @param v2
    * @return
    */
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val d = v1 - v2
-    Math.sqrt(d dot d)
+  override def apply(v1: Vector, v2: Vector): Double = {
+    norm(v1.toBreeze - v2.toBreeze, 2)
   }
 }
-
-/**
- * :: Experimental ::
- * A weighted Euclidean distance metric implementation
- * this metric is calculated by summing the square root of the squared differences
- * between each coordinate, optionally adding weights.
- */
-@Experimental
-class WeightedEuclideanDistanceMetric(val weights: BV[Double]) extends DistanceMetric {
-
-  def this(v: Vector) = this(v.toBreeze)
-
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val d = v1 - v2
-    Math.sqrt(d dot (weights :* d))
-  }
-}
-
 
 /**
  * :: Experimental ::
@@ -95,7 +76,7 @@ class ChebyshevDistanceMetric extends DistanceMetric {
    * @return Double a distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val diff = (v1 - v2).map(elm => abs(elm))
+    val diff = abs((v1 - v2).toArray)
     max(diff)
   }
 }
@@ -105,9 +86,7 @@ class ChebyshevDistanceMetric extends DistanceMetric {
  * A weighted Chebyshev distance implementation
  */
 @Experimental
-class WeightedChebyshevDistanceMetric(val weights: BV[Double]) extends DistanceMetric {
-
-  def this(v: Vector) = this(v.toBreeze)
+class WeightedChebyshevDistanceMetric(val weights: Vector) extends DistanceMetric {
 
   /**
    * Calculates a weighted Chebyshev distance metric
@@ -134,24 +113,8 @@ class WeightedChebyshevDistanceMetric(val weights: BV[Double]) extends DistanceM
 @Experimental
 class ManhattanDistanceMetric extends DistanceMetric {
 
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    sum((v1 - v2).map(Math.abs))
-  }
-}
-
-/**
- * :: Experimental ::
- * A weighted Manhattan distance metric implementation
- * this metric is calculated by summing the absolute values of the difference
- * between each coordinate, optionally with weights.
- */
-@Experimental
-class WeightedManhattanDistanceMetric(val weights: BV[Double]) extends DistanceMetric {
-
-  def this(v: Vector) = this(v.toBreeze)
-
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    weights dot ((v1 - v2).map(Math.abs))
+  override def apply(v1: Vector, v2: Vector): Double = {
+    norm(v1.toBreeze - v2.toBreeze, 1)
   }
 }
 
@@ -169,8 +132,8 @@ class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
   // the default value for exponent
   def this() = this(3.0)
 
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val d = (v1 - v2).map(diff => Math.pow(Math.abs(diff), exponent))
+  override def apply(v1: Vector, v2: Vector): Double = {
+    val d = (v1.toBreeze - v2.toBreeze).map(diff => Math.pow(Math.abs(diff), exponent))
     Math.pow(sum(d), 1 / exponent)
   }
 }
