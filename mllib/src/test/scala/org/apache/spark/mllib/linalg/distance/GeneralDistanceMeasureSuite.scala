@@ -24,15 +24,6 @@ private[distance]
 trait GeneralDistanceMeasureSuite extends FunSuite with Matchers {
   def distanceFactory: DistanceMeasure
 
-  test("the length of two vectors should be same") {
-    val vector1 = Vectors.dense(1, 1, 1)
-    val vector2 = Vectors.dense(1, 1, 1, 1)
-
-    intercept[IllegalArgumentException] {
-      distanceFactory(vector1, vector2)
-    }
-  }
-
   test("ditances are required to satisfy the conditions for distance function") {
     val vectors = Array(
       Vectors.dense(1, 1, 1, 1, 1, 1),
@@ -45,15 +36,6 @@ trait GeneralDistanceMeasureSuite extends FunSuite with Matchers {
     )
 
     val distanceMatrix = GeneralDistanceMetricSuite.calcDistanceMatrix(distanceFactory, vectors)
-
-    assert(distanceMatrix(0, 0) <= distanceMatrix(0, 1))
-    assert(distanceMatrix(0, 1) <= distanceMatrix(0, 2))
-
-    assert(distanceMatrix(1, 0) >= distanceMatrix(1, 1))
-    assert(distanceMatrix(1, 2) >= distanceMatrix(1, 0))
-
-    assert(distanceMatrix(2, 0) >= distanceMatrix(2, 1))
-    assert(distanceMatrix(2, 1) >= distanceMatrix(2, 2))
 
     // non-negative
     assert(NonNegativeValidator(distanceMatrix), s"not non-negative in ${getClass}")
