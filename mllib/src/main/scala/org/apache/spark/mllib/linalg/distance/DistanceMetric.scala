@@ -17,7 +17,7 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import breeze.linalg.{DenseVector => DBV, Vector => BV, sum, max}
+import breeze.linalg.{max, norm, sum, DenseVector => DBV, Vector => BV}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
@@ -52,8 +52,7 @@ class EuclideanDistanceMetric extends DistanceMetric {
    * @return
    */
   override def apply(v1: Vector, v2: Vector): Double = {
-    val d = v1.toBreeze - v2.toBreeze
-    Math.sqrt(d dot d)
+    norm(v1.toBreeze - v2.toBreeze, 2)
   }
 }
 
@@ -91,7 +90,7 @@ class ChebyshevDistanceMetric extends DistanceMetric {
 class ManhattanDistanceMetric extends DistanceMetric {
 
   override def apply(v1: Vector, v2: Vector): Double = {
-    sum((v1.toBreeze - v2.toBreeze).map(Math.abs))
+    norm(v1.toBreeze - v2.toBreeze, 1)
   }
 }
 
