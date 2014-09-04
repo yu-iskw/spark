@@ -19,7 +19,6 @@ package org.apache.spark.mllib.linalg.distance
 
 import breeze.linalg.{max, DenseVector => DBV, Vector => BV}
 import org.apache.spark.annotation.Experimental
-import org.apache.spark.mllib.linalg.Vector
 
 @Experimental
 trait WeightedDistanceMetric extends DistanceMetric with WeightedDistanceMeasure
@@ -31,11 +30,12 @@ trait WeightedDistanceMetric extends DistanceMetric with WeightedDistanceMeasure
  * between each coordinate, optionally adding weights.
  */
 @Experimental
-class WeightedEuclideanDistanceMetric(val weights: Vector) extends WeightedDistanceMetric {
+@Experimental
+class WeightedEuclideanDistanceMetric(val weights: BV[Double]) extends WeightedDistanceMetric {
 
-  override def apply(v1: Vector, v2: Vector): Double = {
-    val d = v1.toBreeze - v2.toBreeze
-    Math.sqrt(d dot (weights.toBreeze :* d))
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    val d = v1 - v2
+    Math.sqrt(d dot (weights :* d))
   }
 }
 
@@ -44,7 +44,7 @@ class WeightedEuclideanDistanceMetric(val weights: Vector) extends WeightedDista
  * A weighted Chebyshev distance implementation
  */
 @Experimental
-class WeightedChebyshevDistanceMetric(val weights: Vector) extends WeightedDistanceMetric {
+class WeightedChebyshevDistanceMetric(val weights: BV[Double]) extends WeightedDistanceMetric {
 
   /**
    * Calculates a weighted Chebyshev distance metric
@@ -56,8 +56,8 @@ class WeightedChebyshevDistanceMetric(val weights: Vector) extends WeightedDista
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return Double a distance
    */
-  override def apply(v1: Vector, v2: Vector): Double = {
-    val diff = (v1.toBreeze - v2.toBreeze).map(Math.abs).:*(weights.toBreeze)
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    val diff = (v1 - v2).map(Math.abs).:*(weights)
     max(diff)
   }
 }
@@ -69,10 +69,10 @@ class WeightedChebyshevDistanceMetric(val weights: Vector) extends WeightedDista
  * between each coordinate, optionally with weights.
  */
 @Experimental
-class WeightedManhattanDistanceMetric(val weights: Vector) extends WeightedDistanceMetric {
+class WeightedManhattanDistanceMetric(val weights: BV[Double]) extends WeightedDistanceMetric {
 
-  override def apply(v1: Vector, v2: Vector): Double = {
-    weights.toBreeze dot ((v1.toBreeze - v2.toBreeze).map(Math.abs))
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    weights dot ((v1 - v2).map(Math.abs))
   }
 }
 

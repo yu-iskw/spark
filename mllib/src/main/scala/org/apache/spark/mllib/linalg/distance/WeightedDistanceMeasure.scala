@@ -17,17 +17,15 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import breeze.linalg.sum
-import org.apache.spark.annotation.Experimental
-import org.apache.spark.mllib.linalg.Vector
+import breeze.linalg.{sum, DenseVector => DBV, Vector => BV}
+import org.apache.spark.annotation.{DeveloperApi, Experimental}
 
 /**
  * this trait is used for a weighted distance measure
  */
 @Experimental
-trait WeightedDistanceMeasure extends DistanceMeasure {
-  val weights: Vector
-}
+@DeveloperApi
+trait WeightedDistanceMeasure extends DistanceMeasure
 
 
 /**
@@ -35,26 +33,26 @@ trait WeightedDistanceMeasure extends DistanceMeasure {
  *
  * (sum w[i]*u[i]*v[i]) / sqrt[(sum w[i]*u[i]^2)*(sum w[i]*v[i]^2)].
  *
- * @param weights weight vector
+ * @param weights weight BV[Double]
  */
 @Experimental
-class WeightedCosineDistanceMeasure(val weights: Vector) extends WeightedDistanceMeasure {
+class WeightedCosineDistanceMeasure(val weights: BV[Double]) extends WeightedDistanceMeasure {
 
-  override def apply(v1: Vector, v2: Vector): Double = {
-    val wbv = weights.toBreeze
-    val bv1 = v1.toBreeze
-    val bv2 = v2.toBreeze
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    val wbv = weights
+    val bv1 = v1
+    val bv2 = v2
 
     val dotProduct = sum(wbv :* (bv1 :* bv2))
     var denominator = Math.sqrt(sum(wbv :* bv1 :* bv1) * sum(wbv :* bv2 :* bv2))
 
     // correct for floating-point rounding errors
-    if (denominator < dotProduct) {
+    if(denominator < dotProduct) {
       denominator = dotProduct
     }
 
     // correct for zero-vector corner case
-    if (denominator == 0 && dotProduct == 0) {
+    if(denominator == 0 && dotProduct == 0) {
       return 0.0
     }
     1.0 - (dotProduct / denominator)

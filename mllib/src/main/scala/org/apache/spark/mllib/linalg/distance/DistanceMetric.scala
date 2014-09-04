@@ -39,6 +39,8 @@ trait DistanceMetric extends DistanceMeasure
  * Euclidean distance implementation
  */
 @Experimental
+@DeveloperApi
+final private[mllib]
 class EuclideanDistanceMetric extends DistanceMetric {
 
   /**
@@ -52,9 +54,15 @@ class EuclideanDistanceMetric extends DistanceMetric {
    * @param v2
    * @return
    */
-  override def apply(v1: Vector, v2: Vector): Double = {
-    norm(v1.toBreeze - v2.toBreeze, 2)
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    norm(v1 - v2, 2)
   }
+}
+
+@Experimental
+final object EuclideanDistanceMetric {
+  def apply(v1: Vector, v2: Vector): Double =
+    new EuclideanDistanceMetric().apply(v1.toBreeze, v2.toBreeze)
 }
 
 /**
@@ -64,6 +72,8 @@ class EuclideanDistanceMetric extends DistanceMetric {
  * @see http://en.wikipedia.org/wiki/Chebyshev_distance
  */
 @Experimental
+@DeveloperApi
+final private[mllib]
 class ChebyshevDistanceMetric extends DistanceMetric {
 
   /**
@@ -104,6 +114,12 @@ class WeightedChebyshevDistanceMetric(val weights: Vector) extends DistanceMetri
   }
 }
 
+@Experimental
+final object ChebyshevDistanceMetric {
+  def apply(v1: Vector, v2: Vector): Double =
+    new ChebyshevDistanceMetric().apply(v1.toBreeze, v2.toBreeze)
+}
+
 /**
  * :: Experimental ::
  * Manhattan distance (L1 distance) implementation
@@ -111,11 +127,19 @@ class WeightedChebyshevDistanceMetric(val weights: Vector) extends DistanceMetri
  * @see http://en.wikipedia.org/wiki/Manhattan_distance
  */
 @Experimental
+@DeveloperApi
+final private[mllib]
 class ManhattanDistanceMetric extends DistanceMetric {
 
-  override def apply(v1: Vector, v2: Vector): Double = {
-    norm(v1.toBreeze - v2.toBreeze, 1)
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    norm(v1 - v2, 1)
   }
+}
+
+@Experimental
+final object ManhattanDistanceMetric {
+  def apply(v1: Vector, v2: Vector): Double =
+    new ManhattanDistanceMetric().apply(v1.toBreeze, v2.toBreeze)
 }
 
 /**
@@ -127,13 +151,20 @@ class ManhattanDistanceMetric extends DistanceMetric {
  * @see http://en.wikipedia.org/wiki/Minkowski_distance
  */
 @Experimental
+@DeveloperApi
+final private[mllib]
 class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
 
-  // the default value for exponent
-  def this() = this(3.0)
-
-  override def apply(v1: Vector, v2: Vector): Double = {
-    val d = (v1.toBreeze - v2.toBreeze).map(diff => Math.pow(Math.abs(diff), exponent))
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    val d = (v1 - v2).map(diff => Math.pow(Math.abs(diff), exponent))
     Math.pow(sum(d), 1 / exponent)
   }
+}
+
+@Experimental
+final object MinkowskiDistanceMetric {
+  def apply(exponent: Double): MinkowskiDistanceMetric = new MinkowskiDistanceMetric(exponent)
+
+  def apply(exponent: Double)(v1: Vector, v2: Vector) =
+    new MinkowskiDistanceMetric(exponent).apply(v1.toBreeze, v2.toBreeze)
 }

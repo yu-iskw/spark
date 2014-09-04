@@ -17,7 +17,8 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import org.apache.spark.mllib.linalg.{Matrices, Matrix, Vector, Vectors}
+import breeze.linalg.{DenseVector => DBV, Vector => BV}
+import org.apache.spark.mllib.linalg.{Matrices, Matrix, Vectors}
 import org.scalatest.{FunSuite, Matchers}
 
 private[distance]
@@ -26,13 +27,13 @@ trait GeneralDistanceMetricSuite extends FunSuite with Matchers {
 
   test("ditances are required to satisfy the conditions for distance function") {
     val vectors = Array(
-      Vectors.dense(1, 1, 1, 1, 1, 1),
-      Vectors.dense(2, 2, 2, 2, 2, 2),
-      Vectors.dense(6, 6, 6, 6, 6, 6),
-      Vectors.dense(-1, -1, -1, -1, -1, -1),
-      Vectors.dense(0, 0, 0, 0, 0, 0),
-      Vectors.dense(0.1, 0.1, -0.1, 0.1, 0.1, 0.1),
-      Vectors.dense(-0.9, 0.8, 0.7, -0.6, 0.5, -0.4)
+      Vectors.dense(1, 1, 1, 1, 1, 1).toBreeze,
+      Vectors.dense(2, 2, 2, 2, 2, 2).toBreeze,
+      Vectors.dense(6, 6, 6, 6, 6, 6).toBreeze,
+      Vectors.dense(-1, -1, -1, -1, -1, -1).toBreeze,
+      Vectors.dense(0, 0, 0, 0, 0, 0).toBreeze,
+      Vectors.dense(0.1, 0.1, -0.1, 0.1, 0.1, 0.1).toBreeze,
+      Vectors.dense(-0.9, 0.8, 0.7, -0.6, 0.5, -0.4).toBreeze
     )
 
     val distanceMatrix = GeneralDistanceMetricSuite.calcDistanceMatrix(distanceFactory, vectors)
@@ -56,7 +57,7 @@ object GeneralDistanceMetricSuite {
 
   val EPSILON = 0.00000001
 
-  def calcDistanceMatrix(distanceMeasure: DistanceMeasure, vectors: Array[Vector]): Matrix = {
+  def calcDistanceMatrix(distanceMeasure: DistanceMeasure, vectors: Array[BV[Double]]): Matrix = {
     val denseMatrixElements = for (v1 <- vectors; v2 <- vectors) yield {
       distanceMeasure(v2, v1)
     }
