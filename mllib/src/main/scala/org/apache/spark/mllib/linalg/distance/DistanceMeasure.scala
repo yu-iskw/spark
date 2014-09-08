@@ -17,9 +17,9 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import breeze.linalg.{DenseVector => DBV, Vector => BV, sum}
-import org.apache.spark.annotation.Experimental
-import org.apache.spark.mllib.linalg.Vector
+import breeze.linalg.{sum, DenseVector => DBV, Vector => BV}
+import org.apache.spark.annotation.{DeveloperApi, Experimental}
+import org.apache.spark.mllib.linalg.{Vector, Vectors}
 
 import scala.language.implicitConversions
 
@@ -34,9 +34,10 @@ import scala.language.implicitConversions
  * However, classes which inherits aren't require to satisfy triangle inequality
  */
 @Experimental
-trait DistanceMeasure extends Function2[Vector, Vector, Double] with Serializable
+trait DistanceMeasure extends Function2[BV[Double], BV[Double], Double] with Serializable
 
 
+@Experimental
 object DistanceMeasure {
 
   /**
@@ -47,7 +48,8 @@ object DistanceMeasure {
    */
   implicit def functionToDistanceMeasure(f: (Vector, Vector) => Double): DistanceMeasure = new
       DistanceMeasure {
-    override def apply(v1: Vector, v2: Vector): Double = f(v1, v2)
+    override def apply(bv1: BV[Double], bv2: BV[Double]): Double =
+      f(Vectors.fromBreeze(bv1), Vectors.fromBreeze(bv2))
   }
 }
 
@@ -56,12 +58,20 @@ object DistanceMeasure {
  * Squared euclidean distance implementation
  */
 @Experimental
+@DeveloperApi
+sealed private[mllib]
 class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
 
-  override def apply(v1: Vector, v2: Vector): Double = {
-    val d = v1.toBreeze - v2.toBreeze
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    val d = v1 - v2
     d dot d
   }
+}
+
+@Experimental
+final object SquaredEuclideanDistanceMeasure {
+  def apply(v1: Vector, v2: Vector): Double =
+    new SquaredEuclideanDistanceMeasure().apply(v1.toBreeze, v2.toBreeze)
 }
 
 /**
@@ -71,6 +81,8 @@ class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
  * @see http://en.wikipedia.org/wiki/Cosine_similarity
  */
 @Experimental
+@Experimental
+final private[mllib]
 class CosineDistanceMeasure extends DistanceMeasure {
 
   /**
@@ -80,21 +92,27 @@ class CosineDistanceMeasure extends DistanceMeasure {
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return a scalar doubles of the distance
    */
-  override def apply(v1: Vector, v2: Vector): Double = {
-    val dotProduct = v1.toBreeze dot v2.toBreeze
-    var denominator = v1.toBreeze.norm(2) * v2.toBreeze.norm(2)
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
+    val dotProduct = v1 dot v2
+    var denominator = v1.norm(2) * v2.norm(2)
 
     // correct for floating-point rounding errors
-    if (denominator < dotProduct) {
+    if(denominator < dotProduct) {
       denominator = dotProduct
     }
 
     // correct for zero-vector corner case
-    if (denominator == 0 && dotProduct == 0) {
+    if(denominator == 0 && dotProduct == 0) {
       return 0.0
     }
     1.0 - (dotProduct / denominator)
   }
+}
+
+@Experimental
+final object CosineDistanceMeasure {
+  def apply(v1: Vector, v2: Vector): Double =
+    new CosineDistanceMeasure().apply(v1.toBreeze, v2.toBreeze)
 }
 
 /**
@@ -104,6 +122,8 @@ class CosineDistanceMeasure extends DistanceMeasure {
  * @see http://en.wikipedia.org/wiki/Jaccard_index
  */
 @Experimental
+@DeveloperApi
+final private[mllib]
 class TanimotoDistanceMeasure extends DistanceMeasure {
 
   /**
@@ -116,10 +136,10 @@ class TanimotoDistanceMeasure extends DistanceMeasure {
    * @param v2 a Vector defining a multidimensional point in some feature space
    * @return 0 for perfect match, > 0 for greater distance
    */
-  override def apply(v1: Vector, v2: Vector): Double = {
+  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val calcSquaredSum = (bv: BV[Double]) => sum(bv.map(x => x * x))
-    val dotProduct = v1.toBreeze dot v2.toBreeze
-    var denominator = calcSquaredSum(v1.toBreeze) + calcSquaredSum(v2.toBreeze) - dotProduct
+    val dotProduct = v1 dot v2
+    var denominator = calcSquaredSum(v1) + calcSquaredSum(v2) - dotProduct
 
     // correct for floating-point round-off: distance >= 0
     if(denominator < dotProduct) {
@@ -135,4 +155,10 @@ class TanimotoDistanceMeasure extends DistanceMeasure {
     }
     distance
   }
+}
+
+@Experimental
+final object TanimotoDistanceMeasure {
+  def apply(v1: Vector, v2: Vector): Double =
+    new TanimotoDistanceMeasure().apply(v1.toBreeze, v2.toBreeze)
 }

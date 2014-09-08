@@ -21,8 +21,8 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.scalatest.FunSuite
 
 class DistanceMeasureFactorySuite extends FunSuite {
-  val v1 = Vectors.dense(1.0, 1.0, 1.0)
-  val v2 = Vectors.dense(-3.0, -2.0, -2.0)
+  val v1 = Vectors.dense(1.0, 1.0, 1.0).toBreeze
+  val v2 = Vectors.dense(-3.0, -2.0, -2.0).toBreeze
 
   test("should throw NoSuchElementException with illegal distance function type") {
     intercept[NoSuchElementException] {
@@ -82,9 +82,9 @@ class DistanceMeasureFactorySuite extends FunSuite {
 }
 
 class WeightedDistanceFactorySuite extends FunSuite {
-  val weights = Vectors.dense(0.1, 0.9)
-  val v1 = Vectors.dense(1.0, 2.0)
-  val v2 = Vectors.dense(3.0, 4.0)
+  val weights = Vectors.dense(0.1, 0.9).toBreeze
+  val v1 = Vectors.dense(1.0, 2.0).toBreeze
+  val v2 = Vectors.dense(3.0, 4.0).toBreeze
 
   test("should throw NoSuchElementException with illegal distance function type") {
     intercept[NoSuchElementException] {

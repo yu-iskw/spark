@@ -17,6 +17,7 @@
 
 package org.apache.spark.mllib.linalg.distance
 
+import breeze.linalg.{DenseVector => DBV, Vector => BV}
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.mllib.linalg.Vector
 
@@ -86,6 +87,10 @@ object WeightedDistanceFactory {
    * @return a class to calculate weighted distance
    */
   def apply(distanceType: String, weights: Vector): WeightedDistanceMeasure = {
+    apply(DistanceType.withName(distanceType), weights.toBreeze)
+  }
+
+  def apply(distanceType: String, weights: BV[Double]): WeightedDistanceMeasure = {
     apply(DistanceType.withName(distanceType), weights)
   }
 
@@ -97,6 +102,10 @@ object WeightedDistanceFactory {
    * @return a class to calculate weighted distance
    */
   def apply(distanceType: DistanceType.Value, weights: Vector): WeightedDistanceMeasure = {
+    apply(distanceType, weights.toBreeze)
+  }
+
+  def apply(distanceType: DistanceType.Value, weights: BV[Double]): WeightedDistanceMeasure = {
     distanceType match {
       case DistanceType.euclidean => new WeightedEuclideanDistanceMetric(weights)
       case DistanceType.manhattan => new WeightedManhattanDistanceMetric(weights)
