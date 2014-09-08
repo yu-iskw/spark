@@ -27,7 +27,6 @@ import org.apache.spark.mllib.linalg.Vector
 @Experimental
 @DeveloperApi
 abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends DistanceMeasure {
-  def this(w: Vector) = this(w.toBreeze)
 
   require(weights.forall(_ >= 0))
   require(sum(weights) == 1.0)
@@ -43,9 +42,11 @@ abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends Distance
  */
 @Experimental
 @DeveloperApi
-final private[mllib]
+sealed private[mllib]
 class WeightedCosineDistanceMeasure private[mllib] (weights: BV[Double])
     extends WeightedDistanceMeasure(weights) {
+
+  def this(_weights: Vector) = this(_weights.toBreeze)
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val wbv = weights

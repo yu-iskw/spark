@@ -23,8 +23,6 @@ import org.apache.spark.mllib.linalg.Vector
 
 @Experimental
 abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetric {
-  def this(w: Vector) = this(w.toBreeze)
-
   private val EPSILON = 0.0000001
 
   /**
@@ -47,13 +45,26 @@ abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetri
 @DeveloperApi
 final private[mllib]
 class WeightedEuclideanDistanceMetric private[mllib] (weights: BV[Double])
-    extends WeightedDistanceMetric(weights) {
+  extends WeightedDistanceMetric(weights) {
+
+  def this(_weights: Vector) = this(_weights.toBreeze)
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val d = v1 - v2
     Math.sqrt(d dot (weights :* d))
   }
 }
+
+@Experimental
+object WeightedEuclideanDistanceMetric {
+
+  def apply(weights: Vector): WeightedEuclideanDistanceMetric =
+    new WeightedEuclideanDistanceMetric(weights.toBreeze)
+
+  def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
+    new WeightedEuclideanDistanceMetric(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)
+}
+
 
 /**
  * :: Experimental ::
@@ -63,7 +74,9 @@ class WeightedEuclideanDistanceMetric private[mllib] (weights: BV[Double])
 @DeveloperApi
 final private[mllib]
 class WeightedChebyshevDistanceMetric private[mllib] (weights: BV[Double])
-    extends WeightedDistanceMetric(weights) {
+  extends WeightedDistanceMetric(weights) {
+
+  def this(_weights: Vector) = this(_weights.toBreeze)
 
   /**
    * Calculates a weighted Chebyshev distance metric
@@ -81,6 +94,16 @@ class WeightedChebyshevDistanceMetric private[mllib] (weights: BV[Double])
   }
 }
 
+@Experimental
+object WeightedChebyshevDistanceMetric {
+
+  def apply(weights: Vector): WeightedChebyshevDistanceMetric =
+    new WeightedChebyshevDistanceMetric(weights.toBreeze)
+
+  def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
+    new WeightedChebyshevDistanceMetric(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)
+}
+
 /**
  * :: Experimental ::
  * A weighted Manhattan distance metric implementation
@@ -91,10 +114,22 @@ class WeightedChebyshevDistanceMetric private[mllib] (weights: BV[Double])
 @DeveloperApi
 final private[mllib]
 class WeightedManhattanDistanceMetric private[mllib] (weights: BV[Double])
-    extends WeightedDistanceMetric(weights) {
+  extends WeightedDistanceMetric(weights) {
+
+  def this(_weights: Vector) = this(_weights.toBreeze)
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     weights dot ((v1 - v2).map(Math.abs))
   }
 }
 
+
+@Experimental
+object WeightedManhattanDistanceMetric {
+
+  def apply(weights: Vector): WeightedManhattanDistanceMetric =
+    new WeightedManhattanDistanceMetric(weights.toBreeze)
+
+  def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
+    new WeightedManhattanDistanceMetric(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)
+}

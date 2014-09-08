@@ -23,15 +23,15 @@ class ChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
   override def distanceFactory: DistanceMetric = new ChebyshevDistanceMetric
 
   test("the distance should be 6") {
-    val vector1 = Vectors.dense(1, -1, 1, -1).toBreeze
-    val vector2 = Vectors.dense(2, -3, 4, 5).toBreeze
+    val vector1 = Vectors.dense(1, -1, 1, -1)
+    val vector2 = Vectors.dense(2, -3, 4, 5)
     val distance = distanceFactory(vector1, vector2)
     assert(distance == 6, s"the distance should be 6, actual ${distance}")
   }
 
   test("the distance should be 100") {
-    val vector1 = Vectors.dense(1, -1, 1, -1).toBreeze
-    val vector2 = Vectors.dense(101, -3, 4, 5).toBreeze
+    val vector1 = Vectors.dense(1, -1, 1, -1)
+    val vector2 = Vectors.dense(101, -3, 4, 5)
     val distance = distanceFactory(vector1, vector2)
     assert(distance == 100, s"the distance should be 100, actual ${distance}")
   }
@@ -41,8 +41,8 @@ class EuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
   override def distanceFactory = new EuclideanDistanceMetric
 
   test("the distance should be 6.7082039325") {
-    val v1 = Vectors.dense(2, 3).toBreeze
-    val v2 = Vectors.dense(5, 9).toBreeze
+    val v1 = Vectors.dense(2, 3)
+    val v2 = Vectors.dense(5, 9)
 
     val distance = distanceFactory(v1, v2)
     val expected = 6.7082039325
@@ -55,8 +55,8 @@ class ManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
   override def distanceFactory = new ManhattanDistanceMetric()
 
   test("the distance should be 6.7082039325") {
-    val v1 = Vectors.dense(2, 3, 6, 8).toBreeze
-    val v2 = Vectors.dense(5, 9, 1, 4).toBreeze
+    val v1 = Vectors.dense(2, 3, 6, 8)
+    val v2 = Vectors.dense(5, 9, 1, 4)
 
     val distance = distanceFactory(v1, v2)
     val expected = 18.0
@@ -69,8 +69,8 @@ class MinkowskiDistanceMetricSuite extends GeneralDistanceMetricSuite {
   override def distanceFactory: DistanceMetric = new MinkowskiDistanceMetric(4.0)
 
   test("the distance between the vectors should be expected") {
-    val vector1 = Vectors.dense(0, 0, 0).toBreeze
-    val vector2 = Vectors.dense(2, 3, 4).toBreeze
+    val vector1 = Vectors.dense(0, 0, 0)
+    val vector2 = Vectors.dense(2, 3, 4)
 
     val measure = new MinkowskiDistanceMetric(3.0)
     val distance = measure(vector1, vector2)
