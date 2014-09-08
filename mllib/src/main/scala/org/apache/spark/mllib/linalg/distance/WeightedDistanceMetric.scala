@@ -17,11 +17,17 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import breeze.linalg.{max, DenseVector => DBV, Vector => BV}
-import org.apache.spark.annotation.Experimental
+import breeze.linalg.{max, sum, DenseVector => DBV, Vector => BV}
+import org.apache.spark.annotation.{DeveloperApi, Experimental}
+import org.apache.spark.mllib.linalg.Vector
 
 @Experimental
-trait WeightedDistanceMetric extends DistanceMetric with WeightedDistanceMeasure
+abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetric {
+  def this(w: Vector) = this(w.toBreeze)
+
+  require(weights.forall(_ >= 0))
+  require(sum(weights) == 1.0)
+}
 
 /**
  * :: Experimental ::
@@ -30,8 +36,9 @@ trait WeightedDistanceMetric extends DistanceMetric with WeightedDistanceMeasure
  * between each coordinate, optionally adding weights.
  */
 @Experimental
-@Experimental
-class WeightedEuclideanDistanceMetric(val weights: BV[Double]) extends WeightedDistanceMetric {
+@DeveloperApi
+final private[mllib]
+class WeightedEuclideanDistanceMetric(weights: BV[Double]) extends WeightedDistanceMetric(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val d = v1 - v2
@@ -44,7 +51,9 @@ class WeightedEuclideanDistanceMetric(val weights: BV[Double]) extends WeightedD
  * A weighted Chebyshev distance implementation
  */
 @Experimental
-class WeightedChebyshevDistanceMetric(val weights: BV[Double]) extends WeightedDistanceMetric {
+@DeveloperApi
+final private[mllib]
+class WeightedChebyshevDistanceMetric(weights: BV[Double]) extends WeightedDistanceMetric(weights) {
 
   /**
    * Calculates a weighted Chebyshev distance metric
@@ -69,7 +78,7 @@ class WeightedChebyshevDistanceMetric(val weights: BV[Double]) extends WeightedD
  * between each coordinate, optionally with weights.
  */
 @Experimental
-class WeightedManhattanDistanceMetric(val weights: BV[Double]) extends WeightedDistanceMetric {
+class WeightedManhattanDistanceMetric(weights: BV[Double]) extends WeightedDistanceMetric(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     weights dot ((v1 - v2).map(Math.abs))
