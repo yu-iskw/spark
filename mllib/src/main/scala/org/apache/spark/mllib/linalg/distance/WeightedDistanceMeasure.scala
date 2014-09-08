@@ -46,8 +46,6 @@ sealed private[mllib]
 class WeightedCosineDistanceMeasure private[mllib] (weights: BV[Double])
     extends WeightedDistanceMeasure(weights) {
 
-  def this(_weights: Vector) = this(_weights.toBreeze)
-
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val wbv = weights
     val bv1 = v1
