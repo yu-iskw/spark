@@ -22,15 +22,15 @@ import org.apache.spark.mllib.linalg.Vectors
 class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
 
   override def distanceFactory: DistanceMeasure = {
-    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5).toBreeze // size should be 6
+    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5) // size should be 6
     new WeightedCosineDistanceMeasure(weights)
   }
 
   test("concreate distance check") {
-    val vector1 = Vectors.dense(1.0, 2.0).toBreeze
-    val vector2 = Vectors.dense(3.0, 4.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
 
-    val measure = new WeightedCosineDistanceMeasure(Vectors.dense(0.5, 0.5).toBreeze)
+    val measure = new WeightedCosineDistanceMeasure(Vectors.dense(0.5, 0.5))
     val distance = measure(vector1, vector2)
     val expected = 0.01613008990009257
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
@@ -38,10 +38,10 @@ class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   }
 
   test("two vectors have the same magnitude") {
-    val vector1 = Vectors.dense(1.0, 1.0).toBreeze
-    val vector2 = Vectors.dense(2.0, 2.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 1.0)
+    val vector2 = Vectors.dense(2.0, 2.0)
 
-    val measure = new WeightedCosineDistanceMeasure(Vectors.dense(0.5, 0.5).toBreeze)
+    val measure = new WeightedCosineDistanceMeasure(Vectors.dense(0.5, 0.5))
     val distance = measure(vector1, vector2)
     val expected = 0.0
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)

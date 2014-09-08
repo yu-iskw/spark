@@ -24,8 +24,8 @@ import org.scalatest.FunSuite
 class DistanceMeasureSuite extends FunSuite {
 
   test("check the implicit method") {
-    val vector1 = Vectors.dense(1, 1, 1, 1, 1).toBreeze
-    val vector2 = Vectors.dense(2, 2, 2, 2, 2).toBreeze
+    val vector1 = Vectors.dense(1, 1, 1, 1, 1)
+    val vector2 = Vectors.dense(2, 2, 2, 2, 2)
 
     val fun = (v1: Vector, v2: Vector) => (v1.toBreeze - v2.toBreeze).norm(1)
     val measure: DistanceMeasure = fun
@@ -38,8 +38,8 @@ class SquaredEuclideanDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   override def distanceFactory = new SquaredEuclideanDistanceMeasure
 
   test("the distance should be 45.0") {
-    val v1 = Vectors.dense(2, 3).toBreeze
-    val v2 = Vectors.dense(5, 9).toBreeze
+    val v1 = Vectors.dense(2, 3)
+    val v2 = Vectors.dense(5, 9)
 
     val distance = distanceFactory(v1, v2)
     val expected = 45.0
@@ -51,8 +51,8 @@ class CosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   override def distanceFactory = new CosineDistanceMeasure
 
   test("concreate distance check") {
-    val vector1 = Vectors.dense(1.0, 2.0).toBreeze
-    val vector2 = Vectors.dense(3.0, 4.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = distanceFactory(vector1, vector2)
     val expected = 0.016130089
@@ -61,8 +61,8 @@ class CosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   }
 
   test("two vectors have the same magnitude") {
-    val vector1 = Vectors.dense(1.0, 1.0).toBreeze
-    val vector2 = Vectors.dense(2.0, 2.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 1.0)
+    val vector2 = Vectors.dense(2.0, 2.0)
 
     val distance = distanceFactory(vector1, vector2)
     val expected = 0.0
@@ -75,8 +75,8 @@ class TanimotoDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   override def distanceFactory = new TanimotoDistanceMeasure
 
   test("calculate tanimoto distance for 2-dimension") {
-    val vector1 = Vectors.dense(1.0, 2.0).toBreeze
-    val vector2 = Vectors.dense(3.0, 4.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = distanceFactory(vector1, vector2)
     val expected = 0.42105263
@@ -85,8 +85,8 @@ class TanimotoDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   }
 
   test("calculate tanimoto distance for 3-dimension") {
-    val vector1 = Vectors.dense(1.0, 2.0, 3.0).toBreeze
-    val vector2 = Vectors.dense(4.0, 5.0, 6.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 2.0, 3.0)
+    val vector2 = Vectors.dense(4.0, 5.0, 6.0)
 
     val distance = distanceFactory(vector1, vector2)
     val expected = 0.45762711
@@ -95,8 +95,8 @@ class TanimotoDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   }
 
   test("calculate tanimoto distance for 6-dimension") {
-    val vector1 = Vectors.dense(1.0, 1.0, 1.0, 1.0, 1.0, 1.0).toBreeze
-    val vector2 = Vectors.dense(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0).toBreeze
+    val vector1 = Vectors.dense(1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+    val vector2 = Vectors.dense(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0)
 
     val distance = distanceFactory(vector1, vector2)
     val expected = 1.3333333333

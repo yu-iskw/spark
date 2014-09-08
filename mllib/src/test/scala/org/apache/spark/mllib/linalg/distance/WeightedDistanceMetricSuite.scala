@@ -21,7 +21,7 @@ import org.apache.spark.mllib.linalg.Vectors
 
 class WeightedChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
   override def distanceFactory: DistanceMetric = {
-    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5).toBreeze // size should be 6
+    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5) // size should be 6
     new WeightedChebyshevDistanceMetric(weights)
   }
 }
@@ -29,13 +29,13 @@ class WeightedChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
 class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
 
   override def distanceFactory: DistanceMetric = {
-    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5).toBreeze // size should be 6
+    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5) // size should be 6
     new WeightedEuclideanDistanceMetric(weights)
   }
 
   test("the distance should be 5.9532344150") {
-    val v1 = Vectors.dense(1, 1, 1, 1, 1, 1).toBreeze
-    val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6).toBreeze
+    val v1 = Vectors.dense(1, 1, 1, 1, 1, 1)
+    val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6)
 
     val distance = distanceFactory(v1, v2)
     val expected = 4.419841626121913
@@ -47,13 +47,13 @@ class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
 class WeightedManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
 
   override def distanceFactory: DistanceMetric = {
-    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5).toBreeze // size should be 6
+    val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5) // size should be 6
     new WeightedManhattanDistanceMetric(weights)
   }
 
   test("the distance should be 7.91") {
-    val v1 = Vectors.dense(1, 1, 1, 1, 1, 1).toBreeze
-    val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6).toBreeze
+    val v1 = Vectors.dense(1, 1, 1, 1, 1, 1)
+    val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6)
 
     val distance = distanceFactory(v1, v2)
     val expected = 3.95
