@@ -59,7 +59,7 @@ class EuclideanDistanceMetric extends DistanceMetric {
 }
 
 @Experimental
-final object EuclideanDistanceMetric {
+object EuclideanDistanceMetric {
   def apply(v1: Vector, v2: Vector): Double =
     new EuclideanDistanceMetric().apply(v1.toBreeze, v2.toBreeze)
 }
@@ -80,8 +80,8 @@ class ChebyshevDistanceMetric extends DistanceMetric {
    *
    * d(a, b) := max{|a(i) - b(i)|} for all i
    *
-   * @param v1 a Vector defining a multidimensional point in some feature space
-   * @param v2 a Vector defining a multidimensional point in some feature space
+   * @param v1 a vector defining a multidimensional point in some feature space
+   * @param v2 a vector defining a multidimensional point in some feature space
    * @return Double a distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
@@ -91,7 +91,7 @@ class ChebyshevDistanceMetric extends DistanceMetric {
 }
 
 @Experimental
-final object ChebyshevDistanceMetric {
+object ChebyshevDistanceMetric {
   def apply(v1: Vector, v2: Vector): Double =
     new ChebyshevDistanceMetric().apply(v1.toBreeze, v2.toBreeze)
 }
@@ -113,7 +113,7 @@ class ManhattanDistanceMetric extends DistanceMetric {
 }
 
 @Experimental
-final object ManhattanDistanceMetric {
+object ManhattanDistanceMetric {
   def apply(v1: Vector, v2: Vector): Double =
     new ManhattanDistanceMetric().apply(v1.toBreeze, v2.toBreeze)
 }
@@ -138,7 +138,7 @@ class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
 }
 
 @Experimental
-final object MinkowskiDistanceMetric {
+object MinkowskiDistanceMetric {
   def apply(exponent: Double): MinkowskiDistanceMetric = new MinkowskiDistanceMetric(exponent)
 
   def apply(exponent: Double)(v1: Vector, v2: Vector) =

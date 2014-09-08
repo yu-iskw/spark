@@ -71,7 +71,7 @@ class SquaredEuclideanDistanceMeasure extends DistanceMeasure {
 }
 
 @Experimental
-final object SquaredEuclideanDistanceMeasure {
+object SquaredEuclideanDistanceMeasure {
   def apply(v1: Vector, v2: Vector): Double =
     new SquaredEuclideanDistanceMeasure().apply(v1.toBreeze, v2.toBreeze)
 }
@@ -83,15 +83,15 @@ final object SquaredEuclideanDistanceMeasure {
  * @see http://en.wikipedia.org/wiki/Cosine_similarity
  */
 @Experimental
-@Experimental
-final private[mllib]
+@DeveloperApi
+sealed private[mllib]
 class CosineDistanceMeasure extends DistanceMeasure {
 
   /**
    * Calculates the cosine distance between 2 points
    *
-   * @param v1 a Vector defining a multidimensional point in some feature space
-   * @param v2 a Vector defining a multidimensional point in some feature space
+   * @param v1 a vector defining a multidimensional point in some feature space
+   * @param v2 a vector defining a multidimensional point in some feature space
    * @return a scalar doubles of the distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
@@ -112,7 +112,7 @@ class CosineDistanceMeasure extends DistanceMeasure {
 }
 
 @Experimental
-final object CosineDistanceMeasure {
+object CosineDistanceMeasure {
   def apply(v1: Vector, v2: Vector): Double =
     new CosineDistanceMeasure().apply(v1.toBreeze, v2.toBreeze)
 }
@@ -134,8 +134,8 @@ class TanimotoDistanceMeasure extends DistanceMeasure {
    * The coefficient (a measure of similarity) is: Td(a, b) = a.b / (|a|^2 + |b|^2 - a.b)
    * The distance d(a,b) = 1 - T(a,b)
    *
-   * @param v1 a Vector defining a multidimensional point in some feature space
-   * @param v2 a Vector defining a multidimensional point in some feature space
+   * @param v1 a vector defining a multidimensional point in some feature space
+   * @param v2 a vector defining a multidimensional point in some feature space
    * @return 0 for perfect match, > 0 for greater distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
@@ -160,7 +160,7 @@ class TanimotoDistanceMeasure extends DistanceMeasure {
 }
 
 @Experimental
-final object TanimotoDistanceMeasure {
+object TanimotoDistanceMeasure {
   def apply(v1: Vector, v2: Vector): Double =
     new TanimotoDistanceMeasure().apply(v1.toBreeze, v2.toBreeze)
 }
