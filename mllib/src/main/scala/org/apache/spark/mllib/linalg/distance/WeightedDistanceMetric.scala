@@ -46,7 +46,8 @@ abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetri
 @Experimental
 @DeveloperApi
 final private[mllib]
-class WeightedEuclideanDistanceMetric(weights: BV[Double]) extends WeightedDistanceMetric(weights) {
+class WeightedEuclideanDistanceMetric private[mllib] (weights: BV[Double])
+    extends WeightedDistanceMetric(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val d = v1 - v2
@@ -61,7 +62,8 @@ class WeightedEuclideanDistanceMetric(weights: BV[Double]) extends WeightedDista
 @Experimental
 @DeveloperApi
 final private[mllib]
-class WeightedChebyshevDistanceMetric(weights: BV[Double]) extends WeightedDistanceMetric(weights) {
+class WeightedChebyshevDistanceMetric private[mllib] (weights: BV[Double])
+    extends WeightedDistanceMetric(weights) {
 
   /**
    * Calculates a weighted Chebyshev distance metric
@@ -88,7 +90,8 @@ class WeightedChebyshevDistanceMetric(weights: BV[Double]) extends WeightedDista
 @Experimental
 @DeveloperApi
 final private[mllib]
-class WeightedManhattanDistanceMetric (weights: BV[Double]) extends WeightedDistanceMetric(weights) {
+class WeightedManhattanDistanceMetric private[mllib] (weights: BV[Double])
+    extends WeightedDistanceMetric(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     weights dot ((v1 - v2).map(Math.abs))

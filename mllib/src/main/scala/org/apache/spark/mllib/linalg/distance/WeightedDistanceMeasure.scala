@@ -44,7 +44,8 @@ abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends Distance
 @Experimental
 @DeveloperApi
 final private[mllib]
-class WeightedCosineDistanceMeasure(weights: BV[Double]) extends WeightedDistanceMeasure(weights) {
+class WeightedCosineDistanceMeasure private[mllib] (weights: BV[Double])
+    extends WeightedDistanceMeasure(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val wbv = weights
