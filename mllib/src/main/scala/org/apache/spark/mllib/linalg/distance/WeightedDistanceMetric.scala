@@ -25,8 +25,16 @@ import org.apache.spark.mllib.linalg.Vector
 abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetric {
   def this(w: Vector) = this(w.toBreeze)
 
+  private val EPSILON = 0.0000001
+
+  /**
+   * A weights is required to satisfy the following conditions:
+   * 1. All element is greater than and equal to zero
+   * 2. The summation of all element is required to be 1.0
+   */
   require(weights.forall(_ >= 0))
-  require(sum(weights) == 1.0)
+  // if the difference is less than EPSILON, the condition is satisfied
+  require(Math.abs(1.0 - sum(weights)) < EPSILON)
 }
 
 /**
@@ -61,8 +69,8 @@ class WeightedChebyshevDistanceMetric(weights: BV[Double]) extends WeightedDista
    * d(a, b) := max{w(i) * |a(i) - b(i)|} for all i
    * where w is a weighted vector
    *
-   * @param v1 a Vector defining a multidimensional point in some feature space
-   * @param v2 a Vector defining a multidimensional point in some feature space
+   * @param v1 a vector defining a multidimensional point in some feature space
+   * @param v2 a vector defining a multidimensional point in some feature space
    * @return Double a distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
@@ -78,7 +86,9 @@ class WeightedChebyshevDistanceMetric(weights: BV[Double]) extends WeightedDista
  * between each coordinate, optionally with weights.
  */
 @Experimental
-class WeightedManhattanDistanceMetric(weights: BV[Double]) extends WeightedDistanceMetric(weights) {
+@DeveloperApi
+final private[mllib]
+class WeightedManhattanDistanceMetric (weights: BV[Double]) extends WeightedDistanceMetric(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     weights dot ((v1 - v2).map(Math.abs))
