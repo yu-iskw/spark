@@ -32,7 +32,7 @@ import org.apache.spark.mllib.linalg.Vector
  * 4. d(x, z) <= d(x, y) + d(y, z) (triangle inequality)
  */
 @Experimental
-trait DistanceMetric extends DistanceMeasure
+abstract class DistanceMetric extends DistanceMeasure
 
 /**
  * :: Experimental ::

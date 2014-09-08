@@ -19,13 +19,19 @@ package org.apache.spark.mllib.linalg.distance
 
 import breeze.linalg.{sum, DenseVector => DBV, Vector => BV}
 import org.apache.spark.annotation.{DeveloperApi, Experimental}
+import org.apache.spark.mllib.linalg.Vector
 
 /**
  * this trait is used for a weighted distance measure
  */
 @Experimental
 @DeveloperApi
-trait WeightedDistanceMeasure extends DistanceMeasure
+abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends DistanceMeasure {
+  def this(w: Vector) = this(w.toBreeze)
+
+  require(weights.forall(_ >= 0))
+  require(sum(weights) == 1.0)
+}
 
 
 /**
@@ -36,7 +42,9 @@ trait WeightedDistanceMeasure extends DistanceMeasure
  * @param weights weight BV[Double]
  */
 @Experimental
-class WeightedCosineDistanceMeasure(val weights: BV[Double]) extends WeightedDistanceMeasure {
+@DeveloperApi
+final private[mllib]
+class WeightedCosineDistanceMeasure(weights: BV[Double]) extends WeightedDistanceMeasure(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
     val wbv = weights

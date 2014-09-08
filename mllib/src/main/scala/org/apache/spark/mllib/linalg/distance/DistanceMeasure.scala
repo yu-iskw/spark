@@ -34,7 +34,9 @@ import scala.language.implicitConversions
  * However, classes which inherits aren't require to satisfy triangle inequality
  */
 @Experimental
-trait DistanceMeasure extends Function2[BV[Double], BV[Double], Double] with Serializable
+abstract class DistanceMeasure extends Function2[BV[Double], BV[Double], Double] with Serializable {
+  def apply(v1: Vector, v2: Vector): Double = apply(v1.toBreeze, v2.toBreeze)
+}
 
 
 @Experimental

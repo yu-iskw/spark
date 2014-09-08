@@ -86,11 +86,11 @@ object WeightedDistanceFactory {
    * @param weights weight vector
    * @return a class to calculate weighted distance
    */
-  def apply(distanceType: String, weights: Vector): WeightedDistanceMeasure = {
+  def apply(distanceType: String, weights: Vector): DistanceMeasure = {
     apply(DistanceType.withName(distanceType), weights.toBreeze)
   }
 
-  def apply(distanceType: String, weights: BV[Double]): WeightedDistanceMeasure = {
+  def apply(distanceType: String, weights: BV[Double]): DistanceMeasure = {
     apply(DistanceType.withName(distanceType), weights)
   }
 
@@ -101,11 +101,11 @@ object WeightedDistanceFactory {
    * @param weights weight vector
    * @return a class to calculate weighted distance
    */
-  def apply(distanceType: DistanceType.Value, weights: Vector): WeightedDistanceMeasure = {
+  def apply(distanceType: DistanceType.Value, weights: Vector): DistanceMeasure = {
     apply(distanceType, weights.toBreeze)
   }
 
-  def apply(distanceType: DistanceType.Value, weights: BV[Double]): WeightedDistanceMeasure = {
+  def apply(distanceType: DistanceType.Value, weights: BV[Double]): DistanceMeasure = {
     distanceType match {
       case DistanceType.euclidean => new WeightedEuclideanDistanceMetric(weights)
       case DistanceType.manhattan => new WeightedManhattanDistanceMetric(weights)
