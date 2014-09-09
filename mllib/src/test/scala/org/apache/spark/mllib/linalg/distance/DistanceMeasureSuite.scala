@@ -19,6 +19,7 @@ package org.apache.spark.mllib.linalg.distance
 
 import breeze.linalg.{DenseVector => DBV, Vector => BV}
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
+import org.apache.spark.mllib.util.TestingUtils._
 import org.scalatest.FunSuite
 
 class DistanceMeasureSuite extends FunSuite {
@@ -51,9 +52,7 @@ class SquaredEuclideanDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
     val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = SquaredEuclideanDistanceMeasure(vector1, vector2)
-    val expected = 8.0
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 8.0 absTol 1.0E-10)
   }
 }
 
@@ -63,31 +62,22 @@ class CosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   test("concreate distance check") {
     val vector1 = Vectors.dense(1.0, 2.0).toBreeze
     val vector2 = Vectors.dense(3.0, 4.0).toBreeze
-
     val distance = distanceFactory(vector1, vector2)
-    val expected = 0.016130089
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.01613008990009257 absTol 1.0E-10)
   }
 
   test("two vectors have the same magnitude") {
     val vector1 = Vectors.dense(1.0, 1.0).toBreeze
     val vector2 = Vectors.dense(2.0, 2.0).toBreeze
-
     val distance = distanceFactory(vector1, vector2)
-    val expected = 0.0
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.0 absTol 1.0E-10)
   }
 
   test("called by the companion object") {
     val vector1 = Vectors.dense(1.0, 2.0)
     val vector2 = Vectors.dense(3.0, 4.0)
-
     val distance = CosineDistanceMeasure(vector1, vector2)
-    val expected = 0.01613008990009257
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.01613008990009257 absTol 1.0E-10)
   }
 }
 
@@ -97,11 +87,8 @@ class TanimotoDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   test("calculate tanimoto distance for 2-dimension") {
     val vector1 = Vectors.dense(1.0, 2.0).toBreeze
     val vector2 = Vectors.dense(3.0, 4.0).toBreeze
-
     val distance = distanceFactory(vector1, vector2)
-    val expected = 0.42105263
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.42105263157894735 absTol 1.0E-10)
   }
 
   test("calculate tanimoto distance for 3-dimension") {
@@ -109,28 +96,20 @@ class TanimotoDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
     val vector2 = Vectors.dense(4.0, 5.0, 6.0).toBreeze
 
     val distance = distanceFactory(vector1, vector2)
-    val expected = 0.45762711
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.4576271186440678 absTol 1.0E-10)
   }
 
   test("calculate tanimoto distance for 6-dimension") {
     val vector1 = Vectors.dense(1.0, 1.0, 1.0, 1.0, 1.0, 1.0).toBreeze
     val vector2 = Vectors.dense(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0).toBreeze
-
     val distance = distanceFactory(vector1, vector2)
-    val expected = 1.3333333333
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 1.3333333333 absTol 1.0E-10)
   }
 
   test("called by the companion object") {
     val vector1 = Vectors.dense(1.0, 2.0)
     val vector2 = Vectors.dense(3.0, 4.0)
-
     val distance = TanimotoDistanceMeasure(vector1, vector2)
-    val expected = 0.42105263157894735
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.42105263157894735 absTol 1.0E-10)
   }
 }

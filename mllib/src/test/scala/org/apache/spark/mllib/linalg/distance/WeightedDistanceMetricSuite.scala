@@ -18,6 +18,7 @@
 package org.apache.spark.mllib.linalg.distance
 
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.util.TestingUtils._
 
 class WeightedChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
   override def distanceFactory: DistanceMetric = {
@@ -31,9 +32,7 @@ class WeightedChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = WeightedChebyshevDistanceMetric(weights)(vector1, vector2)
-    val expected = 1.0
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 1.0 absTol 1.0E-10)
   }
 }
 
@@ -49,9 +48,7 @@ class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6).toBreeze
 
     val distance = distanceFactory(v1, v2)
-    val expected = 4.419841626121913
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to 5.9532344150, but ${distance}")
+    assert(distance ~== 4.419841626121913 absTol 1.0E-10)
   }
 
   test("called by companion object") {
@@ -60,9 +57,7 @@ class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = WeightedEuclideanDistanceMetric(weights)(vector1, vector2)
-    val expected = 2.0
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 2.0 absTol 1.0E-10)
   }
 }
 
@@ -79,8 +74,7 @@ class WeightedManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
 
     val distance = distanceFactory(v1, v2)
     val expected = 3.95
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to 3.95, actual ${distance}")
+    assert(distance ~== 3.95 absTol 1.0E-10)
   }
 
   test("called by companion object") {
@@ -89,9 +83,7 @@ class WeightedManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = WeightedManhattanDistanceMetric(weights)(vector1, vector2)
-    val expected = 2.0
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 2.0 absTol 1.0E-10)
   }
 }
 

@@ -55,16 +55,10 @@ trait GeneralDistanceMetricSuite extends FunSuite with Matchers {
 private[distance]
 object GeneralDistanceMetricSuite {
 
-  val EPSILON = 0.00000001
-
   def calcDistanceMatrix(distanceMeasure: DistanceMeasure, vectors: Array[BV[Double]]): Matrix = {
     val denseMatrixElements = for (v1 <- vectors; v2 <- vectors) yield {
       distanceMeasure(v2, v1)
     }
     Matrices.dense(vectors.size, vectors.size, denseMatrixElements)
-  }
-
-  def isNearlyEqual(value: Double, expected: Double): Boolean = {
-    Math.abs(value - expected) < EPSILON
   }
 }
