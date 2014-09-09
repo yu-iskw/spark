@@ -40,7 +40,7 @@ abstract class DistanceMetric extends DistanceMeasure
  */
 @Experimental
 @DeveloperApi
-final private[mllib]
+sealed private[mllib]
 class EuclideanDistanceMetric extends DistanceMetric {
 
   /**
@@ -73,7 +73,7 @@ object EuclideanDistanceMetric {
  */
 @Experimental
 @DeveloperApi
-final private[mllib]
+sealed private[mllib]
 class ChebyshevDistanceMetric extends DistanceMetric {
 
   /**
@@ -128,7 +128,7 @@ object ChebyshevDistanceMetric {
  */
 @Experimental
 @DeveloperApi
-final private[mllib]
+sealed private[mllib]
 class ManhattanDistanceMetric extends DistanceMetric {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
@@ -152,7 +152,7 @@ object ManhattanDistanceMetric {
  */
 @Experimental
 @DeveloperApi
-final private[mllib]
+sealed private[mllib]
 class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
