@@ -18,6 +18,7 @@
 package org.apache.spark.mllib.linalg.distance
 
 import breeze.linalg.{max, sum, DenseVector => DBV, Vector => BV}
+import breeze.numerics.abs
 import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.mllib.linalg.Vector
 
@@ -37,7 +38,7 @@ abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetri
    */
   require(weights.forall(_ >= 0))
   // if the difference is less than EPSILON, the condition is satisfied
-  require(Math.abs(1.0 - sum(weights)) < EPSILON)
+  require(abs(1.0 - sum(weights)) < EPSILON)
 }
 
 /**
@@ -87,7 +88,7 @@ class WeightedChebyshevDistanceMetric private[mllib] (weights: BV[Double])
    * @return Double a distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val diff = (v1 - v2).map(Math.abs).:*(weights)
+    val diff = (v1 - v2).map(abs(_)).:*(weights)
     max(diff)
   }
 }
@@ -112,7 +113,7 @@ class WeightedManhattanDistanceMetric private[mllib] (weights: BV[Double])
   extends WeightedDistanceMetric(weights) {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    weights dot ((v1 - v2).map(Math.abs))
+    weights dot ((v1 - v2).map(abs(_)))
   }
 }
 

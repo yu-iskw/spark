@@ -18,6 +18,7 @@
 package org.apache.spark.mllib.linalg.distance
 
 import breeze.linalg.{max, norm, sum, DenseVector => DBV, Vector => BV}
+import breeze.numerics.abs
 import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.mllib.linalg.Vector
 
@@ -85,7 +86,7 @@ class ChebyshevDistanceMetric extends DistanceMetric {
    * @return Double a distance
    */
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val diff = (v1 - v2).map(Math.abs)
+    val diff = (v1 - v2).map(abs(_))
     max(diff)
   }
 }
@@ -132,7 +133,7 @@ sealed private[mllib]
 class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val d = (v1 - v2).map(diff => Math.pow(Math.abs(diff), exponent))
+    val d = (v1 - v2).map(diff => Math.pow(abs(diff), exponent))
     Math.pow(sum(d), 1 / exponent)
   }
 }
