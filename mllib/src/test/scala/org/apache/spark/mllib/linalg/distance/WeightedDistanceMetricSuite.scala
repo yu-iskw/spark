@@ -24,6 +24,17 @@ class WeightedChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val weights = Vectors.dense(0.1, 0.1, 0.1, 0.1, 0.1, 0.5).toBreeze // size should be 6
     new WeightedChebyshevDistanceMetric(weights)
   }
+
+  test("called by companion object") {
+    val weights = Vectors.dense(0.5, 0.5)
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = WeightedChebyshevDistanceMetric(weights)(vector1, vector2)
+    val expected = 1.0
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
 }
 
 class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
@@ -33,7 +44,7 @@ class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     new WeightedEuclideanDistanceMetric(weights)
   }
 
-  test("the distance should be 5.9532344150") {
+  test("the distance should be 4.419841626121913") {
     val v1 = Vectors.dense(1, 1, 1, 1, 1, 1).toBreeze
     val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6).toBreeze
 
@@ -41,6 +52,17 @@ class WeightedEuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val expected = 4.419841626121913
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
     assert(isNear, s"the distance should be nearly equal to 5.9532344150, but ${distance}")
+  }
+
+  test("called by companion object") {
+    val weights = Vectors.dense(0.5, 0.5)
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = WeightedEuclideanDistanceMetric(weights)(vector1, vector2)
+    val expected = 2.0
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
   }
 }
 
@@ -51,14 +73,25 @@ class WeightedManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     new WeightedManhattanDistanceMetric(weights)
   }
 
-  test("the distance should be 7.91") {
+  test("the distance should be 3.95") {
     val v1 = Vectors.dense(1, 1, 1, 1, 1, 1).toBreeze
     val v2 = Vectors.dense(1.1, 2.2, 3.3, 4.4, 5.5, 6.6).toBreeze
 
     val distance = distanceFactory(v1, v2)
     val expected = 3.95
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to 7.91, actual ${distance}")
+    assert(isNear, s"the distance should be nearly equal to 3.95, actual ${distance}")
+  }
+
+  test("called by companion object") {
+    val weights = Vectors.dense(0.5, 0.5)
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = WeightedManhattanDistanceMetric(weights)(vector1, vector2)
+    val expected = 2.0
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
   }
 }
 
