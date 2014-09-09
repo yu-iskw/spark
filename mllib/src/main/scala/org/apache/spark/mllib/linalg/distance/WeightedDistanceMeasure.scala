@@ -18,16 +18,19 @@
 package org.apache.spark.mllib.linalg.distance
 
 import breeze.linalg.{sum, DenseVector => DBV, Vector => BV}
+import breeze.numerics.abs
 import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.mllib.linalg.Vector
 
 /**
- * this trait is used for a weighted distance measure
+ * this abstract class is used for a weighted distance measure
+ *
+ * @param weights weight vector
  */
 @Experimental
 @DeveloperApi
 abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends DistanceMeasure {
-  private val EPSILON = 0.0000001
+  private val EPSILON = 1.0E-10
 
   /**
    * A weights is required to satisfy the following conditions:
@@ -36,7 +39,7 @@ abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends Distance
    */
   require(weights.forall(_ >= 0))
   // if the difference is less than EPSILON, the condition is satisfied
-  require(Math.abs(1.0 - sum(weights)) < EPSILON)
+  require(abs(1.0 - sum(weights)) < EPSILON)
 }
 
 

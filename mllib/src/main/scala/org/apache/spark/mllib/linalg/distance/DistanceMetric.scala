@@ -17,9 +17,9 @@
 
 package org.apache.spark.mllib.linalg.distance
 
-import breeze.linalg.{DenseVector => DBV, Vector => BV, sum, max}
+import breeze.linalg.{max, norm, sum, DenseVector => DBV, Vector => BV}
 import breeze.numerics.abs
-import org.apache.spark.annotation.Experimental
+import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.mllib.linalg.Vector
 
 /**
@@ -91,29 +91,6 @@ class ChebyshevDistanceMetric extends DistanceMetric {
   }
 }
 
-/**
- * :: Experimental ::
- * A weighted Chebyshev distance implementation
- */
-@Experimental
-class WeightedChebyshevDistanceMetric(val weights: Vector) extends DistanceMetric {
-
-  /**
-   * Calculates a weighted Chebyshev distance metric
-   *
-   * d(a, b) := max{w(i) * |a(i) - b(i)|} for all i
-   * where w is a weighted vector
-   *
-   * @param v1 a Vector defining a multidimensional point in some feature space
-   * @param v2 a Vector defining a multidimensional point in some feature space
-   * @return Double a distance
-   */
-  override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val diff = (v1 - v2).map(elm => abs(elm)).:*(weights)
-    max(diff)
-  }
-}
-
 @Experimental
 object ChebyshevDistanceMetric {
   def apply(v1: Vector, v2: Vector): Double =
@@ -156,7 +133,7 @@ sealed private[mllib]
 class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
 
   override def apply(v1: BV[Double], v2: BV[Double]): Double = {
-    val d = (v1 - v2).map(diff => Math.pow(Math.abs(diff), exponent))
+    val d = (v1 - v2).map(diff => Math.pow(abs(diff), exponent))
     Math.pow(sum(d), 1 / exponent)
   }
 }

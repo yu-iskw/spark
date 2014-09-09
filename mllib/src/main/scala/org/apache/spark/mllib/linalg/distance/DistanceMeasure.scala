@@ -25,7 +25,7 @@ import scala.language.implicitConversions
 
 /**
  * :: Experimental ::
- * This trait is used for objects which can determine a distance between two points
+ * This abstract class is used for objects which can determine a distance between two points
  *
  * Classes which inherits from this class are required to satisfy the follow condition:
  * 1. d(x, y) >= 0 (non-negative)
@@ -46,10 +46,22 @@ object DistanceMeasure {
    * @param f calculating distance function (Vector, Vector) => Double
    * @return DistanceMeasure
    */
-  implicit def functionToDistanceMeasure(f: (BV[Double], BV[Double]) => Double): DistanceMeasure =
-      new DistanceMeasure {
-    override def apply(v1: BV[Double], v2: BV[Double]): Double = f(v1, v2)
+  implicit def convert_V_V_DM(f: (Vector, Vector) => Double): DistanceMeasure =
+    new DistanceMeasure {
+    override def apply(bv1: BV[Double], bv2: BV[Double]): Double =
+      f(Vectors.fromBreeze(bv1), Vectors.fromBreeze(bv2))
   }
+
+  /**
+   * Implicit method for DistanceMeasure
+   *
+   * @param f calculating distance function (BV[Double], BV[Double]) => Double (BV: Breeze Vector)
+   * @return DistanceMeasure
+   */
+  implicit def convert_BV_BV_DM(f: (BV[Double], BV[Double]) => Double): DistanceMeasure =
+    new DistanceMeasure {
+      override def apply(bv1: BV[Double], bv2: BV[Double]): Double = f(bv1, bv2)
+    }
 }
 
 /**
