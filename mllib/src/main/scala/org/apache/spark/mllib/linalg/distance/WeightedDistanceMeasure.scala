@@ -27,9 +27,16 @@ import org.apache.spark.mllib.linalg.Vector
 @Experimental
 @DeveloperApi
 abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends DistanceMeasure {
+  private val EPSILON = 0.0000001
 
+  /**
+   * A weights is required to satisfy the following conditions:
+   * 1. All element is greater than and equal to zero
+   * 2. The summation of all element is required to be 1.0
+   */
   require(weights.forall(_ >= 0))
-  require(sum(weights) == 1.0)
+  // if the difference is less than EPSILON, the condition is satisfied
+  require(Math.abs(1.0 - sum(weights)) < EPSILON)
 }
 
 
