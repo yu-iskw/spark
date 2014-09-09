@@ -74,11 +74,8 @@ class WeightedCosineDistanceMeasure private[mllib] (weights: BV[Double])
   }
 }
 
-
 @Experimental
 object WeightedCosineDistanceMeasure {
-  def apply(weights: Vector): WeightedCosineDistanceMeasure =
-    new WeightedCosineDistanceMeasure(weights.toBreeze)
 
   def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
     new WeightedCosineDistanceMeasure(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)

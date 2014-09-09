@@ -38,14 +38,37 @@ class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
   }
 
   test("two vectors have the same magnitude") {
+    val weights = Vectors.dense(0.5, 0.5).toBreeze
     val vector1 = Vectors.dense(1.0, 1.0).toBreeze
     val vector2 = Vectors.dense(2.0, 2.0).toBreeze
 
-    val measure = new WeightedCosineDistanceMeasure(Vectors.dense(0.5, 0.5).toBreeze)
+    val measure = new WeightedCosineDistanceMeasure(weights)
     val distance = measure(vector1, vector2)
     val expected = 0.0
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
     assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
   }
-}
 
+  test("called by companion object") {
+    val weights = Vectors.dense(0.5, 0.5)
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = WeightedCosineDistanceMeasure(weights)(vector1, vector2)
+    val expected = 0.01613008990009257
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
+
+  test("called by companion object as curry-like") {
+    val weights = Vectors.dense(0.5, 0.5)
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val measure = WeightedCosineDistanceMeasure(weights)_
+    val distance = measure(vector1, vector2)
+    val expected = 0.01613008990009257
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
+}

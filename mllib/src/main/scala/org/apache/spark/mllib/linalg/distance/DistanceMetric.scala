@@ -163,8 +163,7 @@ class MinkowskiDistanceMetric(val exponent: Double) extends DistanceMetric {
 
 @Experimental
 object MinkowskiDistanceMetric {
-  def apply(exponent: Double): MinkowskiDistanceMetric = new MinkowskiDistanceMetric(exponent)
 
-  def apply(exponent: Double)(v1: Vector, v2: Vector) =
+  def apply(exponent: Double)(v1: Vector, v2: Vector): Double =
     new MinkowskiDistanceMetric(exponent).apply(v1.toBreeze, v2.toBreeze)
 }

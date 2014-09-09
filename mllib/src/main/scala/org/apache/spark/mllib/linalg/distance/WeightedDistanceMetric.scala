@@ -56,9 +56,6 @@ class WeightedEuclideanDistanceMetric private[mllib] (weights: BV[Double])
 @Experimental
 object WeightedEuclideanDistanceMetric {
 
-  def apply(weights: Vector): WeightedEuclideanDistanceMetric =
-    new WeightedEuclideanDistanceMetric(weights.toBreeze)
-
   def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
     new WeightedEuclideanDistanceMetric(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)
 }
@@ -93,9 +90,6 @@ class WeightedChebyshevDistanceMetric private[mllib] (weights: BV[Double])
 @Experimental
 object WeightedChebyshevDistanceMetric {
 
-  def apply(weights: Vector): WeightedChebyshevDistanceMetric =
-    new WeightedChebyshevDistanceMetric(weights.toBreeze)
-
   def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
     new WeightedChebyshevDistanceMetric(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)
 }
@@ -120,9 +114,6 @@ class WeightedManhattanDistanceMetric private[mllib] (weights: BV[Double])
 
 @Experimental
 object WeightedManhattanDistanceMetric {
-
-  def apply(weights: Vector): WeightedManhattanDistanceMetric =
-    new WeightedManhattanDistanceMetric(weights.toBreeze)
 
   def apply(weights: Vector)(v1: Vector, v2: Vector): Double =
     new WeightedManhattanDistanceMetric(weights.toBreeze).apply(v1.toBreeze, v2.toBreeze)

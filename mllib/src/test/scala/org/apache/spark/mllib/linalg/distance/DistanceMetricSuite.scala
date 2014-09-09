@@ -36,6 +36,16 @@ class ChebyshevDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val distance = distanceFactory(vector1, vector2)
     assert(distance == 100, s"the distance should be 100, actual ${distance}")
   }
+
+  test("called by the companion object") {
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = ChebyshevDistanceMetric(vector1, vector2)
+    val expected = 2.0
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
 }
 
 class EuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
@@ -50,6 +60,16 @@ class EuclideanDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
     assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
   }
+
+  test("called by the companion object") {
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = EuclideanDistanceMetric(vector1, vector2)
+    val expected = 2.8284271247461903
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
 }
 
 class ManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
@@ -61,6 +81,16 @@ class ManhattanDistanceMetricSuite extends GeneralDistanceMetricSuite {
 
     val distance = distanceFactory(v1, v2)
     val expected = 18.0
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
+
+  test("called by the companion object") {
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = ManhattanDistanceMetric(vector1, vector2)
+    val expected = 4.0
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
     assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
   }
@@ -79,4 +109,26 @@ class MinkowskiDistanceMetricSuite extends GeneralDistanceMetricSuite {
     val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
     assert(isNear, s"the distance between the vectors should be ${expected}")
   }
+
+  test("called by the companion object") {
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val distance = MinkowskiDistanceMetric(4.0)(vector1, vector2)
+    val expected = 2.378414230005442
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
+
+  test("called by the companion object without the parameters for vectors") {
+    val vector1 = Vectors.dense(1.0, 2.0)
+    val vector2 = Vectors.dense(3.0, 4.0)
+
+    val measure = MinkowskiDistanceMetric(4.0)_
+    val distance = measure(vector1, vector2)
+    val expected = 2.378414230005442
+    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
+    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+  }
 }
+
