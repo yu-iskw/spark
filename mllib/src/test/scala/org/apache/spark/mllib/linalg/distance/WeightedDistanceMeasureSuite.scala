@@ -18,6 +18,7 @@
 package org.apache.spark.mllib.linalg.distance
 
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.util.TestingUtils._
 
 class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
 
@@ -32,9 +33,7 @@ class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
 
     val measure = new WeightedCosineDistanceMeasure(Vectors.dense(0.5, 0.5).toBreeze)
     val distance = measure(vector1, vector2)
-    val expected = 0.01613008990009257
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.01613008990009257 absTol 1.0E-10)
   }
 
   test("two vectors have the same magnitude") {
@@ -44,9 +43,7 @@ class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
 
     val measure = new WeightedCosineDistanceMeasure(weights)
     val distance = measure(vector1, vector2)
-    val expected = 0.0
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.0 absTol 1.0E-10)
   }
 
   test("called by companion object") {
@@ -55,9 +52,7 @@ class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
     val vector2 = Vectors.dense(3.0, 4.0)
 
     val distance = WeightedCosineDistanceMeasure(weights)(vector1, vector2)
-    val expected = 0.01613008990009257
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.01613008990009257 absTol 1.0E-10)
   }
 
   test("called by companion object as curry-like") {
@@ -65,10 +60,8 @@ class WeightedCosineDistanceMeasureSuite extends GeneralDistanceMeasureSuite {
     val vector1 = Vectors.dense(1.0, 2.0)
     val vector2 = Vectors.dense(3.0, 4.0)
 
-    val measure = WeightedCosineDistanceMeasure(weights)_
+    val measure = WeightedCosineDistanceMeasure(weights) _
     val distance = measure(vector1, vector2)
-    val expected = 0.01613008990009257
-    val isNear = GeneralDistanceMetricSuite.isNearlyEqual(distance, expected)
-    assert(isNear, s"the distance should be nearly equal to ${expected}, actual ${distance}")
+    assert(distance ~== 0.01613008990009257 absTol 1.0E-10)
   }
 }

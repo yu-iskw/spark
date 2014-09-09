@@ -19,6 +19,7 @@ package org.apache.spark.mllib.linalg.distance
 
 import org.apache.spark.mllib.linalg.Vectors
 import org.scalatest.FunSuite
+import org.apache.spark.mllib.util.TestingUtils._
 
 class DistanceMeasureFactorySuite extends FunSuite {
   val v1 = Vectors.dense(1.0, 1.0, 1.0).toBreeze
@@ -42,42 +43,42 @@ class DistanceMeasureFactorySuite extends FunSuite {
 
   test("euclidean distance metric should be generated") {
     val measure = DistanceMeasureFactory(DistanceType.euclidean)
-    assert(measure(v1, v2) === 5.830951894845301)
+    assert(measure(v1, v2) ~== 5.830951894845301 absTol 1.0E-10)
 
     val measure2 = DistanceMeasureFactory("euclidean")
-    assert(measure2(v1, v2) === 5.830951894845301)
+    assert(measure2(v1, v2) ~== 5.830951894845301 absTol 1.0E-10)
   }
 
   test("manhattan distance measure should be generated") {
     val measure = DistanceMeasureFactory(DistanceType.manhattan)
-    assert(measure(v1, v2) === 10.0)
+    assert(measure(v1, v2) ~== 10.0 absTol 1.0E-10)
 
     val measure2 = DistanceMeasureFactory("manhattan")
-    assert(measure2(v1, v2) === 10.0)
+    assert(measure(v1, v2) ~== 10.0 absTol 1.0E-10)
   }
 
   test("chebyshev distance metr should be generated") {
     val measure = DistanceMeasureFactory(DistanceType.chebyshev)
-    assert(measure(v1, v2) === 4.0)
+    assert(measure(v1, v2) ~== 4.0 absTol 1.0E-10)
 
     val measure2 = DistanceMeasureFactory("chebyshev")
-    assert(measure2(v1, v2) === 4.0)
+    assert(measure(v1, v2) ~== 4.0 absTol 1.0E-10)
   }
 
   test("cosine distance measure should be generated") {
     val measure = DistanceMeasureFactory(DistanceType.cosine)
-    assert(measure(v1, v2) === 1.9801960588196068)
+    assert(measure(v1, v2) ~== 1.9801960588196068 absTol 1.0E-10)
 
     val measure2 = DistanceMeasureFactory("cosine")
-    assert(measure2(v1, v2) === 1.9801960588196068)
+    assert(measure2(v1, v2) ~== 1.9801960588196068 absTol 1.0E-10)
   }
 
   test("tanimoto distance measure should be generated") {
     val measure = DistanceMeasureFactory(DistanceType.tanimoto)
-    assert(measure(v1, v2) === 1.2592592592592593)
+    assert(measure(v1, v2) ~== 1.2592592592592593 absTol 1.0E-10)
 
     val measure2 = DistanceMeasureFactory("tanimoto")
-    assert(measure2(v1, v2) === 1.2592592592592593)
+    assert(measure2(v1, v2) ~== 1.2592592592592593 absTol 1.0E-10)
   }
 }
 
@@ -94,33 +95,33 @@ class WeightedDistanceFactorySuite extends FunSuite {
 
   test("euclidean distance metric should be generated") {
     val measure = WeightedDistanceFactory(DistanceType.euclidean, weights)
-    assert(measure(v1, v2) === 2.0)
+    assert(measure(v1, v2) ~== 2.0 absTol 1.0E-10)
 
     val measure2 = WeightedDistanceFactory("euclidean", weights)
-    assert(measure2(v1, v2) === 2.0)
+    assert(measure(v1, v2) ~== 2.0 absTol 1.0E-10)
   }
 
   test("manhattan distance measure should be generated") {
     val measure = WeightedDistanceFactory(DistanceType.manhattan, weights)
-    assert(measure(v1, v2) === 2.0)
+    assert(measure(v1, v2) ~== 2.0 absTol 1.0E-10)
 
     val measure2 = WeightedDistanceFactory("manhattan", weights)
-    assert(measure2(v1, v2) === 2.0)
+    assert(measure(v1, v2) ~== 2.0 absTol 1.0E-10)
   }
 
   test("chebyshev distance metr should be generated") {
     val measure = WeightedDistanceFactory(DistanceType.chebyshev, weights)
-    assert(measure(v1, v2) === 1.8)
+    assert(measure(v1, v2) ~== 1.8 absTol 1.0E-10)
 
     val measure2 = WeightedDistanceFactory("chebyshev", weights)
-    assert(measure2(v1, v2) === 1.8)
+    assert(measure(v1, v2) ~== 1.8 absTol 1.0E-10)
   }
 
   test("cosine distance measure should be generated") {
     val measure = WeightedDistanceFactory(DistanceType.cosine, weights)
-    assert(measure(v1, v2) === 0.003184721463875051)
+    assert(measure(v1, v2) ~== 0.003184721463875051 absTol 1.0E-10)
 
     val measure2 = WeightedDistanceFactory("cosine", weights)
-    assert(measure2(v1, v2) === 0.003184721463875051)
+    assert(measure(v1, v2) ~== 0.003184721463875051 absTol 1.0E-10)
   }
 }
