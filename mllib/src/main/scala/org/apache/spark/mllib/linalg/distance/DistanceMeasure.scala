@@ -46,8 +46,10 @@ object DistanceMeasure {
    * @param f calculating distance function (Vector, Vector) => Double
    * @return DistanceMeasure
    */
-  implicit def functionToDistanceMeasure(f: (Vector, Vector) => Double): DistanceMeasure = new
-      DistanceMeasure {
+  implicit def functionToDistanceMeasure(f: (Vector, Vector) => Double): DistanceMeasure =
+    new DistanceMeasure {
+    // Because Breeze library should be hidden for Spark user,
+    // the interface of distance function is consist of Spark Vector.
     override def apply(bv1: BV[Double], bv2: BV[Double]): Double =
       f(Vectors.fromBreeze(bv1), Vectors.fromBreeze(bv2))
   }
