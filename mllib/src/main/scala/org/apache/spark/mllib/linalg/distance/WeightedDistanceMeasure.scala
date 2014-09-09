@@ -22,12 +22,14 @@ import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.mllib.linalg.Vector
 
 /**
- * this trait is used for a weighted distance measure
+ * this abstract class is used for a weighted distance measure
+ *
+ * @param weights weight vector
  */
 @Experimental
 @DeveloperApi
 abstract class WeightedDistanceMeasure(val weights: BV[Double]) extends DistanceMeasure {
-  private val EPSILON = 0.0000001
+  private val EPSILON = 1.0E-10
 
   /**
    * A weights is required to satisfy the following conditions:

@@ -21,9 +21,14 @@ import breeze.linalg.{max, sum, DenseVector => DBV, Vector => BV}
 import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.mllib.linalg.Vector
 
+/**
+ * this abstract class is used for a weighted distance metric
+ *
+ * @param weights weight vector
+ */
 @Experimental
 abstract class WeightedDistanceMetric(weights: BV[Double]) extends DistanceMetric {
-  private val EPSILON = 0.0000001
+  private val EPSILON = 1.0E-10
 
   /**
    * A weights is required to satisfy the following conditions:

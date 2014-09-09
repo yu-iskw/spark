@@ -25,7 +25,7 @@ import scala.language.implicitConversions
 
 /**
  * :: Experimental ::
- * This trait is used for objects which can determine a distance between two points
+ * This abstract class is used for objects which can determine a distance between two points
  *
  * Classes which inherits from this class are required to satisfy the follow condition:
  * 1. d(x, y) >= 0 (non-negative)
