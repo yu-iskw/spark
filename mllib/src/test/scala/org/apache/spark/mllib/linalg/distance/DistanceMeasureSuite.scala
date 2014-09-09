@@ -24,11 +24,21 @@ import org.scalatest.FunSuite
 
 class DistanceMeasureSuite extends FunSuite {
 
-  test("check the implicit method") {
+  test("check the implicit method with (Vector, Vector) => Double") {
     val vector1 = Vectors.dense(1, 1, 1, 1, 1).toBreeze
     val vector2 = Vectors.dense(2, 2, 2, 2, 2).toBreeze
 
     val fun = (v1: Vector, v2: Vector) => (v1.toBreeze - v2.toBreeze).norm(1)
+    val measure: DistanceMeasure = fun
+    val distance = measure(vector1, vector2)
+    assert(distance == 5)
+  }
+
+  test("check the implicit method with (BV[Double], BV[Double]) => Double") {
+    val vector1 = Vectors.dense(1, 1, 1, 1, 1).toBreeze
+    val vector2 = Vectors.dense(2, 2, 2, 2, 2).toBreeze
+
+    val fun = (v1: BV[Double], v2: BV[Double]) => (v1 - v2).norm(1)
     val measure: DistanceMeasure = fun
     val distance = measure(vector1, vector2)
     assert(distance == 5)
