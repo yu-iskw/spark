@@ -478,22 +478,3 @@ class ClusterTreeStatsUpdater private (private var dimension: Option[Int])
     clusterTree
   }
 }
-
-
-//object DistanceType extends Enumeration {
-//  val Euclidean = Value("euclidean")
-//  val Manhattan = Value("manhattan")
-//  val Chebyshev = Value("chebyshev")
-//  val Cosine = Value("cosine")
-//  val Tanimoto = Value("tanimoto")
-//
-//  def calculate(distanceType: DistanceType.Value, bv1: BV[Double], bv2: BV[Double]): Double = {
-//    distanceType match {
-//      case Euclidean => euclideanDistance(bv1, bv2)
-//      case Manhattan => manhattanDistance(bv1, bv2)
-//      case Chebyshev => chebyshevDistance(bv1, bv2)
-//      case Cosine => cosineDistance(bv1, bv2)
-//      case Tanimoto => tanimotoDistance(bv1, bv2)
-//    }
-//  }
-//}
