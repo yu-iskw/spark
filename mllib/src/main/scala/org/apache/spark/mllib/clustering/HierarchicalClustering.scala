@@ -198,7 +198,8 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
   private def split(clusterTree: ClusterTree): Array[ClusterTree] = {
     val data = clusterTree.data
     var centers = takeInitCenters(clusterTree.center)
-    var finder: ClosestCenterFinder = new EuclideanClosestCenterFinder(centers)
+    val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
+    var finder = ClusterTree.findClosestCenter(metric)(centers) _
 
     // If the following conditions are satisfied, the iteration is stopped
     //   1. the relative error is less than that of configuration
@@ -232,7 +233,7 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
       error = Math.abs((normSum - newNormSum) / normSum)
       centers = newCenters.toArray
       numIter += 1
-      finder = new EuclideanClosestCenterFinder(centers)
+      finder = ClusterTree.findClosestCenter(metric)(centers)_
     }
 
     val vectors = centers.map(center => Vectors.fromBreeze(center))
@@ -446,6 +447,13 @@ object ClusterTree {
     }.reduce((a, b) => (a._1 + b._1, a._2 + b._2))
     val center = Vectors.fromBreeze(pointStat._1.:/(pointStat._2.toDouble))
     new ClusterTree(center, breezeData)
+  }
+
+  private[mllib]
+  def findClosestCenter(metric: Function2[BV[Double], BV[Double], Double])
+        (centers: Array[BV[Double]])
+        (point: BV[Double]): Int = {
+    centers.zipWithIndex.map { case (center, idx) => (idx, metric(center, point))}.minBy(_._2)._1
   }
 }
 
