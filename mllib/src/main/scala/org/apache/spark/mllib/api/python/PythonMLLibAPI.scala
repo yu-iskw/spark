@@ -261,6 +261,17 @@ class PythonMLLibAPI extends Serializable {
   }
 
   /**
+   * Java stub for Python mllib HierarchicalClustering.train()
+   */
+  def trainHierarchicalClusteringModel(
+    data: JavaRDD[Vector],
+    k: Int
+  ): HierarchicalClusteringModel = {
+    val conf = new HierarchicalClusteringConf().setNumClusters(k)
+    new HierarchicalClustering(conf).run(data)
+  }
+
+  /**
    * Java stub for Python mllib ALS.train().  This stub returns a handle
    * to the Java object instead of the content of the Java object.  Extra care
    * needs to be taken in the Python code to ensure it gets freed on exit; see
