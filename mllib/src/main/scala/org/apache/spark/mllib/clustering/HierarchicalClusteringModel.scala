@@ -52,12 +52,10 @@ class HierarchicalClusteringModel private (
 
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     val centers = getClusters().map(_.center.toBreeze)
-    var finder = ClusterTree.findClosestCenter(metric)(centers) _
-    data.sparkContext.broadcast(finder)
-    val predicted = data.map { point =>
-      val closestIdx = finder(point.toBreeze)
-      (closestIdx, point)
-    }
+    val treeRoot = this.clusterTree
+    val closestClusterIndexFinder = treeRoot.assignClusterIndex(metric) _
+    data.sparkContext.broadcast(closestClusterIndexFinder)
+    val predicted = data.map(point => (closestClusterIndexFinder(point), point))
     this.predictTime = (System.currentTimeMillis() - startTime).toInt
     predicted
   }

@@ -381,18 +381,36 @@ class ClusterTree(
     }
   }
 
+  /**
+   * Assigns the closest cluster with a vector
+   * @param metric distance metric
+   * @param v the vector you want to assign to
+   * @return the closest cluster
+   */
   private[mllib]
-  def assign(metric: Function2[BV[Double], BV[Double], Double])(vector: Vector): ClusterTree = {
+  def assignCluster(metric: Function2[BV[Double], BV[Double], Double])(v: Vector): ClusterTree = {
     this.children.size match {
       case 0 => this
       case 2 => {
-        val distances = this.children.map(tree => metric(tree.center.toBreeze, vector.toBreeze))
+        val distances = this.children.map(tree => metric(tree.center.toBreeze, v.toBreeze))
         val minIndex = distances.indexOf(distances.min)
-        this.children(minIndex).assign(metric)(vector)
+        this.children(minIndex).assignCluster(metric)(v)
       }
       case _ =>
         throw new UnsupportedOperationException(s"something wrong with # nodes, ${children.size}")
     }
+  }
+
+  /**
+   * Assigns the closest cluster index of the clusters with a vector
+   * @param metric distance metric
+   * @param vector the vector you want to assign to
+   * @return the closest cluster index of the all clusters
+   */
+  private[mllib]
+  def assignClusterIndex(metric: Function2[BV[Double], BV[Double], Double])(vector: Vector): Int = {
+    val assignedTree = this.assignCluster(metric)(vector)
+    this.getClusters().indexOf(assignedTree)
   }
 
   /**

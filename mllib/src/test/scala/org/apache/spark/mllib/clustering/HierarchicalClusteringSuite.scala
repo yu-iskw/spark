@@ -213,8 +213,8 @@ class ClusterTreeSuite extends FunSuite with LocalSparkContext with SampleData {
     cluster0.insert(List(cluster1, cluster2))
 
     def metric(bv1: BV[Double], bv2: BV[Double]): Double = breezeNorm(bv1 - bv2, 2)
-    assert(cluster0.assign(metric)(data1(0)) === cluster1)
-    assert(cluster0.assign(metric)(data2(0)) === cluster2)
+    assert(cluster0.assignCluster(metric)(data1(0)) === cluster1)
+    assert(cluster0.assignCluster(metric)(data2(0)) === cluster2)
   }
 }
 

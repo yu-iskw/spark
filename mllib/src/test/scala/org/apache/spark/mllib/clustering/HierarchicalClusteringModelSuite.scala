@@ -17,22 +17,23 @@
 
 package org.apache.spark.mllib.clustering
 
-import org.apache.spark.mllib.linalg.{Vectors, Vector}
+import org.apache.spark.SparkContext._
+import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.util.LocalSparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.SparkContext._
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
 class HierarchicalClusteringModelSuite
     extends FunSuite with LocalSparkContext with BeforeAndAfterEach {
 
+  var seed: Seq[(Int, Vector)] = _
   var data: RDD[Vector] = _
   var app: HierarchicalClustering = _
   var model: HierarchicalClusteringModel = _
 
   override def beforeEach() {
-    val seed = (0 to 99).map { i =>
-      val label = Math.floor(i / 10)
+    seed = (0 to 49).toSeq.map { i =>
+      val label = i % 5
       val vector = Vectors.dense(label, label, label)
       (label, vector)
     }
@@ -46,13 +47,18 @@ class HierarchicalClusteringModelSuite
   test("should get the array of ClusterTree") {
     val clusters = model.getClusters()
     assert(clusters.isInstanceOf[Array[ClusterTree]])
-    assert(clusters.size === 10)
+    assert(clusters.size === 5)
   }
 
-  test("the number of predicted clusters should be same") {
+  test("the number of predicted clusters should be equal to their origin") {
     val predictedData = model.predict(data)
     // the number of contained vectors in each cluster is 10
     predictedData.map { case (i, vector) => (i, 1)}.reduceByKey(_ + _)
         .collect().foreach { case (idx, n) => assert(n === 10)}
+  }
+
+  test("predicted result should be same the seed data") {
+    val predictedData = model.predict(data).collect()
+    assert(predictedData === seed)
   }
 }
