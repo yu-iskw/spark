@@ -50,6 +50,7 @@ class HierarchicalClusteringModel private (
   def predict(data: RDD[Vector]): RDD[(Int, Vector)] = {
     val startTime = System.currentTimeMillis() // to measure the execution time
 
+    // TODO Supports distance metrics other Euclidean distance metric
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     val centers = getClusters().map(_.center.toBreeze)
     val treeRoot = this.clusterTree

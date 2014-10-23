@@ -18,6 +18,7 @@
 package org.apache.spark.mllib.clustering
 
 import breeze.linalg.{DenseVector => BDV, Vector => BV, norm => breezeNorm}
+import org.apache.spark.Logging
 import org.apache.spark.SparkContext._
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
@@ -89,7 +90,8 @@ class HierarchicalClusteringConf(
  *
  * @param conf the configuration class for the hierarchical clustering
  */
-class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Serializable {
+class HierarchicalClustering(val conf: HierarchicalClusteringConf)
+    extends Serializable with Logging {
 
   /**
    * Constructs with the default configuration
@@ -104,6 +106,7 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
    */
   def run(data: RDD[Vector]): HierarchicalClusteringModel = {
     validateData(data)
+    logInfo(s"Run with ${conf.toString}")
 
     val startTime = System.currentTimeMillis() // to measure the execution time
     val clusterTree = ClusterTree.fromRDD(data) // make the root node
@@ -119,6 +122,7 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
     //   3. The total variance of all clusters increases, when a cluster is splitted
     var totalVariance = Double.MaxValue
     var newTotalVariance = model.clusterTree.getVariance().get
+    var step = 1
     while (node != None
         && model.clusterTree.getTreeSize() < this.conf.getNumClusters
         && totalVariance >= newTotalVariance) {
@@ -140,6 +144,7 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
             val dist = breezeNorm(subNodes(0).center.toBreeze - subNodes(1).center.toBreeze, 2)
             node.get.height = Some(dist)
             isMerged = true
+            logInfo(s"the number of cluster is ${model.clusterTree.getTreeSize()} at step ${step}")
           }
         }
       }
@@ -149,6 +154,7 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
       totalVariance = newTotalVariance
       newTotalVariance = model.clusterTree.toSeq().filter(_.isLeaf()).map(_.getVariance().get).sum
       node = nextNode(model.clusterTree)
+      step += 1
     }
 
     model.isTrained = true
@@ -159,7 +165,7 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
   /**
    * validate the given data to train
    */
-  private[clustering] def validateData(data: RDD[Vector]) {
+  private def validateData(data: RDD[Vector]) {
     conf match {
       case conf if conf.getNumClusters() > data.count() =>
         throw new IllegalArgumentException("# clusters must be less than # input data records")
@@ -196,8 +202,11 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
    * @return an array of ClusterTree. its size is generally 2, but its size can be 1
    */
   private def split(clusterTree: ClusterTree): Array[ClusterTree] = {
+    val startTime = System.currentTimeMillis()
     val data = clusterTree.data
     var centers = takeInitCenters(clusterTree.center)
+
+    // TODO Supports distance metrics other Euclidean distance metric
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     var finder = ClusterTree.findClosestCenter(metric)(centers) _
 
@@ -210,6 +219,8 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
     while (error > conf.getEpsilon()
         && numIter < conf.getSubIterations()
         && centers.size > 1) {
+
+      val startTimeOfIter = System.currentTimeMillis()
       // finds the closest center of each point
       data.sparkContext.broadcast(finder)
       val newCenters = data.mapPartitions { iter =>
@@ -233,7 +244,11 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
       error = Math.abs((normSum - newNormSum) / normSum)
       centers = newCenters.toArray
       numIter += 1
-      finder = ClusterTree.findClosestCenter(metric)(centers)_
+      finder = ClusterTree.findClosestCenter(metric)(centers) _
+
+      logInfo(s"${numIter} iterations is finished" +
+          s" for ${System.currentTimeMillis() - startTimeOfIter}" +
+          s" at ${getClass}.split")
     }
 
     val vectors = centers.map(center => Vectors.fromBreeze(center))
@@ -249,6 +264,9 @@ class HierarchicalClustering(val conf: HierarchicalClusteringConf) extends Seria
       }
       case _ => throw new RuntimeException(s"something wrong with # centers:${centers.size}")
     }
+    logInfo(s"${this.getClass.getSimpleName}.split end" +
+        s" with total iterations" +
+        s" for ${System.currentTimeMillis() - startTime}")
     nodes
   }
 }
