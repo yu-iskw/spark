@@ -17,6 +17,7 @@
 
 package org.apache.spark.mllib.clustering
 
+import breeze.linalg.{DenseVector => BDV, Vector => BV, norm => breezeNorm}
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.random.UniformGenerator
 import org.apache.spark.mllib.util.LocalSparkContext
@@ -199,6 +200,21 @@ class ClusterTreeSuite extends FunSuite with LocalSparkContext with SampleData {
     assert(child2.getDepth() === 1)
     assert(child21.getDepth() === 2)
     assert(child22.getDepth() === 2)
+  }
+
+  test("assgin") {
+    val data1 = Seq(Vectors.dense(1.0, 2.0, 3.0))
+    val data2 = Seq(Vectors.dense(4.0, 5.0, 6.0))
+    val data0 = data1 ++ data2
+
+    val cluster0 = ClusterTree.fromRDD(sc.parallelize(data0))
+    val cluster1 = ClusterTree.fromRDD(sc.parallelize(data1))
+    val cluster2 = ClusterTree.fromRDD(sc.parallelize(data2))
+    cluster0.insert(List(cluster1, cluster2))
+
+    def metric(bv1: BV[Double], bv2: BV[Double]): Double = breezeNorm(bv1 - bv2, 2)
+    assert(cluster0.assign(metric)(data1(0)) === cluster1)
+    assert(cluster0.assign(metric)(data2(0)) === cluster2)
   }
 }
 

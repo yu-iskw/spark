@@ -380,6 +380,20 @@ class ClusterTree(
     }
   }
 
+  private[mllib]
+  def assign(metric: Function2[BV[Double], BV[Double], Double])(vector: Vector): ClusterTree = {
+    this.children.size match {
+      case 0 => this
+      case 2 => {
+        val distances = this.children.map(tree => metric(tree.center.toBreeze, vector.toBreeze))
+        val minIndex = distances.indexOf(distances.min)
+        this.children(minIndex).assign(metric)(vector)
+      }
+      case _ =>
+        throw new UnsupportedOperationException(s"something wrong with # nodes, ${children.size}")
+    }
+  }
+
   /**
    * Gets the number of the clusters in the tree. The clusters are only leaves
    *
