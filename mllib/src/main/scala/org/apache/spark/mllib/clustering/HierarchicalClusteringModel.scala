@@ -44,8 +44,15 @@ class HierarchicalClusteringModel private (
 
   /**
    * Predicts the closest cluster of each point
-   * @param data the data to predict
-   * @return predicted data
+   */
+  def predict(vector: Vector): Int = {
+    // TODO Supports distance metrics other Euclidean distance metric
+    val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
+    this.clusterTree.assignClusterIndex(metric)(vector)
+  }
+
+  /**
+   * Predicts the closest cluster of each point
    */
   def predict(data: RDD[Vector]): RDD[(Int, Vector)] = {
     val startTime = System.currentTimeMillis() // to measure the execution time
@@ -64,4 +71,9 @@ class HierarchicalClusteringModel private (
   /** Maps given points to their cluster indices. */
   def predict(points: JavaRDD[Vector]): JavaRDD[java.lang.Integer] =
     predict(points.rdd).map(_._1).toJavaRDD().asInstanceOf[JavaRDD[java.lang.Integer]]
+
+  /**
+   * Computes the sum of total variance of all cluster
+   */
+  def computeCost(): Double =  this.getClusters().map(_.getVariance().get).sum
 }

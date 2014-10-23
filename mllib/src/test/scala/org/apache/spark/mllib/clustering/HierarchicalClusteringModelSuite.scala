@@ -61,4 +61,8 @@ class HierarchicalClusteringModelSuite
     val predictedData = model.predict(data).collect()
     assert(predictedData === seed)
   }
+
+  test("sum of the total variance") {
+    assert(model.computeCost() === 0.0)
+  }
 }
