@@ -346,6 +346,17 @@ class ClusterTree(
   }
 
   /**
+   * Gets the all clusters which are leaves in the cluster tree
+   * @return the Seq of the clusters
+   */
+  def getClusters(): Seq[ClusterTree] = {
+    toSeq().filter(_.isLeaf()).sortWith { case (a, b) =>
+      a.getDepth() < b.getDepth() &&
+          breezeNorm(a.center.toBreeze, 2) < breezeNorm(b.center.toBreeze, 2)
+    }
+  }
+
+  /**
    * Gets the depth of the cluster in the tree
    *
    * @return the depth

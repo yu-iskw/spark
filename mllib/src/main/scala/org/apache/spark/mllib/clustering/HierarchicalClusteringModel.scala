@@ -29,28 +29,16 @@ import org.apache.spark.rdd.RDD
  * @param trainTime the milliseconds for executing a training
  * @param predictTime the milliseconds for executing a prediction
  * @param isTrained if the model has been trained, the flag is true
- * @param clusters the clusters as the result of the training
  */
 class HierarchicalClusteringModel private (
   val clusterTree: ClusterTree,
   var trainTime: Int,
   var predictTime: Int,
-  var isTrained: Boolean,
-  private var clusters: Option[Array[ClusterTree]]) extends Serializable {
+  var isTrained: Boolean) extends Serializable {
 
-  def this(clusterTree: ClusterTree) = this(clusterTree, 0, 0, false, None)
+  def this(clusterTree: ClusterTree) = this(clusterTree, 0, 0, false)
 
-  def getClusters(): Array[ClusterTree] = {
-    if (clusters == None) {
-      val clusters = this.clusterTree.toSeq().filter(_.isLeaf())
-          .sortWith { case (a, b) =>
-        a.getDepth() < b.getDepth() &&
-            breezeNorm(a.center.toBreeze, 2) < breezeNorm(b.center.toBreeze, 2)
-      }.toArray
-      this.clusters = Some(clusters)
-    }
-    this.clusters.get
-  }
+  def getClusters(): Array[ClusterTree] = clusterTree.getClusters().toArray
 
   def getCenters(): Array[Vector] = getClusters().map(_.center)
 
