@@ -200,6 +200,26 @@ class HierarchicalClusteringModel(object):
         jpyrdd = self._sc._jvm.SerDe.javaToPython(jrdd)
         return RDD(jpyrdd, self._sc, AutoBatchedSerializer(PickleSerializer()))
 
+    def cut(self, height):
+        """Cut nodes and leaves in a cluster tree by a dendrogram height.
+        :param height: a threshold to cut a cluster tree
+        """
+        ser = PickleSerializer()
+        model = self._java_model.cut(height)
+        bytes = self._sc._jvm.SerDe.dumps(model.getCenters())
+        centers = ser.loads(str(bytes))
+        return HierarchicalClusteringModel(self._sc, model, [c.toArray() for c in centers])
+
+    def to_merge_list(self):
+        """Extract an array for dendrogram
+        :return: an array which is fit for scipy's dendrogram
+        """
+        ser = PickleSerializer()
+        model = self._java_model
+        bytes = self._sc._jvm.SerDe.dumps(model.toMergeList())
+        centers = ser.loads(str(bytes))
+        return array([c.toArray() for c in centers])
+
 
 class HierarchicalClustering(object):
 
@@ -216,7 +236,7 @@ class HierarchicalClustering(object):
             subIterations, numRetries, epsilon, randomSeed, randomRange)
         bytes = sc._jvm.SerDe.dumps(model.getCenters())
         centers = ser.loads(str(bytes))
-        return HierarchicalClusteringModel(sc, model, [c for c in centers])
+        return HierarchicalClusteringModel(sc, model, [c.toArray() for c in centers])
 
 
 def _test():

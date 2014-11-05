@@ -31,9 +31,25 @@ import org.apache.spark.rdd.RDD
  */
 class HierarchicalClusteringModel private (
   val clusterTree: ClusterTree,
-  private[mllib] var isTrained: Boolean) extends Serializable with Logging {
+  private[mllib] var isTrained: Boolean) extends Serializable with Logging with Cloneable {
 
   def this(clusterTree: ClusterTree) = this(clusterTree, false)
+
+  override def clone(): HierarchicalClusteringModel = {
+    new HierarchicalClusteringModel(this.clusterTree.clone(), true)
+  }
+
+  /**
+   * Cuts a cluster tree by given threshold of dendrogram height
+   *
+   * @param height a threshold to cut a cluster tree
+   * @return a hierarchical clustering model
+   */
+  def cut(height: Double): HierarchicalClusteringModel = {
+    val cloned = this.clone()
+    cloned.clusterTree.cut(height)
+    cloned
+  }
 
   /**
    * Predicts the closest cluster of each point
@@ -76,4 +92,25 @@ class HierarchicalClusteringModel private (
   def getClusters(): Array[ClusterTree] = clusterTree.getClusters().toArray
 
   def getCenters(): Array[Vector] = getClusters().map(_.center)
+
+  /**
+   * Converts a clustering merging list
+   * Returned data format is fit for scipy's dendrogram function
+   * SEE ALSO: scipy.cluster.hierarchy.dendrogram
+   *
+   * @return List[(node1, node2, distance, tree size)]
+   */
+  def toMergeList(): List[(Int, Int, Double, Int)] = {
+    val seq = this.clusterTree.toSeq()
+    val nodes = seq.filter(_.isLeaf()) ++
+        seq.filter(! _.isLeaf()).sortWith{ case (a, b) => a.getHeight() < b.getHeight()}
+    val treeMap = nodes.zipWithIndex.map { case (tree, idx) => (tree -> idx)}.toMap
+    nodes.filter(tree => !tree.isLeaf()).filter(tree => tree.children.size == 2).toList
+        .map { tree =>
+      (treeMap(tree.children(0)),
+          treeMap(tree.children(1)),
+          tree.getHeight(),
+          tree.getTreeSize())
+    }
+  }
 }
