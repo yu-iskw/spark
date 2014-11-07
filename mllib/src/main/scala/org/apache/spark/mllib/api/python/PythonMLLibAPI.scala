@@ -296,6 +296,8 @@ class PythonMLLibAPI extends Serializable {
     def toMergeList(): Array[Vector] = {
       model.toMergeList().map{case (c1, c2, d, s) => Vectors.dense(c1, c2, d, s)}.toArray
     }
+
+    def getSumOfVariance(): Double = model.getSumOfVariance()
   }
 
   /**

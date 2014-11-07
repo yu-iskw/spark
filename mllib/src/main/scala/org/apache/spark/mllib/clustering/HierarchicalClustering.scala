@@ -381,10 +381,16 @@ class ClusterTree private (
     elements.mkString(", ")
   }
 
+  /**
+   * Cuts a cluster tree
+   *
+   * @param height the threshold of height to cut a cluster tree
+   * @return a cut hierarchical clustering model
+   */
   private[mllib] def cut(height: Double): ClusterTree = {
     this.children.foreach { child =>
-      if (child.getHeight() < height) {
-        this.delete(child)
+      if (child.getHeight() < height && child.children.size > 0) {
+        child.children.foreach(grandchild => child.delete(grandchild))
       }
     }
     this.children.foreach(child => child.cut(height))

@@ -100,8 +100,8 @@ class HierarchicalClusteringModelSuite
   }
 
   test("sum of the total variance") {
-    assert(denseModel.computeCost() === 0.0)
-    assert(sparseModel.computeCost() === 0.0)
+    assert(denseModel.getSumOfVariance() === 0.0)
+    assert(sparseModel.getSumOfVariance() === 0.0)
   }
 
   test("a model should be clonable") {
@@ -114,8 +114,8 @@ class HierarchicalClusteringModelSuite
   }
 
   test("a model can be cut by height") {
-    val cutDenseModel = denseModel.cut(1.5)
-    val cutSparseModel = sparseModel.cut(1.0)
+    val cutDenseModel = denseModel.cut(6.0)
+    val cutSparseModel = sparseModel.cut(6.0)
 
     assert(cutDenseModel.hashCode() !== denseModel.hashCode())
     assert(cutSparseModel.hashCode() !== sparseModel.hashCode())
@@ -133,8 +133,8 @@ class HierarchicalClusteringModelSuite
 
   test("A cluster tree should be converted a merging nodes list") {
     assert(denseModel.toMergeList().size === 4)
-    assert(denseModel.cut(1.5).toMergeList().size === 1)
+    assert(denseModel.cut(4.0).toMergeList().size === 2)
     assert(sparseModel.toMergeList().size === 4)
-    assert(sparseModel.cut(2.0).toMergeList().size === 1)
+    assert(sparseModel.cut(6.0).toMergeList().size === 1)
   }
 }

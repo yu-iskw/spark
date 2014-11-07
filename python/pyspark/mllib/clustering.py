@@ -15,12 +15,14 @@
 # limitations under the License.
 #
 
-from numpy import ndarray
+import inspect
+from numpy import array, ndarray
 
 from pyspark import SparkContext
 from pyspark.rdd import RDD
 from pyspark.serializers import PickleSerializer, AutoBatchedSerializer
-from pyspark.mllib.linalg import SparseVector, _convert_to_vector, _to_java_object_rdd
+from pyspark.mllib.linalg import Vector, DenseVector, SparseVector, \
+    _convert_to_vector, _to_java_object_rdd
 
 __all__ = ['KMeansModel', 'KMeans',
            'HierarchicalClustering', 'HierarchicalClusteringModel']
@@ -99,7 +101,6 @@ class HierarchicalClusteringModel(object):
 
     """A clustering model derived from the hierarchical clustering method.
 
-    >>> from pyspark.mllib.clustering import HierarchicalClustering
     >>> from numpy import array
     >>> data = array([0.0,0.0, 1.0,1.0, 9.0,8.0, 8.0,9.0]).reshape(4,2)
     >>> train_rdd = sc.parallelize(data)
@@ -169,7 +170,7 @@ class HierarchicalClusteringModel(object):
         :param x: a ndarray of list, a SparseVector or RDD[SparseVector]
         :return: the closest index or a RDD of int which means the closest index
         """
-        if isinstance(x, ndarray) or isinstance(x, SparseVector):
+        if isinstance(x, ndarray) or isinstance(x, Vector):
             return self.__predict_by_array(x)
         elif isinstance(x, RDD):
             return self.__predict_by_rdd(x)
@@ -210,8 +211,20 @@ class HierarchicalClusteringModel(object):
         centers = ser.loads(str(bytes))
         return HierarchicalClusteringModel(self._sc, model, [c.toArray() for c in centers])
 
+    def sum_of_variance(self):
+        """Gets the sum of variance of all clusters.
+        :return: sum of variance of all clusters
+        """
+        ser = PickleSerializer()
+        model = self._java_model
+        bytes = self._sc._jvm.SerDe.dumps(model.getSumOfVariance())
+        variance = ser.loads(str(bytes))
+        return variance
+
     def to_merge_list(self):
         """Extract an array for dendrogram
+
+        the array is fit for SciPy's dendrogram
         :return: an array which is fit for scipy's dendrogram
         """
         ser = PickleSerializer()
@@ -236,7 +249,8 @@ class HierarchicalClustering(object):
             subIterations, numRetries, epsilon, randomSeed, randomRange)
         bytes = sc._jvm.SerDe.dumps(model.getCenters())
         centers = ser.loads(str(bytes))
-        return HierarchicalClusteringModel(sc, model, [c.toArray() for c in centers])
+        # TODO: because centers are SparseVector, wel will change them numpy.array.
+        return HierarchicalClusteringModel(sc, model, [c for c in centers])
 
 
 def _test():

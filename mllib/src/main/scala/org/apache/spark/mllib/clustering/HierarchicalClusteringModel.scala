@@ -87,7 +87,7 @@ class HierarchicalClusteringModel private (
   /**
    * Computes the sum of total variance of all cluster
    */
-  def computeCost(): Double = this.getClusters().map(_.getVariance().get).sum
+  def getSumOfVariance(): Double = this.getClusters().map(_.getVariance().get).sum
 
   def getClusters(): Array[ClusterTree] = clusterTree.getClusters().toArray
 
@@ -101,14 +101,24 @@ class HierarchicalClusteringModel private (
    * @return List[(node1, node2, distance, tree size)]
    */
   def toMergeList(): List[(Int, Int, Double, Int)] = {
-    val seq = this.clusterTree.toSeq()
-    val nodes = seq.filter(_.isLeaf()) ++
-        seq.filter(! _.isLeaf()).sortWith{ case (a, b) => a.getHeight() < b.getHeight()}
-    val treeMap = nodes.zipWithIndex.map { case (tree, idx) => (tree -> idx)}.toMap
-    nodes.filter(tree => !tree.isLeaf()).filter(tree => tree.children.size == 2).toList
-        .map { tree =>
-      (treeMap(tree.children(0)),
-          treeMap(tree.children(1)),
+    val seq = this.clusterTree.toSeq().sortWith{ case (a, b) => a.getHeight() < b.getHeight()}
+    val leaves = seq.filter(_.isLeaf())
+    val nodes = seq.filter(!_.isLeaf()).filter(_.children.size > 1)
+    val clusters = leaves ++ nodes
+    val treeMap = clusters.zipWithIndex.map { case (tree, idx) => (tree -> idx)}.toMap
+
+    // If a node only has one-child, the child is regarded as the cluster of the child.
+    // Cluster A has cluster B and Cluster B. B is a leaf. C only has cluster D.
+    // ==> A merge list is (B, D), not (B, C).
+    def getIndex(map: Map[ClusterTree, Int], tree: ClusterTree): Int = {
+      tree.children.size match {
+        case 1 => getIndex(map, tree.children(0))
+        case _ => map(tree)
+      }
+    }
+    clusters.filter(tree => !tree.isLeaf()).toList.map { tree =>
+      (getIndex(treeMap, tree.children(0)),
+          getIndex(treeMap, tree.children(1)),
           tree.getHeight(),
           tree.getTreeSize())
     }
