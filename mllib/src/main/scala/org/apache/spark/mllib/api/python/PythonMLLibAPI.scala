@@ -261,6 +261,46 @@ class PythonMLLibAPI extends Serializable {
   }
 
   /**
+   * Java stub for Python MLlib HierarchicalClustering.train()
+   */
+  def trainHierarchicalClusteringModel(
+    data: JavaRDD[Vector],
+    k: Int,
+    subIterations: Int,
+    numRetries: Int,
+    epsilon: Double,
+    randomSeed: Int,
+    randomRange: Double): HierarchicalClusteringModelWrapper = {
+    val algo = new HierarchicalClustering()
+        .setNumClusters(k)
+        .setSubIterations(subIterations)
+        .setNumRetries(numRetries)
+        .setEpsilon(epsilon)
+        .setRandomSeed(randomSeed)
+        .setRandomRange(randomRange)
+    val model = algo.run(data)
+    new HierarchicalClusteringModelWrapper(model)
+  }
+
+  private[python] class HierarchicalClusteringModelWrapper(model: HierarchicalClusteringModel) {
+    def predict(vector: Vector): Int =  model.predict(vector)
+
+    def predict(data: JavaRDD[Vector]): JavaRDD[java.lang.Integer] = model.predict(data)
+
+    def cut(height: Double): HierarchicalClusteringModelWrapper = {
+      new HierarchicalClusteringModelWrapper(this.model.cut(height))
+    }
+
+    def getCenters(): Array[Vector] = model.getCenters()
+
+    def toMergeList(): Array[Vector] = {
+      model.toMergeList().map{case (c1, c2, d, s) => Vectors.dense(c1, c2, d, s)}.toArray
+    }
+
+    def getSumOfVariance(): Double = model.getSumOfVariance()
+  }
+
+  /**
    * Java stub for Python mllib ALS.train().  This stub returns a handle
    * to the Java object instead of the content of the Java object.  Extra care
    * needs to be taken in the Python code to ensure it gets freed on exit; see
