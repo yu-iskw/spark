@@ -19,7 +19,6 @@ package org.apache.spark.mllib.clustering
 
 import breeze.linalg.{DenseVector => BDV, SparseVector => BSV, Vector => BV, norm => breezeNorm}
 import org.apache.spark.Logging
-import org.apache.spark.SparkContext._
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.random.XORShiftRandom
@@ -220,7 +219,7 @@ class HierarchicalClustering(
     //   1. the relative error is less than that of configuration
     //   2. the number of executed iteration is greater than that of configuration
     //   3. the number of centers is equal to one. if one means that the cluster is not splittable
-    var numIter = 0
+    var numIter = 1
     var error = Double.MaxValue
     while (error > this.epsilon
         && numIter < this.subIterations

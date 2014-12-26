@@ -17,14 +17,13 @@
 
 package org.apache.spark.mllib.clustering
 
-import org.apache.spark.SparkContext._
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
-import org.apache.spark.mllib.util.LocalSparkContext
+import org.apache.spark.mllib.util.MLlibTestSparkContext
 import org.apache.spark.rdd.RDD
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
 class HierarchicalClusteringModelSuite
-    extends FunSuite with LocalSparkContext with BeforeAndAfterEach {
+    extends FunSuite with MLlibTestSparkContext with BeforeAndAfterEach {
 
   var denseSeed: Seq[(Int, Vector)] = _
   var sparseSeed: Seq[(Int, Vector)] = _

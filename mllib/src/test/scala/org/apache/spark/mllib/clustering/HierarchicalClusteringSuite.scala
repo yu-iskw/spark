@@ -20,7 +20,7 @@ package org.apache.spark.mllib.clustering
 import breeze.linalg.{DenseVector => BDV, Vector => BV, norm => breezeNorm}
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.random.UniformGenerator
-import org.apache.spark.mllib.util.LocalSparkContext
+import org.apache.spark.mllib.util.MLlibTestSparkContext
 import org.apache.spark.mllib.util.TestingUtils._
 import org.apache.spark.rdd.RDD
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -50,7 +50,8 @@ class HierarichicalClusteringConfSuite extends FunSuite {
 }
 
 
-class HierarchicalClusteringSuite extends FunSuite with LocalSparkContext with BeforeAndAfterEach {
+class HierarchicalClusteringSuite
+    extends FunSuite with MLlibTestSparkContext with BeforeAndAfterEach {
 
   var vectors: Seq[Vector] = _
   var data: RDD[Vector] = _
@@ -154,7 +155,7 @@ class HierarchicalClusteringSuite extends FunSuite with LocalSparkContext with B
 }
 
 
-class ClusterTreeSuite extends FunSuite with LocalSparkContext with SampleData {
+class ClusterTreeSuite extends FunSuite with MLlibTestSparkContext with SampleData {
 
   override var data: RDD[Vector] = _
   override var subData1: RDD[Vector] = _
@@ -247,7 +248,7 @@ class ClusterTreeSuite extends FunSuite with LocalSparkContext with SampleData {
   }
 }
 
-class ClusteringStatsUpdaterSuite extends FunSuite with LocalSparkContext {
+class ClusteringStatsUpdaterSuite extends FunSuite with MLlibTestSparkContext {
 
   test("the variance of a data should be greater than that of another one") {
     // the variance of subData2 is greater than that of subData1
