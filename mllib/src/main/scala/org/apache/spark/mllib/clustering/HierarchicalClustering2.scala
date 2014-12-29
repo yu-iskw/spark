@@ -131,49 +131,59 @@ class HierarchicalClustering2(
     val sc = data.sparkContext
     // generate initial centers
     var clusters = getCenterStats(data)
-    val nextCenters = clusters.map { case (i, c) => (i, takeInitCenters(c.center.toBreeze))}
-    sc.broadcast(nextCenters)
+
+    //    var newCenters = clusters.map { case (i, c) => (i, takeInitCenters(c.center.toBreeze))}
+    var newCenters: Map[Int, BV[Double]] = clusters.flatMap { case (idx, cluster) =>
+      takeInitCenters(cluster.center.toBreeze).zipWithIndex
+          .map { case (center, i) => (2 * idx + i , center)}
+    }
+    sc.broadcast(newCenters)
 
     // TODO Supports distance metrics other Euclidean distance metric
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     sc.broadcast(metric)
 
-    val stats = data.mapPartitions { iter =>
-      val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]
-      iter.foreach { case (idx, point) =>
-        // calculate next index number
-        val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(nextCenters(idx))(point)
-        val nextIndex = 2 * idx + closestIndex + 1
-        // get a map value or else get a sparse vector
-        val (sumBV, n, sumOfSquares) = map.get(nextIndex)
-            .getOrElse(BSV.zeros[Double](point.size), 0.0, BSV.zeros[Double](point.size))
-        map(nextIndex) = (sumBV + point, n + 1.0, sumOfSquares + (point :* point))
-      }
-      map.toIterator
+    // TODO modify how to set iterations with a variable
+    val vectorSize = newCenters(newCenters.keySet.min).size
+    var stats = newCenters.keys.map { idx =>
+      (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
+    }.toMap
+    for (i <- 1 to 10) yield {
+      val eachStats = data.mapPartitions { iter =>
+        val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]
+        iter.foreach { case (idx, point) =>
+          // calculate next index number
+          val centers = Array(2 * idx, 2 * idx + 1).filter(newCenters.keySet.contains(_)).map(newCenters(_)).toArray
+          if (centers.size == 0) {
+            println (1)
+          }
+          val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(centers)(point)
+          val nextIndex = 2 * idx + closestIndex
+          // get a map value or else get a sparse vector
+          val (sumBV, n, sumOfSquares) = map.get(nextIndex)
+              .getOrElse(BSV.zeros[Double](point.size), 0.0, BSV.zeros[Double](point.size))
+          map(nextIndex) = (sumBV + point, n + 1.0, sumOfSquares + (point :* point))
+        }
+        map.toIterator
+      }.reduceByKey { case ((sv1, n1, sumOfSquares1), (sv2, n2, sumOfSquares2)) =>
+        // sum the accumulation and the count in the all partition
+        (sv1 + sv2, n1 + n2, sumOfSquares1 + sumOfSquares2)
+      }.collect().toMap
 
-      // calculate the accumulation of the all point in a partition and count the rows
-      //      val map = scala.collection.mutable.Map.empty[Int, (BV[Double], Long)]
-      //      iter.foreach { case (idx, point) =>
-      //        val centers = nextCenters(idx)
-      //        val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(centers)(point)
-      //        val nextIndex = 2 * idx + closestIndex + 1
-      //        val (sumBV, n) = map.get(nextIndex)
-      //            .getOrElse((new BSV[Double](Array(), Array(), point.size), 0L))
-      //        map(nextIndex) = (sumBV + point, n + 1L)
-      //      }
-      //      map.toIterator
-    }.reduceByKey { case ((sv1, n1, sumOfSquares1), (sv2, n2, sumOfSquares2)) =>
-      // sum the accumulation and the count in the all partition
-      (sv1 + sv2, n1 + n2, sumOfSquares1 + sumOfSquares2)
+      println(s"==== ${i} ===")
+      println(eachStats)
+      newCenters = eachStats.map { case (idx, (sum, n, sumOfSquares)) =>
+        (idx, sum :/ n)
+      }
+      println(newCenters)
+      stats = eachStats
     }
 
-    // make clusters
-    stats.collect().map { case (i, (sum, n, sumOfSquares)) =>
+    // make cluster
+    stats.filter { case (i, (sum, n, sumOfSquares)) => n > 0}
+        .map { case (i, (sum, n, sumOfSquares)) =>
       val center = Vectors.fromBreeze(sum :/ n)
-      val variances = n match {
-        case n if n > 1 => Vectors.fromBreeze(sumOfSquares.:*(n) - (sum :* sum) :/ (n * (n - 1.0)))
-        case _ => Vectors.sparse(sum.size, Array(), Array())
-      }
+      val variances = Vectors.fromBreeze(sumOfSquares.:*(n) - (sum :* sum) :/ (n * (n - 1.0)))
       (i, new ClusterTree2(center, n.toLong, variances))
     }.toMap
   }

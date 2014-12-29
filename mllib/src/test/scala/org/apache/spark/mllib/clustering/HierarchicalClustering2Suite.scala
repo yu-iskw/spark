@@ -77,18 +77,18 @@ class HierarchicalClustering2Suite
 
   test("split") {
     val algo = new HierarchicalClustering2
-    val seed = (0 to 99).map(i => ((i / 50).toInt + 1, Vectors.dense(i, i).toBreeze))
+    val seed = (0 to 99).map(i => ((i / 50).toInt + 2, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
     val newClusters = algo.splitCenters(data)
 
     assert(newClusters.size === 4)
-    assert(newClusters(3).center === Vectors.dense(11.5, 11.5))
-    assert(newClusters(3).records === 25)
-    assert(newClusters(4).center === Vectors.dense(37.0, 37.0))
+    assert(newClusters(4).center === Vectors.dense(12.0, 12.0))
     assert(newClusters(4).records === 25)
-    assert(newClusters(5).center === Vectors.dense(61.5, 61.5))
-    assert(newClusters(5).records === 24)
-    assert(newClusters(6).center === Vectors.dense(86.5, 86.5))
+    assert(newClusters(5).center === Vectors.dense(37.0, 37.0))
+    assert(newClusters(5).records === 25)
+    assert(newClusters(6).center === Vectors.dense(62.0, 62.0))
     assert(newClusters(6).records === 25)
+    assert(newClusters(7).center === Vectors.dense(87.0, 87.0))
+    assert(newClusters(7).records === 25)
   }
 }
