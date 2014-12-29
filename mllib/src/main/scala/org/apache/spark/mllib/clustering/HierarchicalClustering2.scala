@@ -18,6 +18,7 @@
 package org.apache.spark.mllib.clustering
 
 import breeze.linalg.{DenseVector => BDV, SparseVector => BSV, Vector => BV, norm => breezeNorm}
+import org.apache.spark.Logging
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.random.XORShiftRandom
@@ -55,22 +56,56 @@ class ClusterTree2(
   }
 }
 
+class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable with Logging {
+}
+
 class HierarchicalClustering2(
   private[mllib] var numClusters: Int,
   private[mllib] var clusterMap: Map[Int, ClusterTree2]
-) {
+) extends Logging {
 
   /**
    * Constructs with the default configuration
    */
   def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2])
 
-  def run(data: RDD[Vector]) {
-    validate(data)
+  def setNumClusters(numClusters: Int): this.type = {
+    this.numClusters = numClusters
+    this
+  }
 
-    val clusterdData = initializeData(data)
+  def run(input: RDD[Vector]): HierarchicalClusteringModel2 =  {
+    validate(input)
 
-    // TODO: return the root node of a cluster tree
+    var data = initializeData(input).cache()
+
+    // `clusters` is described as binary tree structure
+    // `clusters(1)` means the root of the binary tree
+    var clusters = getCenterStats(data)
+    var numSplittedClusters = 0
+    var noMoreSplit = false
+    var step = 1
+    while (numSplittedClusters < this.numClusters && noMoreSplit == false) {
+      println(s"==== STEP:${step} is started")
+      val splittedClusters = split(data, clusters)
+      println(numSplittedClusters)
+      println(splittedClusters.size)
+      // enough to be clusterd if the number of splitted clusters is equal to 0
+      if (splittedClusters.size > 0) {
+        // update each index
+        data = assign(data, splittedClusters)
+        // merge the splitted clusters with the map as the cluster tree
+        clusters = clusters ++ splittedClusters
+        numSplittedClusters = data.map(_._1).distinct().count().toInt
+        step += 1
+      }
+      else {
+        noMoreSplit = true
+      }
+    }
+
+    val root = clusters(1)
+    new HierarchicalClusteringModel2(root)
   }
 
   def validate(data: RDD[Vector]) {
@@ -105,7 +140,7 @@ class HierarchicalClustering2(
       val center = Vectors.fromBreeze(sum :/ n)
       val variances = n match {
         case n if n > 1 => Vectors.fromBreeze(sumOfSquares.:*(n) - (sum :* sum) :/ (n * (n - 1.0)))
-        case _ => Vectors.sparse(sum.size, Array(), Array())
+        case _ => Vectors.zeros(sum.size)
       }
       (i, new ClusterTree2(center, n.toLong, variances))
     }.toMap
@@ -127,15 +162,14 @@ class HierarchicalClustering2(
   }
 
   private[clustering]
-  def splitCenters(data: RDD[(Int, BV[Double])]): Map[Int, ClusterTree2] = {
+  def split(
+    data: RDD[(Int, BV[Double])],
+    clusters: Map[Int, ClusterTree2]): Map[Int, ClusterTree2] = {
     val sc = data.sparkContext
-    // generate initial centers
-    var clusters = getCenterStats(data)
 
-    //    var newCenters = clusters.map { case (i, c) => (i, takeInitCenters(c.center.toBreeze))}
     var newCenters: Map[Int, BV[Double]] = clusters.flatMap { case (idx, cluster) =>
       takeInitCenters(cluster.center.toBreeze).zipWithIndex
-          .map { case (center, i) => (2 * idx + i , center)}
+          .map { case (center, i) => (2 * idx + i, center)}
     }
     sc.broadcast(newCenters)
 
@@ -148,21 +182,21 @@ class HierarchicalClustering2(
     var stats = newCenters.keys.map { idx =>
       (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
     }.toMap
-    for (i <- 1 to 10) yield {
+    // TODO stop if a relative error is very small
+    for (i <- 1 to 20) {
       val eachStats = data.mapPartitions { iter =>
         val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]
         iter.foreach { case (idx, point) =>
           // calculate next index number
           val centers = Array(2 * idx, 2 * idx + 1).filter(newCenters.keySet.contains(_)).map(newCenters(_)).toArray
-          if (centers.size == 0) {
-            println (1)
+          if (centers.size >= 2) {
+            val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(centers)(point)
+            val nextIndex = 2 * idx + closestIndex
+            // get a map value or else get a sparse vector
+            val (sumBV, n, sumOfSquares) = map.get(nextIndex)
+                .getOrElse(BSV.zeros[Double](point.size), 0.0, BSV.zeros[Double](point.size))
+            map(nextIndex) = (sumBV + point, n + 1.0, sumOfSquares + (point :* point))
           }
-          val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(centers)(point)
-          val nextIndex = 2 * idx + closestIndex
-          // get a map value or else get a sparse vector
-          val (sumBV, n, sumOfSquares) = map.get(nextIndex)
-              .getOrElse(BSV.zeros[Double](point.size), 0.0, BSV.zeros[Double](point.size))
-          map(nextIndex) = (sumBV + point, n + 1.0, sumOfSquares + (point :* point))
         }
         map.toIterator
       }.reduceByKey { case ((sv1, n1, sumOfSquares1), (sv2, n2, sumOfSquares2)) =>
@@ -170,29 +204,48 @@ class HierarchicalClustering2(
         (sv1 + sv2, n1 + n2, sumOfSquares1 + sumOfSquares2)
       }.collect().toMap
 
-      println(s"==== ${i} ===")
-      println(eachStats)
       newCenters = eachStats.map { case (idx, (sum, n, sumOfSquares)) =>
         (idx, sum :/ n)
       }
-      println(newCenters)
       stats = eachStats
     }
 
-    // make cluster
+    // make children clusters
     stats.filter { case (i, (sum, n, sumOfSquares)) => n > 0}
         .map { case (i, (sum, n, sumOfSquares)) =>
       val center = Vectors.fromBreeze(sum :/ n)
       val variances = Vectors.fromBreeze(sumOfSquares.:*(n) - (sum :* sum) :/ (n * (n - 1.0)))
-      (i, new ClusterTree2(center, n.toLong, variances))
+      val child = new ClusterTree2(center, n.toLong, variances)
+      // relate with parent cluster
+      val parent = clusters((i / 2).toInt)
+      parent.insert(child)
+      (i, child)
     }.toMap
   }
 
-  def split(data: RDD[(Int, BV[Double])]): RDD[(Int, BV[Double])] = {
-    // get next centers
-    // optimize the next centers
-    // assign the each data to the next centers
-    data
+  private[clustering]
+  def assign(data: RDD[(Int, BV[Double])],
+    clusters: Map[Int, ClusterTree2]): RDD[(Int, BV[Double])] = {
+    val sc = data.sparkContext
+    var centers = clusters.map { case (idx, cluster) => (idx, cluster.center)}
+    sc.broadcast(centers)
+
+    // TODO Supports distance metrics other Euclidean distance metric
+    val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
+    sc.broadcast(metric)
+
+    data.map { case (idx, point) =>
+      val indexes = Array(2 * idx, 2 * idx + 1).filter(centers.keySet.contains(_))
+      indexes.size match {
+        case s if s < 2 => (idx, point)
+        case _ => {
+          val nextCenters = indexes.map(centers(_)).map(_.toBreeze)
+          val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(nextCenters)(point)
+          val nextIndex = 2 * idx + closestIndex
+          (nextIndex, point)
+        }
+      }
+    }
   }
 }
 

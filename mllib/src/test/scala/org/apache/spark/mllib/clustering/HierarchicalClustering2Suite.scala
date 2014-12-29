@@ -26,10 +26,11 @@ class HierarchicalClustering2Suite
     extends FunSuite with MLlibTestSparkContext {
 
   test("run") {
-    val algo = new HierarchicalClustering2
-    val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val algo = new HierarchicalClustering2().setNumClusters(9999)
+    val localSeed: Seq[Vector] = (0 to 9999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val seed = sc.parallelize(localSeed)
-    algo.run(seed)
+    val model = algo.run(seed)
+    assert(model.tree == null)
   }
 
   test("initializeData") {
@@ -79,7 +80,8 @@ class HierarchicalClustering2Suite
     val algo = new HierarchicalClustering2
     val seed = (0 to 99).map(i => ((i / 50).toInt + 2, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
-    val newClusters = algo.splitCenters(data)
+    val clusters = algo.getCenterStats(data)
+    val newClusters = algo.split(data, clusters)
 
     assert(newClusters.size === 4)
     assert(newClusters(4).center === Vectors.dense(12.0, 12.0))
@@ -91,4 +93,27 @@ class HierarchicalClustering2Suite
     assert(newClusters(7).center === Vectors.dense(87.0, 87.0))
     assert(newClusters(7).records === 25)
   }
+
+  test("assign") {
+    val algo = new HierarchicalClustering2
+    val seed = Seq(
+      (2, Vectors.dense(0.0, 0.0)), (2, Vectors.dense(1.0, 1.0)), (2, Vectors.dense(2.0, 2.0)),
+      (2, Vectors.dense(3.0, 3.0)), (2, Vectors.dense(4.0, 4.0)), (2, Vectors.dense(5.0, 5.0)),
+      (3, Vectors.dense(6.0, 6.0)), (3, Vectors.dense(7.0, 7.0)), (3, Vectors.dense(8.0, 8.0)),
+      (3, Vectors.dense(9.0, 9.0)), (3, Vectors.dense(10.0, 10.0)), (3, Vectors.dense(11.0, 11.0))
+    ).map { case (idx, vector) => (idx, vector.toBreeze)}
+    val data = sc.parallelize(seed)
+    val clusters = algo.getCenterStats(data)
+    val newClusters = algo.split(data, clusters)
+    val result = algo.assign(data, newClusters).collect().toSeq
+
+    val expected = Seq(
+      (4, Vectors.dense(0.0, 0.0)), (4, Vectors.dense(1.0, 1.0)), (4, Vectors.dense(2.0, 2.0)),
+      (5, Vectors.dense(3.0, 3.0)), (5, Vectors.dense(4.0, 4.0)), (5, Vectors.dense(5.0, 5.0)),
+      (6, Vectors.dense(6.0, 6.0)), (6, Vectors.dense(7.0, 7.0)), (6, Vectors.dense(8.0, 8.0)),
+      (7, Vectors.dense(9.0, 9.0)), (7, Vectors.dense(10.0, 10.0)), (7, Vectors.dense(11.0, 11.0))
+    ).map { case (idx, vector) => (idx, vector.toBreeze)}
+    assert(result === expected)
+  }
+
 }
