@@ -26,8 +26,8 @@ class HierarchicalClustering2Suite
     extends FunSuite with MLlibTestSparkContext {
 
   test("run") {
-    val algo = new HierarchicalClustering2().setNumClusters(9999)
-    val localSeed: Seq[Vector] = (0 to 9999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val algo = new HierarchicalClustering2().setNumClusters(2000)
+    val localSeed: Seq  [Vector] = (0 to 9999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val seed = sc.parallelize(localSeed)
     val model = algo.run(seed)
     assert(model.tree == null)
