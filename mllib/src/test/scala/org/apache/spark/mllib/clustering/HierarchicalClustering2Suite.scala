@@ -22,12 +22,36 @@ import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.util.MLlibTestSparkContext
 import org.scalatest.FunSuite
 
-class HierarchicalClustering2Suite
-    extends FunSuite with MLlibTestSparkContext {
+
+class HierarchicalClustering2AppSuite extends FunSuite with MLlibTestSparkContext {
+
+  test("train") {
+    val numClusters = 9
+    val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val data = sc.parallelize(localSeed, 1)
+    val model = HierarchicalClustering2.train(data, numClusters)
+    assert(model.getClusters().size === numClusters)
+  }
+
+  test("train with full arguments") {
+    val numClusters = 9
+    val subIterations = 20
+    val maxRetries = 20
+    val seed = 321
+
+    val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val data = sc.parallelize(localSeed, 1)
+
+    val model = HierarchicalClustering2.train(data, numClusters, subIterations, maxRetries, seed)
+    assert(model.getClusters().size === numClusters)
+  }
+}
+
+class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
 
   test("run") {
     val algo = new HierarchicalClustering2().setNumClusters(321)
-    val localSeed: Seq[Vector] = (0 to 9999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val localSeed: Seq[Vector] = (0 to 999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
     assert(model.tree.getLeavesNodes().size == 321)

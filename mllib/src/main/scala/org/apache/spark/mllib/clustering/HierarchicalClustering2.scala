@@ -25,73 +25,56 @@ import org.apache.spark.{Logging, SparkException}
 
 import scala.collection.{Map, mutable}
 
-class ClusterTree2(
-  val center: Vector,
-  val records: Long,
-  val variances: Vector,
-  var parent: Option[ClusterTree2],
-  var children: List[ClusterTree2]
-) extends Serializable {
-
-  def this(center: Vector, rows: Long, variances: Vector) = this(center, rows, variances,
-    None, List.empty[ClusterTree2])
-
-  /**
-   * Inserts sub nodes as its children
-   *
-   * @param children inserted sub nodes
-   */
-  def insert(children: List[ClusterTree2]) {
-    this.children = this.children ++ children
-    children.foreach(child => child.parent = Some(this))
-  }
-
-  /**
-   * Inserts a sub node as its child
-   *
-   * @param child inserted sub node
-   */
-  def insert(child: ClusterTree2) {
-    insert(List(child))
-  }
-
-  /**
-   * Converts the tree into Seq class
-   * the sub nodes are recursively expanded
-   *
-   * @return Seq class which the cluster tree is expanded
-   */
-  def toSeq(): Seq[ClusterTree2] = {
-    val seq = this.children.size match {
-      case 0 => Seq(this)
-      case _ => Seq(this) ++ this.children.map(child => child.toSeq()).flatten
-    }
-    seq.sortWith { case (a, b) =>
-      a.getDepth() < b.getDepth() &&
-          a.variances.toArray.sum < b.variances.toArray.sum
-    }
-  }
-
-  def getLeavesNodes(): Seq[ClusterTree2] = this.toSeq().filter(_.isLeaf())
-
-  /**
-   * Gets the depth of the cluster in the tree
-   *
-   * @return the depth
-   */
-  def getDepth(): Int = {
-    this.parent match {
-      case None => 0
-      case _ => 1 + this.parent.get.getDepth()
-    }
-  }
-
-  def isLeaf(): Boolean = (this.children.size == 0)
-}
 
 class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable with Logging {
 
   def getClusters(): Seq[ClusterTree2] = this.tree.getLeavesNodes()
+}
+
+
+object HierarchicalClustering2 extends Logging {
+
+  /**
+   * Trains a hierarchical clustering model with the given data
+   *
+   * @param data trained data
+   * @param numClusters the maximum number of clusters you want
+   * @return a hierarchical clustering model
+   */
+  def train(data: RDD[Vector], numClusters: Int): HierarchicalClusteringModel2 = {
+    val algo = new HierarchicalClustering2().setNumClusters(numClusters)
+    algo.run(data)
+  }
+
+  /**
+   * Trains a hierarchical clustering model with the given data
+   *
+   * @param data training data
+   * @param numClusters the maximum number of clusters you want
+   * @param subIterations the number of sub-iterations
+   * @param maxRetries the number of maximum retries when the clustering can't be succeeded
+   * @param seed the randomseed to generate the initial vectors for each bisecting
+   * @return a hierarchical clustering model
+   */
+  def train(data: RDD[Vector],
+    numClusters: Int,
+    subIterations: Int,
+    maxRetries: Int,
+    seed: Int): HierarchicalClusteringModel2 = {
+
+    val algo = new HierarchicalClustering2().setNumClusters(numClusters)
+        .setSubIterations(subIterations)
+        .setMaxRetries(maxRetries)
+        .setSeed(seed)
+    algo.run(data)
+  }
+
+  private[mllib]
+  def findClosestCenter(metric: Function2[BV[Double], BV[Double], Double])
+        (centers: Array[BV[Double]])
+        (point: BV[Double]): Int = {
+    centers.zipWithIndex.map { case (center, idx) => (idx, metric(center, point))}.minBy(_._2)._1
+  }
 }
 
 class HierarchicalClustering2(
@@ -144,8 +127,8 @@ class HierarchicalClustering2(
     var leafClusters = clusters
     var noMoreSplit = false
     var step = 1
-    val allNodeInTree = 2 * this.numClusters
-    while (clusters.size <= allNodeInTree && noMoreSplit == false) {
+    val maxAllNodesInTree = 2 * this.numClusters
+    while (clusters.size <= maxAllNodesInTree && noMoreSplit == false) {
       log.info(s"==== STEP:${step} is started")
       // debug
       println(s"==== STEP:${step} is started")
@@ -157,7 +140,10 @@ class HierarchicalClustering2(
       }
       else {
         // update each index
-        data = assignToNewCluster(data, splittedClusters)
+        val newData = assignToNewCluster(data, splittedClusters).cache()
+        data.unpersist()
+        data = newData
+
         // merge the splitted clusters with the map as the cluster tree
         clusters = clusters ++ splittedClusters
         numSplittedClusters = data.map(_._1).distinct().count().toInt
@@ -257,9 +243,9 @@ class HierarchicalClustering2(
 
     // if there is clusters which is failed to be splitted,
     // retry to split only failed clusters again and again
-    // TODO: max retries
     var retryTimes = 1
     while (stats.size != splittableKeys.size * 2 && retryTimes <= this.maxRetries) {
+
       // get the indexes of clusters which is failed to be split
       val failedIndexes = idealIndexes.filterNot(stats.keySet.contains).map(idx => (idx / 2).toInt)
       log.info(s"# failed clusters: ${failedIndexes.size} at trying:${retryTimes}")
@@ -383,12 +369,66 @@ class HierarchicalClustering2(
   }
 }
 
-object HierarchicalClustering2 {
+class ClusterTree2(
+  val center: Vector,
+  val records: Long,
+  val variances: Vector,
+  var parent: Option[ClusterTree2],
+  var children: List[ClusterTree2]
+) extends Serializable {
 
-  private[mllib]
-  def findClosestCenter(metric: Function2[BV[Double], BV[Double], Double])
-        (centers: Array[BV[Double]])
-        (point: BV[Double]): Int = {
-    centers.zipWithIndex.map { case (center, idx) => (idx, metric(center, point))}.minBy(_._2)._1
+  def this(center: Vector, rows: Long, variances: Vector) = this(center, rows, variances,
+    None, List.empty[ClusterTree2])
+
+  /**
+   * Inserts sub nodes as its children
+   *
+   * @param children inserted sub nodes
+   */
+  def insert(children: List[ClusterTree2]) {
+    this.children = this.children ++ children
+    children.foreach(child => child.parent = Some(this))
   }
+
+  /**
+   * Inserts a sub node as its child
+   *
+   * @param child inserted sub node
+   */
+  def insert(child: ClusterTree2) {
+    insert(List(child))
+  }
+
+  /**
+   * Converts the tree into Seq class
+   * the sub nodes are recursively expanded
+   *
+   * @return Seq class which the cluster tree is expanded
+   */
+  def toSeq(): Seq[ClusterTree2] = {
+    val seq = this.children.size match {
+      case 0 => Seq(this)
+      case _ => Seq(this) ++ this.children.map(child => child.toSeq()).flatten
+    }
+    seq.sortWith { case (a, b) =>
+      a.getDepth() < b.getDepth() &&
+          a.variances.toArray.sum < b.variances.toArray.sum
+    }
+  }
+
+  def getLeavesNodes(): Seq[ClusterTree2] = this.toSeq().filter(_.isLeaf())
+
+  /**
+   * Gets the depth of the cluster in the tree
+   *
+   * @return the depth
+   */
+  def getDepth(): Int = {
+    this.parent match {
+      case None => 0
+      case _ => 1 + this.parent.get.getDepth()
+    }
+  }
+
+  def isLeaf(): Boolean = (this.children.size == 0)
 }
