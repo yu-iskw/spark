@@ -98,12 +98,13 @@ class HierarchicalClustering2(
   private var numClusters: Int,
   private var clusterMap: Map[Int, ClusterTree2],
   private var subIterations: Int,
+  private var maxRetries: Int,
   private var seed: Int) extends Logging {
 
   /**
    * Constructs with the default configuration
    */
-  def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2], 20, 1)
+  def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2], 20, 10, 1)
 
   def setNumClusters(numClusters: Int): this.type = {
     this.numClusters = numClusters
@@ -116,6 +117,13 @@ class HierarchicalClustering2(
   }
 
   def getSubIterations(): Int = this.subIterations
+
+  def setMaxRetries(maxRetries: Int): this.type = {
+    this.maxRetries = maxRetries
+    this
+  }
+
+  def getMaxRetries(): Int = this.maxRetries
 
   def setSeed(seed: Int): this.type = {
     this.seed = seed
@@ -136,7 +144,8 @@ class HierarchicalClustering2(
     var leafClusters = clusters
     var noMoreSplit = false
     var step = 1
-    while (clusters.size <= 2 * this.numClusters && noMoreSplit == false) {
+    val allNodeInTree = 2 * this.numClusters
+    while (clusters.size <= allNodeInTree && noMoreSplit == false) {
       log.info(s"==== STEP:${step} is started")
       // debug
       println(s"==== STEP:${step} is started")
@@ -249,18 +258,18 @@ class HierarchicalClustering2(
     // if there is clusters which is failed to be splitted,
     // retry to split only failed clusters again and again
     // TODO: max retries
-    var numRetries = 1
-    while (stats.size != splittableKeys.size * 2 && numRetries <= 20) {
+    var retryTimes = 1
+    while (stats.size != splittableKeys.size * 2 && retryTimes <= this.maxRetries) {
       // get the indexes of clusters which is failed to be split
       val failedIndexes = idealIndexes.filterNot(stats.keySet.contains).map(idx => (idx / 2).toInt)
-      log.info(s"# failed clusters: ${failedIndexes.size} at trying:${numRetries}")
+      log.info(s"# failed clusters: ${failedIndexes.size} at trying:${retryTimes}")
 
       // split the failed clusters again
       sc.broadcast(failedIndexes)
       splittableData = data.filter { case (idx, point) => failedIndexes.contains(idx)}
       val missingStats = split(splittableData)
       stats = stats ++ missingStats
-      numRetries += 1
+      retryTimes += 1
     }
 
     // make children clusters

@@ -135,6 +135,13 @@ class HierarchicalClustering2Suite
     assert(algo.getSubIterations() == 15)
   }
 
+  test("setNumRetries") {
+    val algo = new HierarchicalClustering2()
+    assert(algo.getMaxRetries() == 10)
+    algo.setMaxRetries(15)
+    assert(algo.getMaxRetries() == 15)
+  }
+
   test("setSeed") {
     val algo = new HierarchicalClustering2()
     assert(algo.getSeed() == 1)
