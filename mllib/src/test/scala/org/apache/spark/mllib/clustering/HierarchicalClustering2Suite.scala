@@ -26,11 +26,19 @@ class HierarchicalClustering2Suite
     extends FunSuite with MLlibTestSparkContext {
 
   test("run") {
-    val algo = new HierarchicalClustering2().setNumClusters(2000)
-    val localSeed: Seq  [Vector] = (0 to 9999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
-    val seed = sc.parallelize(localSeed)
-    val model = algo.run(seed)
-    assert(model.tree == null)
+    val algo = new HierarchicalClustering2().setNumClusters(321)
+    val localSeed: Seq[Vector] = (0 to 9999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val data = sc.parallelize(localSeed, 2)
+    val model = algo.run(data)
+    assert(model.tree.getLeavesNodes().size == 321)
+  }
+
+  test("run with too many cluster size than the records") {
+    val algo = new HierarchicalClustering2().setNumClusters(123)
+    val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
+    val data = sc.parallelize(localSeed, 2)
+    val model = algo.run(data)
+    assert(model.tree.getLeavesNodes().size == 100)
   }
 
   test("initializeData") {
@@ -66,14 +74,14 @@ class HierarchicalClustering2Suite
     assert(clusters2(4).records === 25)
   }
 
-  test("takeInitCenter: the relative error should be equal to or less than 0.1") {
+  test("getChildrenCenter") {
     val algo = new HierarchicalClustering2
-    val center = Vectors.dense(1.0, 2.0, 3.0).toBreeze
-    val nextCenters = algo.takeInitCenters(center)
-    nextCenters.foreach { vector =>
-      val error = (center - vector) :/ center
-      assert(error.values.forall(_ <= 0.1))
-    }
+    val localData = (1 to 99).map(i => (2, Vectors.dense(1.0).toBreeze)) ++
+        (1 to 99).map(i => (3, Vectors.dense(1.0).toBreeze))
+    val data = sc.parallelize(localData)
+    val centers = algo.initChildrenCenter(data)
+    assert(centers.size === 4)
+    assert(centers.keySet === Set(4, 5, 6, 7))
   }
 
   test("split") {
@@ -81,7 +89,7 @@ class HierarchicalClustering2Suite
     val seed = (0 to 99).map(i => ((i / 50).toInt + 2, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
     val clusters = algo.getCenterStats(data)
-    val newClusters = algo.split(data, clusters)
+    val newClusters = algo.getSplittedCenters(data, clusters)
 
     assert(newClusters.size === 4)
     assert(newClusters(4).center === Vectors.dense(12.0, 12.0))
@@ -94,7 +102,7 @@ class HierarchicalClustering2Suite
     assert(newClusters(7).records === 25)
   }
 
-  test("assign") {
+  test("assignToNewCluster") {
     val algo = new HierarchicalClustering2
     val seed = Seq(
       (2, Vectors.dense(0.0, 0.0)), (2, Vectors.dense(1.0, 1.0)), (2, Vectors.dense(2.0, 2.0)),
@@ -102,10 +110,14 @@ class HierarchicalClustering2Suite
       (3, Vectors.dense(6.0, 6.0)), (3, Vectors.dense(7.0, 7.0)), (3, Vectors.dense(8.0, 8.0)),
       (3, Vectors.dense(9.0, 9.0)), (3, Vectors.dense(10.0, 10.0)), (3, Vectors.dense(11.0, 11.0))
     ).map { case (idx, vector) => (idx, vector.toBreeze)}
+    val newClusters = Map(
+      4 -> new ClusterTree2(Vectors.dense(1.0, 1.0), 3, Vectors.dense(1.0, 1.0)),
+      5 -> new ClusterTree2(Vectors.dense(4.0, 4.0), 3, Vectors.dense(1.0, 1.0)),
+      6 -> new ClusterTree2(Vectors.dense(7.0, 7.0), 3, Vectors.dense(1.0, 1.0)),
+      7 -> new ClusterTree2(Vectors.dense(10.0, 10.0), 3, Vectors.dense(1.0, 1.0))
+    )
     val data = sc.parallelize(seed)
-    val clusters = algo.getCenterStats(data)
-    val newClusters = algo.split(data, clusters)
-    val result = algo.assign(data, newClusters).collect().toSeq
+    val result = algo.assignToNewCluster(data, newClusters).collect().toSeq
 
     val expected = Seq(
       (4, Vectors.dense(0.0, 0.0)), (4, Vectors.dense(1.0, 1.0)), (4, Vectors.dense(2.0, 2.0)),
@@ -115,5 +127,4 @@ class HierarchicalClustering2Suite
     ).map { case (idx, vector) => (idx, vector.toBreeze)}
     assert(result === expected)
   }
-
 }
