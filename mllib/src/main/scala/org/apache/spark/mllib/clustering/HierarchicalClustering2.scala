@@ -95,31 +95,33 @@ class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable 
 }
 
 class HierarchicalClustering2(
-  private[mllib] var numClusters: Int,
-  private[mllib] var clusterMap: Map[Int, ClusterTree2],
-  private[mllib] var seed: Int) extends Logging {
+  private var numClusters: Int,
+  private var clusterMap: Map[Int, ClusterTree2],
+  private var subIterations: Int,
+  private var seed: Int) extends Logging {
 
   /**
    * Constructs with the default configuration
    */
-  def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2], 1)
+  def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2], 20, 1)
 
   def setNumClusters(numClusters: Int): this.type = {
     this.numClusters = numClusters
     this
   }
 
-  /**
-   * Sets the random seed
-   */
+  def setSubIterations(subIterations: Int): this.type = {
+    this.subIterations = subIterations
+    this
+  }
+
+  def getSubIterations(): Int = this.subIterations
+
   def setSeed(seed: Int): this.type = {
     this.seed = seed
     this
   }
 
-  /**
-   * Gets the random seed
-   */
   def getSeed(): Int = this.seed
 
   def run(input: RDD[Vector]): HierarchicalClusteringModel2 = {
@@ -272,7 +274,9 @@ class HierarchicalClustering2(
   }
 
   private[clustering]
-  def buildTree(treeMap: Map[Int, ClusterTree2], rootIndex: Int, size: Int): Option[ClusterTree2] = {
+  def buildTree(treeMap: Map[Int, ClusterTree2],
+    rootIndex: Int,
+    size: Int): Option[ClusterTree2] = {
     if (!treeMap.contains(rootIndex)) return None
 
     val root = treeMap(rootIndex)
@@ -312,8 +316,7 @@ class HierarchicalClustering2(
       (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
     }.toMap
 
-    // TODO modify the number of tries versitile
-    for (i <- 1 to 20) {
+    for (i <- 1 to this.subIterations) {
       // calculate summary of each cluster
       val eachStats = data.mapPartitions { iter =>
         val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]

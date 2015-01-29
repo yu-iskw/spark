@@ -128,6 +128,13 @@ class HierarchicalClustering2Suite
     assert(result === expected)
   }
 
+  test("setSubIterations") {
+    val algo = new HierarchicalClustering2()
+    assert(algo.getSubIterations() == 20)
+    algo.setSubIterations(15)
+    assert(algo.getSubIterations() == 15)
+  }
+
   test("setSeed") {
     val algo = new HierarchicalClustering2()
     assert(algo.getSeed() == 1)
