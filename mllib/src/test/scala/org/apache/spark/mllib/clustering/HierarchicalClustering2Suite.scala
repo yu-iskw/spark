@@ -127,4 +127,11 @@ class HierarchicalClustering2Suite
     ).map { case (idx, vector) => (idx, vector.toBreeze)}
     assert(result === expected)
   }
+
+  test("setSeed") {
+    val algo = new HierarchicalClustering2()
+    assert(algo.getSeed() == 1)
+    algo.setSeed(987)
+    assert(algo.getSeed() == 987)
+  }
 }

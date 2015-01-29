@@ -96,18 +96,31 @@ class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable 
 
 class HierarchicalClustering2(
   private[mllib] var numClusters: Int,
-  private[mllib] var clusterMap: Map[Int, ClusterTree2]
-) extends Logging {
+  private[mllib] var clusterMap: Map[Int, ClusterTree2],
+  private[mllib] var seed: Int) extends Logging {
 
   /**
    * Constructs with the default configuration
    */
-  def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2])
+  def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2], 1)
 
   def setNumClusters(numClusters: Int): this.type = {
     this.numClusters = numClusters
     this
   }
+
+  /**
+   * Sets the random seed
+   */
+  def setSeed(seed: Int): this.type = {
+    this.seed = seed
+    this
+  }
+
+  /**
+   * Gets the random seed
+   */
+  def getSeed(): Int = this.seed
 
   def run(input: RDD[Vector]): HierarchicalClusteringModel2 = {
     validate(input)
@@ -198,6 +211,7 @@ class HierarchicalClustering2(
   def initChildrenCenter(data: RDD[(Int, BV[Double])]): Map[Int, BV[Double]] = {
     val sc = data.sparkContext
     val rand = new XORShiftRandom()
+    rand.setSeed(this.seed.toLong)
     sc.broadcast(rand)
     val stats = data.map { case (idx, point) =>
       val nextIndex = (rand.nextBoolean()) match {
