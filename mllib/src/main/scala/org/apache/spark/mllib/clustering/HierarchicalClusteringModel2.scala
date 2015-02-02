@@ -29,7 +29,7 @@ class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable 
   def getCenters(): Array[Vector] = this.getClusters().map(_.center)
 
   /**
-   * Predicts the closest cluster of each point
+   * Predicts the closest cluster by one point
    */
   def predict(vector: Vector): Int = {
     // TODO Supports distance metrics other Euclidean distance metric
@@ -40,7 +40,7 @@ class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable 
   }
 
   /**
-   * Predicts the closest cluster of each point
+   * Predicts the closest cluster by RDD of the points
    */
   def predict(data: RDD[Vector]): RDD[Int] = {
     val sc = data.sparkContext
@@ -51,7 +51,9 @@ class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable 
     val centers = this.getCenters().map(_.toBreeze)
     sc.broadcast(centers)
 
-    data.map(point => HierarchicalClustering2.findClosestCenter(metric)(centers)(point.toBreeze))
+    data.map{point =>
+      HierarchicalClustering2.findClosestCenter(metric)(centers)(point.toBreeze)
+    }
   }
 }
 

@@ -26,6 +26,9 @@ import org.apache.spark.{Logging, SparkException}
 import scala.collection.{Map, mutable}
 
 
+/**
+ * Top-level methods for calling the hierarchical clustering algorithm
+ */
 object HierarchicalClustering2 extends Logging {
 
   private[clustering] val ROOT_INDEX_KEY = 1
@@ -65,14 +68,34 @@ object HierarchicalClustering2 extends Logging {
     algo.run(data)
   }
 
+  /**
+   * Finds the closes cluster's center
+   *
+   * @param metric a distance metric
+   * @param centers centers of the clusters
+   * @param point a target point
+   * @return an index of the array of clusters
+   */
   private[mllib]
   def findClosestCenter(metric: Function2[BV[Double], BV[Double], Double])
-        (centers: Array[BV[Double]])
-        (point: BV[Double]): Int = {
+        (centers: Array[BV[Double]])(point: BV[Double]): Int = {
     centers.zipWithIndex.map { case (center, idx) => (idx, metric(center, point))}.minBy(_._2)._1
   }
 }
 
+/**
+ * This is a divisive hierarchical clustering algorithm based on bi-sect k-means algorithm.
+ *
+ * The main idea of this algorithm is based on "A comparison of document clustering techniques",
+ * M. Steinbach, G. Karypis and V. Kumar. Workshop on Text Mining, KDD, 2000.
+ * http://cs.fit.edu/~pkc/classes/ml-internet/papers/steinbach00tr.pdf
+ *
+ * @param numClusters tne number of clusters you want
+ * @param clusterMap the pairs of cluster and its index as Map
+ * @param subIterations the number of sub-iterations
+ * @param maxRetries the number of maximum retries
+ * @param seed a random seed
+ */
 class HierarchicalClustering2(
   private var numClusters: Int,
   private var clusterMap: Map[Int, ClusterTree2],
@@ -85,11 +108,17 @@ class HierarchicalClustering2(
    */
   def this() = this(20, mutable.ListMap.empty[Int, ClusterTree2], 20, 10, 1)
 
+  /**
+   * Sets the number of clusters you want
+   */
   def setNumClusters(numClusters: Int): this.type = {
     this.numClusters = numClusters
     this
   }
 
+  /**
+   * Sets the number of sub-iterations in each clustering step
+   */
   def setSubIterations(subIterations: Int): this.type = {
     this.subIterations = subIterations
     this
@@ -97,6 +126,9 @@ class HierarchicalClustering2(
 
   def getSubIterations(): Int = this.subIterations
 
+  /**
+   * Sets the number of maximum retries of each clustering step
+   */
   def setMaxRetries(maxRetries: Int): this.type = {
     this.maxRetries = maxRetries
     this
@@ -104,6 +136,9 @@ class HierarchicalClustering2(
 
   def getMaxRetries(): Int = this.maxRetries
 
+  /**
+   * Sets the random seed
+   */
   def setSeed(seed: Int): this.type = {
     this.seed = seed
     this
@@ -422,6 +457,15 @@ class HierarchicalClustering2(
   }
 }
 
+/**
+ * A cluster as a tree node which can have its sub nodes
+ *
+ * @param center the center of the cluster
+ * @param records the number of rows in the cluster
+ * @param variances variance vectors
+ * @param parent the parent cluster of the cluster
+ * @param children the children nodes of the cluster
+ */
 class ClusterTree2(
   val center: Vector,
   val records: Long,
@@ -479,6 +523,9 @@ class ClusterTree2(
     }
   }
 
+  /**
+   * Gets the leaves nodes in the cluster tree
+   */
   def getLeavesNodes(): Array[ClusterTree2] = {
     this.toArray().filter(_.isLeaf()).sortBy(_.center.toArray.sum)
   }
