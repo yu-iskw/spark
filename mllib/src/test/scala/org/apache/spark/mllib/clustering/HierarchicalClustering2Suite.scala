@@ -69,7 +69,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val algo = new HierarchicalClustering2
     val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val seed = sc.parallelize(localSeed)
-    val data = algo.initializeData(seed)
+    val data = algo.initData(seed)
     assert(data.map(_._1).collect().distinct === Array(1))
   }
 
@@ -77,16 +77,16 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val algo = new HierarchicalClustering2
     val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val seed = sc.parallelize(localSeed)
-    val data = algo.initializeData(seed)
+    val data = algo.initData(seed)
 
-    val clusters = algo.getCenterStats(data)
+    val clusters = algo.summarizeAsClusters(data)
     val center = clusters(1).center
     assert(clusters.size === 1)
     assert(clusters(1).center === Vectors.dense(49.5, 49.5))
     assert(clusters(1).records === 100)
 
     val data2 = seed.map(v => ((v.apply(0) / 25).toInt + 1, v.toBreeze))
-    val clusters2 = algo.getCenterStats(data2)
+    val clusters2 = algo.summarizeAsClusters(data2)
     assert(clusters2.size === 4)
     assert(clusters2(1).center === Vectors.dense(12.0, 12.0))
     assert(clusters2(1).records === 25)
@@ -112,8 +112,8 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val algo = new HierarchicalClustering2
     val seed = (0 to 99).map(i => ((i / 50).toInt + 2, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
-    val clusters = algo.getCenterStats(data)
-    val newClusters = algo.getSplittedCenters(data, clusters)
+    val clusters = algo.summarizeAsClusters(data)
+    val newClusters = algo.getDivideClusters(data, clusters)
 
     assert(newClusters.size === 4)
     assert(newClusters(4).center === Vectors.dense(12.0, 12.0))
@@ -141,7 +141,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
       7 -> new ClusterTree2(Vectors.dense(10.0, 10.0), 3, Vectors.dense(1.0, 1.0))
     )
     val data = sc.parallelize(seed)
-    val result = algo.assignToNewCluster(data, newClusters).collect().toSeq
+    val result = algo.updateClusterIndex(data, newClusters).collect().toSeq
 
     val expected = Seq(
       (4, Vectors.dense(0.0, 0.0)), (4, Vectors.dense(1.0, 1.0)), (4, Vectors.dense(2.0, 2.0)),

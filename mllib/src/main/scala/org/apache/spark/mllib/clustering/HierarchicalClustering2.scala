@@ -26,13 +26,9 @@ import org.apache.spark.{Logging, SparkException}
 import scala.collection.{Map, mutable}
 
 
-class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable with Logging {
-
-  def getClusters(): Seq[ClusterTree2] = this.tree.getLeavesNodes()
-}
-
-
 object HierarchicalClustering2 extends Logging {
+
+  private[clustering] val ROOT_INDEX_KEY = 1
 
   /**
    * Trains a hierarchical clustering model with the given data
@@ -115,63 +111,72 @@ class HierarchicalClustering2(
 
   def getSeed(): Int = this.seed
 
+  /**
+   * Runs the hierarchical clustering algorithm
+   * @param input RDD of vectors
+   * @return model for the hierarchical clustering
+   */
   def run(input: RDD[Vector]): HierarchicalClusteringModel2 = {
-    validate(input)
-
-    var data = initializeData(input).cache()
+    var data = initData(input).cache()
 
     // `clusters` is described as binary tree structure
     // `clusters(1)` means the root of a binary tree
-    var clusters = getCenterStats(data)
-    var numSplittedClusters = 0
+    var clusters = summarizeAsClusters(data)
     var leafClusters = clusters
-    var noMoreSplit = false
     var step = 1
-    val maxAllNodesInTree = 2 * this.numClusters
-    while (clusters.size <= maxAllNodesInTree && noMoreSplit == false) {
+    var numDividedClusters = 0
+    var noMoreDividable = false
+    val maxAllNodesInTree = 2 * this.numClusters - 1
+    while (clusters.size < maxAllNodesInTree && noMoreDividable == false) {
       log.info(s"==== STEP:${step} is started")
       // debug
       println(s"==== STEP:${step} is started")
 
-      // enough to be clusterd if the number of splitted clusters is equal to 0
-      val splittedClusters = getSplittedCenters(data, leafClusters)
-      if (splittedClusters.size == 0) {
-        noMoreSplit = true
+      // enough to be clustered if the number of divided clusters is equal to 0
+      val divided = getDivideClusters(data, leafClusters)
+      if (divided.size == 0) {
+        noMoreDividable = true
       }
       else {
         // update each index
-        val newData = assignToNewCluster(data, splittedClusters).cache()
+        val newData = updateClusterIndex(data, divided).cache()
         data.unpersist()
         data = newData
 
-        // merge the splitted clusters with the map as the cluster tree
-        clusters = clusters ++ splittedClusters
-        numSplittedClusters = data.map(_._1).distinct().count().toInt
-        leafClusters = splittedClusters
+        // merge the divided clusters with the map as the cluster tree
+        clusters = clusters ++ divided
+        numDividedClusters = data.map(_._1).distinct().count().toInt
+        leafClusters = divided
         step += 1
       }
       // debug
       println(s"# clusters: ${clusters.size}")
     }
 
-    val root = buildTree(clusters, 1, this.numClusters)
+    val root = buildTree(clusters, HierarchicalClustering2.ROOT_INDEX_KEY, this.numClusters)
     if (root == None) {
       new SparkException("Failed to build a cluster tree from a Map type of clusters")
     }
     new HierarchicalClusteringModel2(root.get)
   }
 
-  def validate(data: RDD[Vector]) {
+  /**
+   * Assigns the initial cluster index id to all data
+   */
+  private[clustering]
+  def initData(data: RDD[Vector]): RDD[(Int, BV[Double])] = {
+    data.map { v: Vector => (HierarchicalClustering2.ROOT_INDEX_KEY, v.toBreeze)}.cache
   }
 
+  /**
+   * Summarizes data by each cluster as ClusterTree2 classes
+   */
   private[clustering]
-  def initializeData(data: RDD[Vector]): RDD[(Int, BV[Double])] = {
-    data.map { v: Vector => (1, v.toBreeze)}.cache
-  }
-
-  private[clustering]
-  def getCenterStats(data: RDD[(Int, BV[Double])]): Map[Int, ClusterTree2] = {
+  def summarizeAsClusters(data: RDD[(Int, BV[Double])]): Map[Int, ClusterTree2] = {
+    // summarize input data
     val stats = summarize(data)
+
+    // convert statistics to ClusterTree class
     stats.map { case (i, (sum, n, sumOfSquares)) =>
       val center = Vectors.fromBreeze(sum :/ n)
       val variances = n match {
@@ -182,7 +187,9 @@ class HierarchicalClustering2(
     }.toMap
   }
 
-  // summarize data by each cluster
+  /**
+   * Summarizes data by each cluster as Map
+   */
   private[clustering]
   def summarize(data: RDD[(Int, BV[Double])]): Map[Int, (BV[Double], Double, BV[Double])] = {
     data.mapPartitions { iter =>
@@ -202,7 +209,7 @@ class HierarchicalClustering2(
   }
 
   /**
-   * Takes the initial centers for bi-sect k-means
+   * Gets the initial centers for bi-sect k-means
    */
   private[clustering]
   def initChildrenCenter(data: RDD[(Int, BV[Double])]): Map[Int, BV[Double]] = {
@@ -210,50 +217,65 @@ class HierarchicalClustering2(
     val rand = new XORShiftRandom()
     rand.setSeed(this.seed.toLong)
     sc.broadcast(rand)
-    val stats = data.map { case (idx, point) =>
+
+    // assign a random index to each rows
+    val shuffledData = data.map { case (idx, point) =>
       val nextIndex = (rand.nextBoolean()) match {
         case true => 2 * idx
         case false => 2 * idx + 1
       }
       (nextIndex, (point, 1))
-    }.reduceByKey { case ((point1, n1), (point2, n2)) => (point1 + point2, n1 + n2)}
+    }
+
+    // summarize the data whose keys are randomized
+    val stats = shuffledData
+        .reduceByKey { case ((point1, n1), (point2, n2)) => (point1 + point2, n1 + n2)}
         .map { case (idx, (point, n)) => (idx, point :/ n.toDouble)}.collect().toMap
-    stats
+
+    // add errors to the summarized statistics
+    // because assigning the new index randamly reaches a dead end
+    val skewedStats = stats.map{case (idx, center) =>
+      val skewedCenter = center.map(elm => elm + (rand.nextGaussian() * elm * 0.001))
+      (idx, skewedCenter)
+    }
+    skewedStats
   }
 
+  /**
+   * Gets the new divided centers
+   */
   private[clustering]
-  def getSplittedCenters(
-    data: RDD[(Int, BV[Double])],
-    clusters: Map[Int, ClusterTree2]): Map[Int, ClusterTree2] = {
+  def getDivideClusters(data: RDD[(Int, BV[Double])],
+    dividedClusters: Map[Int, ClusterTree2]): Map[Int, ClusterTree2] = {
     val sc = data.sparkContext
 
-    // get keys of splittable clusters
-    val splittableKeys = clusters.filter { case (idx, cluster) =>
+    // get keys of dividable clusters
+    val dividableKeys = dividedClusters.filter { case (idx, cluster) =>
       cluster.variances.toArray.sum > 0.0 && cluster.records >= 2
     }.keySet
-    if (splittableKeys.size == 0) {
-      log.info("There is no splittable clusters.")
+    if (dividableKeys.size == 0) {
+      log.info("There is no dividable clusters.")
       return Map.empty[Int, ClusterTree2]
     }
 
-    // split input data
-    var splittableData = data.filter { case (idx, point) => splittableKeys.contains(idx)}
-    val idealIndexes = splittableKeys.flatMap(idx => Array(2 * idx, 2 * idx + 1).toIterator)
-    var stats = split(splittableData)
+    // divide input data
+    var dividableData = data.filter { case (idx, point) => dividableKeys.contains(idx)}
+    val idealIndexes = dividableKeys.flatMap(idx => Array(2 * idx, 2 * idx + 1).toIterator)
+    var stats = divide(dividableData)
 
-    // if there is clusters which is failed to be splitted,
-    // retry to split only failed clusters again and again
+    // if there is clusters which is failed to be divided,
+    // retry to divide only failed clusters again and again
     var retryTimes = 1
-    while (stats.size != splittableKeys.size * 2 && retryTimes <= this.maxRetries) {
+    while (stats.size != dividableKeys.size * 2 && retryTimes <= this.maxRetries) {
 
-      // get the indexes of clusters which is failed to be split
+      // get the indexes of clusters which is failed to be divided
       val failedIndexes = idealIndexes.filterNot(stats.keySet.contains).map(idx => (idx / 2).toInt)
       log.info(s"# failed clusters: ${failedIndexes.size} at trying:${retryTimes}")
 
-      // split the failed clusters again
+      // divide the failed clusters again
       sc.broadcast(failedIndexes)
-      splittableData = data.filter { case (idx, point) => failedIndexes.contains(idx)}
-      val missingStats = split(splittableData)
+      dividableData = data.filter { case (idx, point) => failedIndexes.contains(idx)}
+      val missingStats = divide(dividableData)
       stats = stats ++ missingStats
       retryTimes += 1
     }
@@ -268,19 +290,33 @@ class HierarchicalClustering2(
     }.toMap
   }
 
+  /**
+   * Builds a cluster tree from a Map of clusters
+   *
+   * @param treeMap divided clusters as a Map class
+   * @param rootIndex index you want to start
+   * @param numClusters the number of clusters you want
+   * @return
+   */
   private[clustering]
-  def buildTree(treeMap: Map[Int, ClusterTree2],
+  def buildTree(
+    treeMap: Map[Int, ClusterTree2],
     rootIndex: Int,
-    size: Int): Option[ClusterTree2] = {
+    numClusters: Int): Option[ClusterTree2] = {
+
+    // if there is no index in the Map
     if (!treeMap.contains(rootIndex)) return None
 
+    // build cluster tree until queue is empty or until the number of clusters is enough
     val root = treeMap(rootIndex)
     var queue = Map(rootIndex -> root)
-    while (queue.size > 0 && root.getLeavesNodes().size < size) {
+    while (queue.size > 0 && root.getLeavesNodes().size < numClusters) {
+      // pick up the cluster whose variance is the maximum in the queue
       val mostScattered = queue.maxBy(_._2.variances.toArray.sum)
       val mostScatteredKey = mostScattered._1
       val mostScatteredCluster = mostScattered._2
 
+      // relate the most scattered cluster to its children clusters
       val childrenIndexes = Array(2 * mostScatteredKey, 2 * mostScatteredKey + 1)
       if (childrenIndexes.forall(i => treeMap.contains(i))) {
         val children = childrenIndexes.map(i => treeMap(i)).toSeq
@@ -295,10 +331,19 @@ class HierarchicalClustering2(
     Some(root)
   }
 
+  /**
+   * Divides the input data
+   *
+   * @param data the pairs of cluster index and point which you want to divide
+   * @return divided clusters as Map
+   */
   private[clustering]
-  def split(data: RDD[(Int, BV[Double])]): Map[Int, (BV[Double], Double, BV[Double])] = {
+  def divide(data: RDD[(Int, BV[Double])]): Map[Int, (BV[Double], Double, BV[Double])] = {
     val sc = data.sparkContext
     var newCenters = initChildrenCenter(data)
+    if (newCenters.size == 0)  {
+      return Map.empty[Int, (BV[Double], Double, BV[Double])]
+    }
     sc.broadcast(newCenters)
 
     // TODO Supports distance metrics other Euclidean distance metric
@@ -343,23 +388,31 @@ class HierarchicalClustering2(
     stats
   }
 
+  /**
+   * Updates the indexes of clusters which is divided to its children indexes
+   */
   private[clustering]
-  def assignToNewCluster(data: RDD[(Int, BV[Double])],
-    newClusters: Map[Int, ClusterTree2]): RDD[(Int, BV[Double])] = {
+  def updateClusterIndex(
+    data: RDD[(Int, BV[Double])],
+    dividedClusters: Map[Int, ClusterTree2]): RDD[(Int, BV[Double])] = {
+    // extract the centers of the clusters
     val sc = data.sparkContext
-    var centers = newClusters.map { case (idx, cluster) => (idx, cluster.center)}
+    var centers = dividedClusters.map { case (idx, cluster) => (idx, cluster.center)}
     sc.broadcast(centers)
 
     // TODO Supports distance metrics other Euclidean distance metric
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     sc.broadcast(metric)
 
+    // update the indexes to their children indexes
     data.map { case (idx, point) =>
-      val indexes = Array(2 * idx, 2 * idx + 1).filter(centers.keySet.contains(_))
-      indexes.size match {
+      val childrenIndexes = Array(2 * idx, 2 * idx + 1).filter(centers.keySet.contains(_))
+      childrenIndexes.size match {
+        // stay the index if the number of children is not enough
         case s if s < 2 => (idx, point)
+        // update the indexes
         case _ => {
-          val nextCenters = indexes.map(centers(_)).map(_.toBreeze)
+          val nextCenters = childrenIndexes.map(centers(_)).map(_.toBreeze)
           val closestIndex = HierarchicalClustering2.findClosestCenter(metric)(nextCenters)(point)
           val nextIndex = 2 * idx + closestIndex
           (nextIndex, point)
@@ -374,8 +427,7 @@ class ClusterTree2(
   val records: Long,
   val variances: Vector,
   var parent: Option[ClusterTree2],
-  var children: List[ClusterTree2]
-) extends Serializable {
+  var children: List[ClusterTree2]) extends Serializable {
 
   def this(center: Vector, rows: Long, variances: Vector) = this(center, rows, variances,
     None, List.empty[ClusterTree2])
@@ -405,18 +457,16 @@ class ClusterTree2(
    *
    * @return Seq class which the cluster tree is expanded
    */
-  def toSeq(): Seq[ClusterTree2] = {
-    val seq = this.children.size match {
-      case 0 => Seq(this)
-      case _ => Seq(this) ++ this.children.map(child => child.toSeq()).flatten
+  def toArray(): Array[ClusterTree2] = {
+    val array = this.children.size match {
+      case 0 => Array(this)
+      case _ => Array(this) ++ this.children.map(child => child.toArray()).flatten
     }
-    seq.sortWith { case (a, b) =>
+    array.sortWith { case (a, b) =>
       a.getDepth() < b.getDepth() &&
           a.variances.toArray.sum < b.variances.toArray.sum
     }
   }
-
-  def getLeavesNodes(): Seq[ClusterTree2] = this.toSeq().filter(_.isLeaf())
 
   /**
    * Gets the depth of the cluster in the tree
@@ -428,6 +478,10 @@ class ClusterTree2(
       case None => 0
       case _ => 1 + this.parent.get.getDepth()
     }
+  }
+
+  def getLeavesNodes(): Array[ClusterTree2] = {
+    this.toArray().filter(_.isLeaf()).sortBy(_.center.toArray.sum)
   }
 
   def isLeaf(): Boolean = (this.children.size == 0)
