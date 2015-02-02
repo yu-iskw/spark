@@ -319,8 +319,8 @@ class HierarchicalClustering2(
       // relate the most scattered cluster to its children clusters
       val childrenIndexes = Array(2 * mostScatteredKey, 2 * mostScatteredKey + 1)
       if (childrenIndexes.forall(i => treeMap.contains(i))) {
-        val children = childrenIndexes.map(i => treeMap(i)).toSeq
-        mostScatteredCluster.insert(children.toList)
+        val children = childrenIndexes.map(i => treeMap(i))
+        mostScatteredCluster.insert(children)
         // update the queue
         queue = queue ++ childrenIndexes.map(i => (i -> treeMap(i))).toMap
       }
@@ -427,17 +427,17 @@ class ClusterTree2(
   val records: Long,
   val variances: Vector,
   var parent: Option[ClusterTree2],
-  var children: List[ClusterTree2]) extends Serializable {
+  var children: Array[ClusterTree2]) extends Serializable {
 
-  def this(center: Vector, rows: Long, variances: Vector) = this(center, rows, variances,
-    None, List.empty[ClusterTree2])
+  def this(center: Vector, rows: Long, variances: Vector) =
+    this(center, rows, variances, None, Array.empty[ClusterTree2])
 
   /**
    * Inserts sub nodes as its children
    *
    * @param children inserted sub nodes
    */
-  def insert(children: List[ClusterTree2]) {
+  def insert(children: Array[ClusterTree2]) {
     this.children = this.children ++ children
     children.foreach(child => child.parent = Some(this))
   }
@@ -448,23 +448,22 @@ class ClusterTree2(
    * @param child inserted sub node
    */
   def insert(child: ClusterTree2) {
-    insert(List(child))
+    insert(Array(child))
   }
 
   /**
-   * Converts the tree into Seq class
+   * Converts the tree into Array class
    * the sub nodes are recursively expanded
    *
-   * @return Seq class which the cluster tree is expanded
+   * @return Array class which the cluster tree is expanded
    */
   def toArray(): Array[ClusterTree2] = {
     val array = this.children.size match {
       case 0 => Array(this)
-      case _ => Array(this) ++ this.children.map(child => child.toArray()).flatten
+      case _ => Array(this) ++ this.children.flatMap(child => child.toArray().toIterator)
     }
     array.sortWith { case (a, b) =>
-      a.getDepth() < b.getDepth() &&
-          a.variances.toArray.sum < b.variances.toArray.sum
+      a.getDepth() < b.getDepth() && a.variances.toArray.sum < b.variances.toArray.sum
     }
   }
 
