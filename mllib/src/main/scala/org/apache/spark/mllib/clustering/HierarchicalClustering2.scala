@@ -164,8 +164,6 @@ class HierarchicalClustering2(
     val maxAllNodesInTree = 2 * this.numClusters - 1
     while (clusters.size < maxAllNodesInTree && noMoreDividable == false) {
       log.info(s"==== STEP:${step} is started")
-      // debug
-      println(s"==== STEP:${step} is started")
 
       // enough to be clustered if the number of divided clusters is equal to 0
       val divided = getDivideClusters(data, leafClusters)
@@ -184,8 +182,6 @@ class HierarchicalClustering2(
         leafClusters = divided
         step += 1
       }
-      // debug
-      println(s"# clusters: ${clusters.size}")
     }
 
     val root = buildTree(clusters, HierarchicalClustering2.ROOT_INDEX_KEY, this.numClusters)
