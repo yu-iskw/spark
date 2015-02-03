@@ -152,7 +152,10 @@ class HierarchicalClustering2(
    * @return model for the hierarchical clustering
    */
   def run(input: RDD[Vector]): HierarchicalClusteringModel2 = {
+    log.info(s"start hierarchical clustering")
+
     var data = initData(input).cache()
+    val startTime = System.currentTimeMillis()
 
     // `clusters` is described as binary tree structure
     // `clusters(1)` means the root of a binary tree
@@ -163,7 +166,7 @@ class HierarchicalClustering2(
     var noMoreDividable = false
     val maxAllNodesInTree = 2 * this.numClusters - 1
     while (clusters.size < maxAllNodesInTree && noMoreDividable == false) {
-      log.info(s"==== STEP:${step} is started")
+      log.info(s"STEP:${step} is started")
 
       // enough to be clustered if the number of divided clusters is equal to 0
       val divided = getDivideClusters(data, leafClusters)
@@ -188,6 +191,8 @@ class HierarchicalClustering2(
     if (root == None) {
       new SparkException("Failed to build a cluster tree from a Map type of clusters")
     }
+    val finishTime = (System.currentTimeMillis() - startTime) / 1000.0
+    log.info(s"Elapsed Time for Hierarchical Clustering Training: ${finishTime} [sec]")
     new HierarchicalClusteringModel2(root.get)
   }
 
