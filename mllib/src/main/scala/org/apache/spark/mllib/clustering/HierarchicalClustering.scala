@@ -79,7 +79,9 @@ object HierarchicalClustering extends Logging {
   private[mllib]
   def findClosestCenter(metric: Function2[BV[Double], BV[Double], Double])
         (centers: Array[BV[Double]])(point: BV[Double]): Int = {
-    centers.zipWithIndex.map { case (center, idx) => (idx, metric(center, point))}.minBy(_._2)._1
+    val (closestCenter, closestIndex) =
+      centers.zipWithIndex.map { case (center, idx) => (metric(center, point), idx)}.minBy(_._1)
+    closestIndex
   }
 }
 
