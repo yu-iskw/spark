@@ -108,7 +108,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     assert(centers.keySet === Set(4, 5, 6, 7))
   }
 
-  test("split") {
+  test("should divide clusters") {
     val algo = new HierarchicalClustering2
     val seed = (0 to 99).map(i => ((i / 50).toInt + 2, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
@@ -126,7 +126,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     assert(newClusters(7).records === 25)
   }
 
-  test("assignToNewCluster") {
+  test("should assign each data to new clusters") {
     val algo = new HierarchicalClustering2
     val seed = Seq(
       (2, Vectors.dense(0.0, 0.0)), (2, Vectors.dense(1.0, 1.0)), (2, Vectors.dense(2.0, 2.0)),
