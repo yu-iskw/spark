@@ -269,7 +269,7 @@ class HierarchicalClustering2(
 
     // add errors to the summarized statistics
     // because assigning the new index randamly reaches a dead end
-    val skewedStats = stats.map{case (idx, center) =>
+    val skewedStats = stats.map { case (idx, center) =>
       val skewedCenter = center.map(elm => elm + (rand.nextGaussian() * elm * 0.001))
       (idx, skewedCenter)
     }
@@ -354,8 +354,17 @@ class HierarchicalClustering2(
       // relate the most scattered cluster to its children clusters
       val childrenIndexes = Array(2 * mostScatteredKey, 2 * mostScatteredKey + 1)
       if (childrenIndexes.forall(i => treeMap.contains(i))) {
+        // insert children to the most scattered cluster
         val children = childrenIndexes.map(i => treeMap(i))
         mostScatteredCluster.insert(children)
+
+        // calculate the local dendrogram height
+        // TODO Supports distance metrics other Euclidean distance metric
+        val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
+        val localHeight = children
+            .map(child => metric(child.center.toBreeze, mostScatteredCluster.center.toBreeze)).max
+        mostScatteredCluster.setLocalHeight(localHeight)
+
         // update the queue
         queue = queue ++ childrenIndexes.map(i => (i -> treeMap(i))).toMap
       }
@@ -376,7 +385,7 @@ class HierarchicalClustering2(
   def divide(data: RDD[(Int, BV[Double])]): Map[Int, (BV[Double], Double, BV[Double])] = {
     val sc = data.sparkContext
     var newCenters = initChildrenCenter(data)
-    if (newCenters.size == 0)  {
+    if (newCenters.size == 0) {
       return Map.empty[Int, (BV[Double], Double, BV[Double])]
     }
     sc.broadcast(newCenters)
@@ -470,11 +479,12 @@ class ClusterTree2(
   val center: Vector,
   val records: Long,
   val variances: Vector,
-  var parent: Option[ClusterTree2],
-  var children: Array[ClusterTree2]) extends Serializable {
+  private var localHeight: Double,
+  private var parent: Option[ClusterTree2],
+  private var children: Array[ClusterTree2]) extends Serializable {
 
   def this(center: Vector, rows: Long, variances: Vector) =
-    this(center, rows, variances, None, Array.empty[ClusterTree2])
+    this(center, rows, variances, 0.0, None, Array.empty[ClusterTree2])
 
   /**
    * Inserts sub nodes as its children
@@ -531,4 +541,19 @@ class ClusterTree2(
   }
 
   def isLeaf(): Boolean = (this.children.size == 0)
+
+  /**
+   * Gets the dendrogram height of the cluster at the cluster tree
+   *
+   * @return the dendrogram height
+   */
+  def getHeight(): Double = {
+    this.children.size match {
+      case 0 => 0.0
+      case _ => this.localHeight + this.children.map(_.getHeight()).max
+    }
+  }
+
+  private[mllib]
+  def setLocalHeight(height: Double) = (this.localHeight = height)
 }

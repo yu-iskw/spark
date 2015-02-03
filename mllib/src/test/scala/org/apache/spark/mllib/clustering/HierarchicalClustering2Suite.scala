@@ -20,6 +20,7 @@ package org.apache.spark.mllib.clustering
 import breeze.linalg.{DenseVector => BDV, SparseVector => BSV, Vector => BV, norm => breezeNorm}
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.util.MLlibTestSparkContext
+import org.apache.spark.mllib.util.TestingUtils._
 import org.scalatest.FunSuite
 
 
@@ -31,6 +32,7 @@ class HierarchicalClustering2AppSuite extends FunSuite with MLlibTestSparkContex
     val data = sc.parallelize(localSeed, 1)
     val model = HierarchicalClustering2.train(data, numClusters)
     assert(model.getClusters().size === numClusters)
+    assert(model.tree.getHeight() ~== 67.1751 absTol 10E-4)
   }
 
   test("train with full arguments") {
@@ -44,8 +46,10 @@ class HierarchicalClustering2AppSuite extends FunSuite with MLlibTestSparkContex
 
     val model = HierarchicalClustering2.train(data, numClusters, subIterations, maxRetries, seed)
     assert(model.getClusters().size === numClusters)
+    assert(model.tree.getHeight() ~== 67.1751 absTol 10E-4)
   }
 }
+
 
 class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
 
@@ -55,6 +59,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
     assert(model.getClusters().size == 321)
+    assert(model.tree.getHeight() ~== 709.228 absTol 10E-4)
   }
 
   test("run with too many cluster size than the records") {
@@ -63,6 +68,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
     assert(model.getClusters().size == 100)
+    assert(model.tree.getHeight() ~== 72.12489 absTol 10E-4)
   }
 
   test("initializeData") {

@@ -27,7 +27,7 @@ import org.apache.spark.rdd.RDD
  *
  * @param tree a cluster as a tree node
  */
-class HierarchicalClusteringModel2(private val tree: ClusterTree2)
+class HierarchicalClusteringModel2(val tree: ClusterTree2)
     extends Serializable with Logging {
 
   def getClusters(): Array[ClusterTree2] = this.tree.getLeavesNodes()
