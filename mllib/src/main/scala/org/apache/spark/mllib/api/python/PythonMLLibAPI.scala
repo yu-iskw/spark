@@ -286,17 +286,13 @@ class PythonMLLibAPI extends Serializable {
     data: JavaRDD[Vector],
     k: Int,
     subIterations: Int,
-    numRetries: Int,
-    epsilon: Double,
-    randomSeed: Int,
-    randomRange: Double): HierarchicalClusteringModelWrapper = {
+    maxRetries: Int,
+    randomSeed: Int): HierarchicalClusteringModelWrapper = {
     val algo = new HierarchicalClustering()
         .setNumClusters(k)
         .setSubIterations(subIterations)
-        .setNumRetries(numRetries)
-        .setEpsilon(epsilon)
-        .setRandomSeed(randomSeed)
-        .setRandomRange(randomRange)
+        .setMaxRetries(maxRetries)
+        .setSeed(randomSeed)
     val model = algo.run(data)
     new HierarchicalClusteringModelWrapper(model)
   }
@@ -306,17 +302,7 @@ class PythonMLLibAPI extends Serializable {
 
     def predict(data: JavaRDD[Vector]): JavaRDD[java.lang.Integer] = model.predict(data)
 
-    def cut(height: Double): HierarchicalClusteringModelWrapper = {
-      new HierarchicalClusteringModelWrapper(this.model.cut(height))
-    }
-
     def getCenters(): Array[Vector] = model.getCenters()
-
-    def toMergeList(): Array[Vector] = {
-      model.toMergeList().map{case (c1, c2, d, s) => Vectors.dense(c1, c2, d, s)}.toArray
-    }
-
-    def getSumOfVariance(): Double = model.getSumOfVariance()
   }
 
   /**

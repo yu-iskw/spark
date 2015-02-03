@@ -25,7 +25,7 @@ class HierarchicalClusteringModel2Suite
     extends FunSuite with MLlibTestSparkContext with BeforeAndAfterEach {
 
   test("clustering dense vectors") {
-    val app = new HierarchicalClustering2().setNumClusters(5).setSeed(1)
+    val app = new HierarchicalClustering().setNumClusters(5).setSeed(1)
 
     val localData = (1 to 100).toSeq.map { i =>
       val label = i % 5
@@ -36,7 +36,7 @@ class HierarchicalClusteringModel2Suite
     val model = app.run(data)
 
     val clusters = model.getClusters()
-    assert(clusters.isInstanceOf[Array[ClusterTree2]])
+    assert(clusters.isInstanceOf[Array[ClusterTree]])
     assert(clusters.size === 5)
 
     val centers = model.getCenters().sortBy(_.toArray.sum)
@@ -61,7 +61,7 @@ class HierarchicalClusteringModel2Suite
   }
 
   test("clustering sparse vectors") {
-    val app = new HierarchicalClustering2().setNumClusters(5).setSeed(1)
+    val app = new HierarchicalClustering().setNumClusters(5).setSeed(1)
 
     val localData = (1 to 100).toSeq.map { i =>
       val label = i % 5
@@ -72,7 +72,7 @@ class HierarchicalClusteringModel2Suite
     val model = app.run(data)
 
     val clusters = model.getClusters()
-    assert(clusters.isInstanceOf[Array[ClusterTree2]])
+    assert(clusters.isInstanceOf[Array[ClusterTree]])
     assert(clusters.size === 5)
 
     val centers = model.getCenters().sortBy(_.toArray.sum)
