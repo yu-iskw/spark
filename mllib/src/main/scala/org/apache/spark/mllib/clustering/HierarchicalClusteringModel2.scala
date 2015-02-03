@@ -22,7 +22,13 @@ import org.apache.spark.Logging
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 
-class HierarchicalClusteringModel2(val tree: ClusterTree2) extends Serializable with Logging {
+/**
+ * This class is used for the model of the hierarchical clustering
+ *
+ * @param tree a cluster as a tree node
+ */
+class HierarchicalClusteringModel2(private val tree: ClusterTree2)
+    extends Serializable with Logging {
 
   def getClusters(): Array[ClusterTree2] = this.tree.getLeavesNodes()
 

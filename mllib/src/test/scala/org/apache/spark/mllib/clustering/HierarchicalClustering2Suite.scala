@@ -54,7 +54,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val localSeed: Seq[Vector] = (0 to 999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
-    assert(model.tree.getLeavesNodes().size == 321)
+    assert(model.getClusters().size == 321)
   }
 
   test("run with too many cluster size than the records") {
@@ -62,7 +62,7 @@ class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
     val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
-    assert(model.tree.getLeavesNodes().size == 100)
+    assert(model.getClusters().size == 100)
   }
 
   test("initializeData") {
