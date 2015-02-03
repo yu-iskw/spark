@@ -542,6 +542,10 @@ class ClusterTree2(
 
   def isLeaf(): Boolean = (this.children.size == 0)
 
+  def getParent(): Option[ClusterTree2] = this.parent
+
+  def getChildren(): Array[ClusterTree2] = this.children
+
   /**
    * Gets the dendrogram height of the cluster at the cluster tree
    *

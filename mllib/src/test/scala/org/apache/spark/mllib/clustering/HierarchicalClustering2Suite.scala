@@ -54,12 +54,18 @@ class HierarchicalClustering2AppSuite extends FunSuite with MLlibTestSparkContex
 class HierarchicalClustering2Suite extends FunSuite with MLlibTestSparkContext {
 
   test("run") {
-    val algo = new HierarchicalClustering2().setNumClusters(321)
+    val algo = new HierarchicalClustering2().setNumClusters(123)
     val localSeed: Seq[Vector] = (0 to 999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
-    assert(model.getClusters().size == 321)
-    assert(model.tree.getHeight() ~== 709.228 absTol 10E-4)
+    assert(model.getClusters().size == 123)
+    assert(model.tree.getHeight() ~== 703.57124 absTol 10E-4)
+
+    // check the relations between a parent cluster and its children
+    assert(model.tree.getParent() === None)
+    assert(model.tree.getChildren().apply(0).getParent().get === model.tree)
+    assert(model.tree.getChildren().apply(1).getParent().get === model.tree)
+    assert(model.getClusters().forall(_.getParent() != None))
   }
 
   test("run with too many cluster size than the records") {
