@@ -171,7 +171,7 @@ class HierarchicalClustering(
       log.info(s"STEP:${step} is started")
 
       // enough to be clustered if the number of divided clusters is equal to 0
-      val divided = getDivideClusters(data, leafClusters)
+      val divided = getDividedClusters(data, leafClusters)
       if (divided.size == 0) {
         noMoreDividable = true
       }
@@ -283,7 +283,7 @@ class HierarchicalClustering(
    * Gets the new divided centers
    */
   private[clustering]
-  def getDivideClusters(data: RDD[(Int, BV[Double])],
+  def getDividedClusters(data: RDD[(Int, BV[Double])],
     dividedClusters: Map[Int, ClusterTree]): Map[Int, ClusterTree] = {
     val sc = data.sparkContext
 

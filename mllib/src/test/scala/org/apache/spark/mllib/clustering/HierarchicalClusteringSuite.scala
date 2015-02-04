@@ -125,7 +125,7 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext {
     val seed = (0 to 99).map(i => ((i / 50).toInt + 2, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
     val clusters = algo.summarizeAsClusters(data)
-    val newClusters = algo.getDivideClusters(data, clusters)
+    val newClusters = algo.getDividedClusters(data, clusters)
 
     assert(newClusters.size === 4)
     assert(newClusters(4).center === Vectors.dense(12.0, 12.0))
