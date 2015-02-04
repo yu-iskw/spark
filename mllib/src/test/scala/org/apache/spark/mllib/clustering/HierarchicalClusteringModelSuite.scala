@@ -21,7 +21,7 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.util.MLlibTestSparkContext
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
-class HierarchicalClusteringModel2Suite
+class HierarchicalClusteringModelSuite
     extends FunSuite with MLlibTestSparkContext with BeforeAndAfterEach {
 
   test("clustering dense vectors") {
