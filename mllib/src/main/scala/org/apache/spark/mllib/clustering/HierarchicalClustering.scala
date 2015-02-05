@@ -250,33 +250,18 @@ class HierarchicalClustering(
    * Gets the initial centers for bi-sect k-means
    */
   private[clustering]
-  def initChildrenCenter(data: RDD[(Int, BV[Double])]): Map[Int, BV[Double]] = {
-    val sc = data.sparkContext
+  def initChildrenCenter(clusters: Map[Int, BV[Double]]): Map[Int, BV[Double]] = {
     val rand = new XORShiftRandom()
     rand.setSeed(this.seed.toLong)
-    sc.broadcast(rand)
 
-    // assign a random index to each rows
-    val shuffledData = data.map { case (idx, point) =>
-      val nextIndex = (rand.nextBoolean()) match {
-        case true => 2 * idx
-        case false => 2 * idx + 1
-      }
-      (nextIndex, (point, 1))
-    }
-
-    // summarize the data whose keys are randomized
-    val stats = shuffledData
-        .reduceByKey { case ((point1, n1), (point2, n2)) => (point1 + point2, n1 + n2)}
-        .map { case (idx, (point, n)) => (idx, point :/ n.toDouble)}.collect().toMap
-
-    // add errors to the summarized statistics
-    // because assigning the new index randamly reaches a dead end
-    val skewedStats = stats.map { case (idx, center) =>
-      val skewedCenter = center.map(elm => elm + (rand.nextGaussian() * elm * 0.001))
-      (idx, skewedCenter)
-    }
-    skewedStats
+    clusters.flatMap { case (idx, center) =>
+      val childrenIndexes = Array(2 * idx, 2 * idx + 1)
+      val relativeErrorCoefficient = 0.001
+      Array(
+        (2 * idx, center.map(elm => elm - (elm * relativeErrorCoefficient * rand.nextDouble()))),
+        (2 * idx + 1, center.map(elm => elm + (elm * relativeErrorCoefficient * rand.nextDouble())))
+      )
+    }.toMap
   }
 
   /**
@@ -299,7 +284,7 @@ class HierarchicalClustering(
     // divide input data
     var dividableData = data.filter { case (idx, point) => dividableKeys.contains(idx)}
     val idealIndexes = dividableKeys.flatMap(idx => Array(2 * idx, 2 * idx + 1).toIterator)
-    var stats = divide(dividableData)
+    var stats = divide(data, dividedClusters)
 
     // if there is clusters which is failed to be divided,
     // retry to divide only failed clusters again and again
@@ -308,12 +293,13 @@ class HierarchicalClustering(
 
       // get the indexes of clusters which is failed to be divided
       val failedIndexes = idealIndexes.filterNot(stats.keySet.contains).map(idx => (idx / 2).toInt)
+      val failedCenters = dividedClusters.filter { case (idx, clstr) => failedIndexes.contains(idx)}
       log.info(s"# failed clusters: ${failedIndexes.size} at trying:${retryTimes}")
 
       // divide the failed clusters again
       sc.broadcast(failedIndexes)
       dividableData = data.filter { case (idx, point) => failedIndexes.contains(idx)}
-      val missingStats = divide(dividableData)
+      val missingStats = divide(dividableData, failedCenters)
       stats = stats ++ missingStats
       retryTimes += 1
     }
@@ -337,8 +323,7 @@ class HierarchicalClustering(
    * @return
    */
   private[clustering]
-  def buildTree(
-    treeMap: Map[Int, ClusterTree],
+  def buildTree(treeMap: Map[Int, ClusterTree],
     rootIndex: Int,
     numClusters: Int): Option[ClusterTree] = {
 
@@ -382,12 +367,16 @@ class HierarchicalClustering(
    * Divides the input data
    *
    * @param data the pairs of cluster index and point which you want to divide
+   * @param clusters the clusters you want to divide AS a Map class
    * @return divided clusters as Map
    */
   private[clustering]
-  def divide(data: RDD[(Int, BV[Double])]): Map[Int, (BV[Double], Double, BV[Double])] = {
+  def divide(data: RDD[(Int, BV[Double])],
+    clusters: Map[Int, ClusterTree]): Map[Int, (BV[Double], Double, BV[Double])] = {
+
     val sc = data.sparkContext
-    var newCenters = initChildrenCenter(data)
+    val centers = clusters.map { case (idx, cluster) => (idx, cluster.center.toBreeze)}
+    var newCenters = initChildrenCenter(centers)
     if (newCenters.size == 0) {
       return Map.empty[Int, (BV[Double], Double, BV[Double])]
     }
@@ -397,7 +386,6 @@ class HierarchicalClustering(
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     sc.broadcast(metric)
 
-    // TODO modify how to set iterations with a variable
     val vectorSize = newCenters(newCenters.keySet.min).size
     var stats = newCenters.keys.map { idx =>
       (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
@@ -409,11 +397,13 @@ class HierarchicalClustering(
         val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]
         iter.foreach { case (idx, point) =>
           // calculate next index number
-          val centers = Array(2 * idx, 2 * idx + 1).filter(newCenters.keySet.contains(_))
+          val childrenCenters = Array(2 * idx, 2 * idx + 1).filter(newCenters.keySet.contains(_))
               .map(newCenters(_)).toArray
-          if (centers.size >= 1) {
-            val closestIndex = HierarchicalClustering.findClosestCenter(metric)(centers)(point)
+          if (childrenCenters.size >= 1) {
+            val closestIndex =
+              HierarchicalClustering.findClosestCenter(metric)(childrenCenters)(point)
             val nextIndex = 2 * idx + closestIndex
+
             // get a map value or else get a sparse vector
             val (sumBV, n, sumOfSquares) = map.get(nextIndex)
                 .getOrElse(BSV.zeros[Double](point.size), 0.0, BSV.zeros[Double](point.size))

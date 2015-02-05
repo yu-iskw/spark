@@ -59,7 +59,7 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext {
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
     assert(model.getClusters().size == 123)
-    assert(model.tree.getHeight() ~== 703.57124 absTol 10E-4)
+    assert(model.tree.getHeight() ~== 702.8641 absTol 10E-4)
 
     // check the relations between a parent cluster and its children
     assert(model.tree.getParent() === None)
@@ -112,12 +112,13 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext {
 
   test("getChildrenCenter") {
     val algo = new HierarchicalClustering
-    val localData = (1 to 99).map(i => (2, Vectors.dense(1.0).toBreeze)) ++
-        (1 to 99).map(i => (3, Vectors.dense(1.0).toBreeze))
-    val data = sc.parallelize(localData)
-    val centers = algo.initChildrenCenter(data)
-    assert(centers.size === 4)
-    assert(centers.keySet === Set(4, 5, 6, 7))
+    val centers = Map(
+      2 -> Vectors.dense(1.0, 1.0).toBreeze,
+      3 -> Vectors.dense(2.0, 2.0).toBreeze
+    )
+    val initNextCenters = algo.initChildrenCenter(centers)
+    assert(initNextCenters.size === 4)
+    assert(initNextCenters.keySet === Set(4, 5, 6, 7))
   }
 
   test("should divide clusters") {
