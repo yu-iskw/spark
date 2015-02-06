@@ -154,7 +154,8 @@ class HierarchicalClustering(
    * @return model for the hierarchical clustering
    */
   def run(input: RDD[Vector]): HierarchicalClusteringModel = {
-    log.info(s"start hierarchical clustering")
+    val sc = input.sparkContext
+    log.info(s"${sc.appName} starts a hierarchical clustering algorithm")
 
     var data = initData(input).cache()
     val startTime = System.currentTimeMillis()
@@ -168,7 +169,7 @@ class HierarchicalClustering(
     var noMoreDividable = false
     val maxAllNodesInTree = 2 * this.numClusters - 1
     while (clusters.size < maxAllNodesInTree && noMoreDividable == false) {
-      log.info(s"STEP:${step} is started")
+      log.info(s"${sc.appName} starts step ${step}")
 
       // enough to be clustered if the number of divided clusters is equal to 0
       val divided = getDividedClusters(data, leafClusters)
@@ -186,6 +187,8 @@ class HierarchicalClustering(
         numDividedClusters = data.map(_._1).distinct().count().toInt
         leafClusters = divided
         step += 1
+
+        log.info(s"${sc.appName} adding ${divided.size} new clusters at step:${step}")
       }
     }
 
