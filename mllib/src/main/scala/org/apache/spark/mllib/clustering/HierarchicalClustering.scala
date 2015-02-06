@@ -397,7 +397,12 @@ class HierarchicalClustering(
       (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
     }.toMap
 
-    for (i <- 1 to this.subIterations) {
+    var subIter = 0
+    var diffVariances = Double.MaxValue
+    var oldVariances = Double.MaxValue
+    var variances = Double.MaxValue
+    while (subIter < this.subIterations && diffVariances > 10E-4) {
+      println(s"subIter: ${subIter}")
       // calculate summary of each cluster
       val eachStats = data.mapPartitions { iter =>
         val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]
@@ -427,6 +432,15 @@ class HierarchicalClustering(
 
       // update summary of each cluster
       stats = eachStats.toMap
+
+      oldVariances = variances
+      variances = stats.map { case (idx, (sum, n, sumOfSquares)) =>
+        math.pow(sumOfSquares.toArray.sum, sumOfSquares.size)
+      }.sum
+      diffVariances = math.abs(oldVariances - variances)
+      println(s"variances:${variances}")
+      println(s"diffVriances: ${diffVariances}")
+      subIter += 1
     }
     stats
   }
