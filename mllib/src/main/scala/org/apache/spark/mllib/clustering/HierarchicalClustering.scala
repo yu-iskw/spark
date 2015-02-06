@@ -180,7 +180,7 @@ class HierarchicalClustering(
         // update each index
         val newData = updateClusterIndex(data, divided).cache()
         data.unpersist()
-        data = newData
+        data = newData.cache()
 
         // merge the divided clusters with the map as the cluster tree
         clusters = clusters ++ divided
