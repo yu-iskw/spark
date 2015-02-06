@@ -192,6 +192,7 @@ class HierarchicalClustering(
       }
     }
 
+    log.info(s"Building the cluster tree is started in ${sc.appName}")
     val root = buildTree(clusters, HierarchicalClustering.ROOT_INDEX_KEY, this.numClusters)
     if (root == None) {
       new SparkException("Failed to build a cluster tree from a Map type of clusters")
@@ -274,13 +275,14 @@ class HierarchicalClustering(
   def getDividedClusters(data: RDD[(Int, BV[Double])],
     dividedClusters: Map[Int, ClusterTree]): Map[Int, ClusterTree] = {
     val sc = data.sparkContext
+    val appName = sc.appName
 
     // get keys of dividable clusters
     val dividableKeys = dividedClusters.filter { case (idx, cluster) =>
       cluster.variances.toArray.sum > 0.0 && cluster.records >= 2
     }.keySet
     if (dividableKeys.size == 0) {
-      log.info("There is no dividable clusters.")
+      log.info(s"There is no dividable clusters in ${appName}.")
       return Map.empty[Int, ClusterTree]
     }
 
@@ -291,20 +293,21 @@ class HierarchicalClustering(
 
     // if there is clusters which is failed to be divided,
     // retry to divide only failed clusters again and again
-    var retryTimes = 1
-    while (stats.size != dividableKeys.size * 2 && retryTimes <= this.maxRetries) {
+    var tryTimes = 1
+    while (stats.size != dividableKeys.size * 2 && tryTimes <= this.maxRetries) {
 
       // get the indexes of clusters which is failed to be divided
       val failedIndexes = idealIndexes.filterNot(stats.keySet.contains).map(idx => (idx / 2).toInt)
       val failedCenters = dividedClusters.filter { case (idx, clstr) => failedIndexes.contains(idx)}
-      log.info(s"# failed clusters: ${failedIndexes.size} at trying:${retryTimes}")
+      log.info(s"# failed clusters is ${failedCenters.size} of ${dividableKeys.size}" +
+          s"at ${tryTimes} times in ${appName}")
 
       // divide the failed clusters again
       sc.broadcast(failedIndexes)
       dividableData = data.filter { case (idx, point) => failedIndexes.contains(idx)}
       val missingStats = divide(dividableData, failedCenters)
       stats = stats ++ missingStats
-      retryTimes += 1
+      tryTimes += 1
     }
 
     // make children clusters
