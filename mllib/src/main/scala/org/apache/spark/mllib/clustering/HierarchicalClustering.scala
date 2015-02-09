@@ -341,7 +341,7 @@ class HierarchicalClustering(
     var queue = Map(rootIndex -> root)
     while (queue.size > 0 && root.getLeavesNodes().size < numClusters) {
       // pick up the cluster whose variance is the maximum in the queue
-      val mostScattered = queue.maxBy(_._2.variances.toArray.sum)
+      val mostScattered = queue.maxBy(_._2.getSumOfSquaresVariances())
       val mostScatteredKey = mostScattered._1
       val mostScatteredCluster = mostScattered._2
 
@@ -558,6 +558,14 @@ class ClusterTree(
   def getParent(): Option[ClusterTree] = this.parent
 
   def getChildren(): Array[ClusterTree] = this.children
+
+  /**
+   * Gets the sum of squares variances
+   */
+  def getSumOfSquaresVariances(): Double = {
+    val sumOfSquares = this.variances.toBreeze :* this.variances.toBreeze
+    breezeNorm(sumOfSquares, 1.0 / this.variances.size)
+  }
 
   /**
    * Gets the dendrogram height of the cluster at the cluster tree
