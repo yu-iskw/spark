@@ -54,7 +54,7 @@ class HierarchicalClusteringAppSuite extends FunSuite with MLlibTestSparkContext
 class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext {
 
   test("run") {
-    val algo = new HierarchicalClustering().setNumClusters(123)
+    val algo = new HierarchicalClustering().setNumClusters(123).setSubIterations(5)
     val localSeed: Seq[Vector] = (0 to 999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
