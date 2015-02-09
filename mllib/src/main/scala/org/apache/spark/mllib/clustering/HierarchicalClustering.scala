@@ -365,6 +365,9 @@ class HierarchicalClustering(
 
       // remove the cluster which is involved to the cluster tree
       queue = queue.filterNot(_ == mostScattered)
+
+      log.info(s"Total Clusters: ${root.getLeavesNodes().size}. " +
+          s"Cluster ${childrenIndexes.mkString(",")} are merged.")
     }
     Some(root)
   }
@@ -402,7 +405,6 @@ class HierarchicalClustering(
     var oldVariances = Double.MaxValue
     var variances = Double.MaxValue
     while (subIter < this.subIterations && diffVariances > 10E-4) {
-      println(s"subIter: ${subIter}")
       // calculate summary of each cluster
       val eachStats = data.mapPartitions { iter =>
         val map = mutable.Map.empty[Int, (BV[Double], Double, BV[Double])]
@@ -433,13 +435,13 @@ class HierarchicalClustering(
       // update summary of each cluster
       stats = eachStats.toMap
 
-      oldVariances = variances
       variances = stats.map { case (idx, (sum, n, sumOfSquares)) =>
-        math.pow(sumOfSquares.toArray.sum, sumOfSquares.size)
+        math.pow(sumOfSquares.toArray.sum, 1.0 / sumOfSquares.size)
       }.sum
-      diffVariances = math.abs(oldVariances - variances)
-      println(s"variances:${variances}")
-      println(s"diffVriances: ${diffVariances}")
+      diffVariances = math.abs(oldVariances - variances) / oldVariances
+      log.debug(s"${sc.appName}:subIter#${subIter}, variances:${variances}, " +
+          s"oldVariances:${oldVariances}, diffVariances:${diffVariances}")
+      oldVariances = variances
       subIter += 1
     }
     stats
