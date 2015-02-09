@@ -336,12 +336,13 @@ class HierarchicalClustering(
     // if there is no index in the Map
     if (!treeMap.contains(rootIndex)) return None
 
-    // build cluster tree until queue is empty or until the number of clusters is enough
+    // build a cluster tree if the queue is empty or until the number of leaves clusters is enough
     val root = treeMap(rootIndex)
-    var queue = Map(rootIndex -> root)
-    while (queue.size > 0 && root.getLeavesNodes().size < numClusters) {
+    var leavesQueue = Map(rootIndex -> root)
+    while (leavesQueue.size > 0 && root.getLeavesNodes().size < numClusters) {
+
       // pick up the cluster whose variance is the maximum in the queue
-      val mostScattered = queue.maxBy(_._2.getSumOfSquaresVariances())
+      val mostScattered = leavesQueue.maxBy(_._2.getVariancesNorm())
       val mostScatteredKey = mostScattered._1
       val mostScatteredCluster = mostScattered._2
 
@@ -360,11 +361,11 @@ class HierarchicalClustering(
         mostScatteredCluster.setLocalHeight(localHeight)
 
         // update the queue
-        queue = queue ++ childrenIndexes.map(i => (i -> treeMap(i))).toMap
+        leavesQueue = leavesQueue ++ childrenIndexes.map(i => (i -> treeMap(i))).toMap
       }
 
       // remove the cluster which is involved to the cluster tree
-      queue = queue.filterNot(_ == mostScattered)
+      leavesQueue = leavesQueue.filterNot(_ == mostScattered)
 
       log.info(s"Total Leaves Clusters: ${root.getLeavesNodes().size} / ${numClusters}. " +
           s"Cluster ${childrenIndexes.mkString(",")} are merged.")
