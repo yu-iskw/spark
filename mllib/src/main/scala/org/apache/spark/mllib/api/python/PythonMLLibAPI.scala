@@ -302,7 +302,7 @@ class PythonMLLibAPI extends Serializable {
 
     def predict(data: JavaRDD[Vector]): JavaRDD[java.lang.Integer] = model.predict(data)
 
-    def getCenters(): Array[Vector] = model.getCenters()
+    def getCenters(): Seq[Vector] = model.getCenters()
   }
 
   /**

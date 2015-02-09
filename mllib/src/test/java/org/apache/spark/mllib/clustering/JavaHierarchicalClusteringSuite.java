@@ -56,8 +56,8 @@ public class JavaHierarchicalClusteringSuite implements Serializable {
 
     JavaRDD<Vector> data = sc.parallelize(points, 2);
     HierarchicalClusteringModel model = HierarchicalClustering.train(data.rdd(), 1);
-    assertEquals(1, model.getCenters().length);
-    assertEquals(expectedCenter, model.getCenters()[0]);
+    assertEquals(1, model.getCenters().size());
+    assertEquals(expectedCenter, model.getCenters().apply(0));
   }
 
   @Test
