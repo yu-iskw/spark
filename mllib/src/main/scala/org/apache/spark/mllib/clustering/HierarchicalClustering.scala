@@ -342,7 +342,7 @@ class HierarchicalClustering(
     while (leavesQueue.size > 0 && root.getLeavesNodes().size < numClusters) {
 
       // pick up the cluster whose variance is the maximum in the queue
-      val mostScattered = leavesQueue.maxBy(_._2.getVariancesNorm())
+      val mostScattered = leavesQueue.maxBy(_._2.variancesNorm)
       val mostScatteredKey = mostScattered._1
       val mostScatteredCluster = mostScattered._2
 
@@ -490,19 +490,20 @@ class HierarchicalClustering(
  * @param variances variance vectors
  * @param parent the parent cluster of the cluster
  * @param children the children nodes of the cluster
- * @param sumOfSquaresVariance the sum of squares of variances
+ * @param variancesNorm the sum of squares of variances
  */
 class ClusterTree(
   val center: Vector,
   val records: Long,
   val variances: Vector,
+  val variancesNorm: Double,
   private var localHeight: Double,
   private var parent: Option[ClusterTree],
-  private var children: Array[ClusterTree],
-  private var sumOfSquaresVariance: Option[Double]) extends Serializable {
+  private var children: Array[ClusterTree]) extends Serializable {
 
   def this(center: Vector, rows: Long, variances: Vector) =
-    this(center, rows, variances, 0.0, None, Array.empty[ClusterTree], None)
+    this(center, rows, variances, breezeNorm(variances.toBreeze, 2.0),
+      0.0, None, Array.empty[ClusterTree])
 
   /**
    * Inserts sub nodes as its children
@@ -563,19 +564,6 @@ class ClusterTree(
   def getParent(): Option[ClusterTree] = this.parent
 
   def getChildren(): Array[ClusterTree] = this.children
-
-  /**
-   * Gets the sum of squares variances
-   */
-  def getSumOfSquaresVariances(): Double = {
-    // set the result of calculation in order to reduce calculating time
-    // because if the dimensions is very high such as 100000, it takes a long time to calculate it
-    if (this.sumOfSquaresVariance.isEmpty) {
-      val sumOfSquares = this.variances.toBreeze :* this.variances.toBreeze
-      this.sumOfSquaresVariance = Some(breezeNorm(sumOfSquares, 1.0 / this.variances.size))
-    }
-    this.sumOfSquaresVariance.get
-  }
 
   /**
    * Gets the dendrogram height of the cluster at the cluster tree
