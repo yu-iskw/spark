@@ -167,8 +167,11 @@ class HierarchicalClustering(
     var step = 1
     var numDividedClusters = 0
     var noMoreDividable = false
-    val maxAllNodesInTree = 2 * this.numClusters - 1
     var rddArray = Array.empty[RDD[(Int, BV[Double])]]
+    // the number of maximum nodes of a binary tree by given parameter
+    val multiplier = math.ceil(math.log10(this.numClusters) / math.log10(2.0))
+    val maxAllNodesInTree = math.pow(2.0, multiplier).toInt
+
     while (clusters.size < maxAllNodesInTree && noMoreDividable == false) {
       log.info(s"${sc.appName} starts step ${step}")
 
