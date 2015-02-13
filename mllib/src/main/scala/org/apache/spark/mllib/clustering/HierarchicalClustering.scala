@@ -217,7 +217,7 @@ class HierarchicalClustering(
     val model = new HierarchicalClusteringModel(root.get)
     val leavesNodes = model.getClusters()
     if (leavesNodes.size < this.numClusters) {
-      log.warn(s"# clusters is less than you have expected: ${leavesNodes}. ")
+      log.warn(s"# clusters is less than you have expected: ${leavesNodes.size} / ${numClusters}. ")
     }
     model
   }
