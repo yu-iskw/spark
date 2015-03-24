@@ -284,7 +284,6 @@ class HierarchicalClustering(
     clusters.flatMap { case (idx, center) =>
       val childrenIndexes = Array(2 * idx, 2 * idx + 1)
       val relativeErrorCoefficient = 0.001
-      // TODO map only active keys
       Array(
         (2 * idx, center.map(elm => elm - (elm * relativeErrorCoefficient * rand.nextDouble()))),
         (2 * idx + 1, center.map(elm => elm + (elm * relativeErrorCoefficient * rand.nextDouble())))
@@ -335,10 +334,8 @@ class HierarchicalClustering(
     }
 
     // make children clusters
-    val result = stats.filter { case (i, (sum, n, sumOfSquares)) => n > 0}
+    stats.filter { case (i, (sum, n, sumOfSquares)) => n > 0}
         .map { case (i, (sum, n, sumOfSquares)) =>
-      val hoge = sum :/ n
-      val fuga = sum.toDenseVector :/ n
       val center = Vectors.fromBreeze(sum :/ n)
       val variances = n match {
         case 1 => Vectors.sparse(sum.size, Array(), Array())
@@ -347,7 +344,6 @@ class HierarchicalClustering(
       val child = new ClusterTree(center, n.toLong, variances)
       (i, child)
     }.toMap
-    result
   }
 
   /**
