@@ -50,19 +50,19 @@ object HierarchicalClustering extends Logging {
    *
    * @param data training data
    * @param numClusters the maximum number of clusters you want
-   * @param subIterations the number of sub-iterations
+   * @param maxIterations the number of maximal iterations
    * @param maxRetries the number of maximum retries when the clustering can't be succeeded
    * @param seed the randomseed to generate the initial vectors for each bisecting
    * @return a hierarchical clustering model
    */
   def train(data: RDD[Vector],
     numClusters: Int,
-    subIterations: Int,
+    maxIterations: Int,
     maxRetries: Int,
     seed: Int): HierarchicalClusteringModel = {
 
     val algo = new HierarchicalClustering().setNumClusters(numClusters)
-        .setSubIterations(subIterations)
+        .setMaxIterations(maxIterations)
         .setMaxRetries(maxRetries)
         .setSeed(seed)
     algo.run(data)
@@ -94,14 +94,14 @@ object HierarchicalClustering extends Logging {
  *
  * @param numClusters tne number of clusters you want
  * @param clusterMap the pairs of cluster and its index as Map
- * @param subIterations the number of sub-iterations
+ * @param maxIterations the number of maximal iterations
  * @param maxRetries the number of maximum retries
  * @param seed a random seed
  */
 class HierarchicalClustering(
   private var numClusters: Int,
   private var clusterMap: Map[Long, ClusterTree],
-  private var subIterations: Int,
+  private var maxIterations: Int,
   private var maxRetries: Int,
   private var seed: Int) extends Logging {
 
@@ -119,14 +119,14 @@ class HierarchicalClustering(
   }
 
   /**
-   * Sets the number of sub-iterations in each clustering step
+   * Sets the number of maximal iterations in each clustering step
    */
-  def setSubIterations(subIterations: Int): this.type = {
-    this.subIterations = subIterations
+  def setMaxIterations(maxIterations: Int): this.type = {
+    this.maxIterations = maxIterations
     this
   }
 
-  def getSubIterations(): Int = this.subIterations
+  def getSubIterations(): Int = this.maxIterations
 
   /**
    * Sets the number of maximum retries of each clustering step
@@ -432,7 +432,7 @@ class HierarchicalClustering(
     var diffVariances = Double.MaxValue
     var oldVariances = Double.MaxValue
     var variances = Double.MaxValue
-    while (subIter < this.subIterations && diffVariances > 10E-4) {
+    while (subIter < this.maxIterations && diffVariances > 10E-4) {
       // calculate summary of each cluster
       val eachStats = data.mapPartitions { iter =>
         val map = mutable.Map.empty[Long, (BV[Double], Double, BV[Double])]
@@ -467,8 +467,6 @@ class HierarchicalClustering(
         math.pow(sumOfSquares.toArray.sum, 1.0 / sumOfSquares.size)
       }.sum
       diffVariances = math.abs(oldVariances - variances) / oldVariances
-      log.debug(s"${sc.appName}:subIter#${subIter}, variances:${variances}, " +
-          s"oldVariances:${oldVariances}, diffVariances:${diffVariances}")
       oldVariances = variances
       subIter += 1
     }
