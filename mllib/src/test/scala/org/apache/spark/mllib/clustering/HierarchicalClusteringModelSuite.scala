@@ -60,18 +60,6 @@ class HierarchicalClusteringModelSuite
     assert(predicted === localData.map(_._1))
   }
 
-  test("hoge") {
-    val vec = Vectors.sparse(5, Array(0, 3, 4), Array(0.0, 60.0, 80.0)).toBreeze
-    val n = 60.0
-    val answer1 = vec :/ n
-    val answer2 = vec.toDenseVector :/ n
-    println(vec)
-    println(vec.size)
-    println(answer1)
-    println(answer2)
-    println(0)
-  }
-
   test("clustering sparse vectors") {
     val app = new HierarchicalClustering().setNumClusters(5).setSeed(1)
 
