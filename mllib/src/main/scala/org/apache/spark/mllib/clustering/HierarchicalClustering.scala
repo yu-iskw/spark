@@ -103,7 +103,7 @@ class HierarchicalClustering(
   private var clusterMap: Map[Long, ClusterTree],
   private var maxIterations: Int,
   private var maxRetries: Int,
-  private var seed: Int) extends Logging {
+  private var seed: Long) extends Logging {
 
   /**
    * Constructs with the default configuration
@@ -141,12 +141,12 @@ class HierarchicalClustering(
   /**
    * Sets the random seed
    */
-  def setSeed(seed: Int): this.type = {
+  def setSeed(seed: Long): this.type = {
     this.seed = seed
     this
   }
 
-  def getSeed(): Int = this.seed
+  def getSeed(): Long = this.seed
 
   /**
    * Runs the hierarchical clustering algorithm
@@ -279,7 +279,7 @@ class HierarchicalClustering(
   private[clustering]
   def initChildrenCenter(clusters: Map[Long, BV[Double]]): Map[Long, BV[Double]] = {
     val rand = new XORShiftRandom()
-    rand.setSeed(this.seed.toLong)
+    rand.setSeed(this.seed)
 
     clusters.flatMap { case (idx, center) =>
       val childrenIndexes = Array(2 * idx, 2 * idx + 1)
