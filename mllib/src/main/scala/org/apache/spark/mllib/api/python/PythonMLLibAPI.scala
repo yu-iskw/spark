@@ -349,6 +349,15 @@ private[python] class PythonMLLibAPI extends Serializable {
     }
   }
 
+  private[python] class HierarchicalClusteringModelWrapper(val model: HierarchicalClusteringModel) {
+
+    def getCenters(): Array[Vector] = model.getCenters().toArray
+
+    def predict(vector: Vector): Int =  model.predict(vector)
+
+    def predict(data: JavaRDD[Vector]): JavaRDD[java.lang.Integer] = model.predict(data)
+  }
+
   /**
    * Java stub for Python mllib GaussianMixtureModel.predictSoft()
    */
