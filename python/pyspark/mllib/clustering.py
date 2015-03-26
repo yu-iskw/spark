@@ -19,12 +19,15 @@ from numpy import array
 
 from pyspark import RDD
 from pyspark import SparkContext
-from pyspark.mllib.common import callMLlibFunc, callJavaFunc, _py2java, _java2py
+from pyspark.mllib.common import JavaModelWrapper, callMLlibFunc, callJavaFunc
+from pyspark.mllib.common import inherit_doc, _py2java, _java2py
 from pyspark.mllib.linalg import SparseVector, _convert_to_vector
 from pyspark.mllib.stat.distribution import MultivariateGaussian
 from pyspark.mllib.util import Saveable, Loader, inherit_doc
 
-__all__ = ['KMeansModel', 'KMeans', 'GaussianMixtureModel', 'GaussianMixture']
+__all__ = ['KMeansModel', 'KMeans',
+           'GaussianMixtureModel', 'GaussianMixture',
+           'HierarchicalClusteringModel', 'HierarchicalClustering']
 
 
 @inherit_doc
@@ -191,6 +194,37 @@ class GaussianMixture(object):
         mvg_obj = [MultivariateGaussian(mu[i], sigma[i]) for i in range(k)]
         return GaussianMixtureModel(weight, mvg_obj)
 
+
+@inherit_doc
+class HierarchicalClusteringModel(JavaModelWrapper):
+
+    """A clustering model derived from the hierarchical clustering method.
+
+    >>> data = array([0.0,0.0, 1.0,1.0, 9.0,8.0, 8.0,9.0]).reshape(4, 2)
+    >>> rdd = sc.parallelize(data)
+    >>> model = HierarchicalClustering.train(rdd, 2)
+    >>> model.predict(array([0.0, 0.0])) == model.predict(array([1.0, 1.0]))
+    True
+    >>> model.predict(array([8.0, 9.0])) == model.predict(array([9.0, 8.0]))
+    True
+    """
+
+    def predict(self, x):
+        """Find the cluster to which x belongs in this model."""
+        if isinstance(x, RDD):
+            return self.call("predict", x.map(_convert_to_vector))
+        else:
+            return self.call("predict", _convert_to_vector(x))
+
+
+class HierarchicalClustering(object):
+
+    @classmethod
+    def train(cls, rdd, k, maxIterations=100, maxRetries=10, seed=None):
+        model = callMLlibFunc("trainHierarchicalClusteringModel", rdd.map(_convert_to_vector),
+                              k, maxIterations, maxRetries, seed)
+        #return HierarchicalClusteringModel([c.toArray() for c in centers])
+        return HierarchicalClusteringModel(model)
 
 def _test():
     import doctest
