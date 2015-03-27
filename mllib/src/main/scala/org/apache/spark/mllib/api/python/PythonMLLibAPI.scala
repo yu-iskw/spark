@@ -340,6 +340,9 @@ private[python] class PythonMLLibAPI extends Serializable {
     }
   }
 
+  /**
+   * A Wrapper of HierarchicalClusteringModel to provide helpfer method for Python
+   */
   private[python] class HierarchicalClusteringModelWrapper(val model: HierarchicalClusteringModel) {
 
     def getCenters(): Array[Vector] = model.getCenters().toArray
