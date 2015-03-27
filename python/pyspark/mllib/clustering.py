@@ -207,6 +207,23 @@ class HierarchicalClusteringModel(JavaModelWrapper):
     True
     >>> model.predict(array([8.0, 9.0])) == model.predict(array([9.0, 8.0]))
     True
+    >>> sparse_data = [
+    ...     SparseVector(3, {1: 1.0}),
+    ...     SparseVector(3, {1: 1.1}),
+    ...     SparseVector(3, {2: 1.0}),
+    ...     SparseVector(3, {2: 1.1})
+    ... ]
+    >>> model = HierarchicalClustering.train(sc.parallelize(sparse_data), 2)
+    >>> model.predict(array([0., 1., 0.])) == model.predict(array([0, 1.1, 0.]))
+    True
+    >>> model.predict(array([0., 0., 1.])) == model.predict(array([0, 0, 1.1]))
+    True
+    >>> model.predict(sparse_data[0]) == model.predict(sparse_data[1])
+    True
+    >>> model.predict(sparse_data[2]) == model.predict(sparse_data[3])
+    True
+    >>> type(model.clusterCenters)
+    <type 'list'>
     """
 
     def predict(self, x):
@@ -216,6 +233,12 @@ class HierarchicalClusteringModel(JavaModelWrapper):
         else:
             return self.call("predict", _convert_to_vector(x))
 
+    @property
+    def clusterCenters(self):
+        """Get the cluster centers, represented as a list of NumPy arrays."""
+        centers = _java2py(self._sc, self.call("getCenters"))
+        return [c.toArray for c in centers]
+
 
 class HierarchicalClustering(object):
 
@@ -223,7 +246,6 @@ class HierarchicalClustering(object):
     def train(cls, rdd, k, maxIterations=100, maxRetries=10, seed=None):
         model = callMLlibFunc("trainHierarchicalClusteringModel", rdd.map(_convert_to_vector),
                               k, maxIterations, maxRetries, seed)
-        #return HierarchicalClusteringModel([c.toArray() for c in centers])
         return HierarchicalClusteringModel(model)
 
 def _test():
