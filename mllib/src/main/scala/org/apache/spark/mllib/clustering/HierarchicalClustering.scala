@@ -557,10 +557,10 @@ class ClusterTree(
    *
    * @return Seq class which the cluster tree is expanded
    */
-  def toSeq(): Seq[ClusterTree] = {
+  def toArray(): Array[ClusterTree] = {
     val array = this.children.size match {
-      case 0 => Seq(this)
-      case _ => Seq(this) ++ this.children.flatMap(child => child.toSeq().toIterator)
+      case 0 => Array(this)
+      case _ => Array(this) ++ this.children.flatMap(child => child.toArray().toIterator)
     }
     array.sortWith { case (a, b) =>
       a.getDepth() < b.getDepth() && a.variances.toArray.sum < b.variances.toArray.sum
@@ -582,8 +582,8 @@ class ClusterTree(
   /**
    * Gets the leaves nodes in the cluster tree
    */
-  def getLeavesNodes(): Seq[ClusterTree] = {
-    this.toSeq().filter(_.isLeaf()).sortBy(_.center.toArray.sum)
+  def getLeavesNodes(): Array[ClusterTree] = {
+    this.toArray().filter(_.isLeaf()).sortBy(_.center.toArray.sum)
   }
 
   def isLeaf(): Boolean = (this.children.size == 0)
