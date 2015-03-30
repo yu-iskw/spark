@@ -252,7 +252,8 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
 
     @classmethod
     def load(cls, sc, path):
-        java_model = sc._jvm.org.apache.spark.mllib.clustering.HierarchicalClusteringModel.load(sc._jsc.sc(), path)
+        java_model = sc._jvm.org.apache.spark.mllib.clustering \
+            .HierarchicalClusteringModel.load(sc._jsc.sc(), path)
         return HierarchicalClusteringModel(java_model)
 
 
@@ -263,6 +264,7 @@ class HierarchicalClustering(object):
         model = callMLlibFunc("trainHierarchicalClusteringModel", rdd.map(_convert_to_vector),
                               k, maxIterations, maxRetries, seed)
         return HierarchicalClusteringModel(model)
+
 
 def _test():
     import doctest
