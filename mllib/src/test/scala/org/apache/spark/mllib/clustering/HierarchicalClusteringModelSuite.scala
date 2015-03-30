@@ -94,4 +94,25 @@ class HierarchicalClusteringModelSuite
     val predicted = model.predict(data).collect()
     assert(predicted === localData.map(_._1))
   }
+
+  test("save a model, and then load the model") {
+    val app = new HierarchicalClustering().setNumClusters(5).setSeed(1)
+
+    val localData = (1 to 100).toSeq.map { i =>
+      val label = i % 5
+      val vector = Vectors.dense(label, label, label)
+      (label, vector)
+    }
+    val data = sc.parallelize(localData.map(_._2))
+    val model = app.run(data)
+
+    val tmpFile = java.io.File.createTempFile("hierarchical-clustering", "save-load")
+    model.save(sc, tmpFile.getAbsolutePath)
+
+    val sameModel = HierarchicalClusteringModel.load(sc, tmpFile.getAbsolutePath)
+    assert(sameModel.getClass.getSimpleName.toString === "HierarchicalClusteringModel")
+    localData.foreach { case (label, vector) =>
+        assert(model.predict(vector) === sameModel.predict(vector))
+    }
+  }
 }

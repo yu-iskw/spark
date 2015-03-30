@@ -18,10 +18,11 @@
 package org.apache.spark.mllib.clustering
 
 import breeze.linalg.{DenseVector => BDV, Vector => BV, norm => breezeNorm}
-import org.apache.spark.Logging
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.mllib.util.{Loader, Saveable}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.{Logging, SparkContext}
 
 /**
  * This class is used for the model of the hierarchical clustering
@@ -29,7 +30,19 @@ import org.apache.spark.rdd.RDD
  * @param tree a cluster as a tree node
  */
 class HierarchicalClusteringModel(val tree: ClusterTree)
-    extends Serializable with Logging {
+    extends Serializable with Saveable with Logging {
+
+  /** Current version of model save/load format. */
+  override protected def formatVersion: String = "1.0"
+
+  override def save(sc: SparkContext, path: String) {
+    val oos = new java.io.ObjectOutputStream(new java.io.FileOutputStream(path))
+    try {
+      oos.writeObject(this)
+    } finally {
+      oos.close()
+    }
+  }
 
   def getClusters(): Array[ClusterTree] = this.tree.getLeavesNodes()
 
@@ -70,3 +83,15 @@ class HierarchicalClusteringModel(val tree: ClusterTree)
     predict(points.rdd).toJavaRDD().asInstanceOf[JavaRDD[java.lang.Integer]]
 }
 
+
+object HierarchicalClusteringModel extends Loader[HierarchicalClusteringModel] {
+
+  override def load(sc: SparkContext, path: String): HierarchicalClusteringModel = {
+    val stream = new java.io.ObjectInputStream(new java.io.FileInputStream(path))
+    try {
+      stream.readObject().asInstanceOf[HierarchicalClusteringModel]
+    } finally {
+      stream.close()
+    }
+  }
+}
