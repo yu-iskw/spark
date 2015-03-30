@@ -19,12 +19,16 @@ from numpy import array
 
 from pyspark import RDD
 from pyspark import SparkContext
-from pyspark.mllib.common import callMLlibFunc, callJavaFunc, _py2java, _java2py
+from pyspark.mllib.common import JavaModelWrapper, callMLlibFunc, callJavaFunc
+from pyspark.mllib.common import inherit_doc, _py2java, _java2py
 from pyspark.mllib.linalg import SparseVector, _convert_to_vector
 from pyspark.mllib.stat.distribution import MultivariateGaussian
 from pyspark.mllib.util import Saveable, Loader, inherit_doc
+from pyspark.mllib.util import JavaLoader, JavaSaveable
 
-__all__ = ['KMeansModel', 'KMeans', 'GaussianMixtureModel', 'GaussianMixture']
+__all__ = ['KMeansModel', 'KMeans',
+           'GaussianMixtureModel', 'GaussianMixture',
+           'HierarchicalClusteringModel', 'HierarchicalClustering']
 
 
 @inherit_doc
@@ -190,6 +194,76 @@ class GaussianMixture(object):
                                           convergenceTol, maxIterations, seed)
         mvg_obj = [MultivariateGaussian(mu[i], sigma[i]) for i in range(k)]
         return GaussianMixtureModel(weight, mvg_obj)
+
+
+@inherit_doc
+class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
+
+    """A clustering model derived from the hierarchical clustering method.
+
+    >>> data = array([0.0,0.0, 1.0,1.0, 9.0,8.0, 8.0,9.0]).reshape(4, 2)
+    >>> rdd = sc.parallelize(data)
+    >>> model = HierarchicalClustering.train(rdd, 2)
+    >>> model.predict(array([0.0, 0.0])) == model.predict(array([1.0, 1.0]))
+    True
+    >>> model.predict(array([8.0, 9.0])) == model.predict(array([9.0, 8.0]))
+    True
+    >>> sparse_data = [
+    ...     SparseVector(3, {1: 1.0}),
+    ...     SparseVector(3, {1: 1.1}),
+    ...     SparseVector(3, {2: 1.0}),
+    ...     SparseVector(3, {2: 1.1})
+    ... ]
+    >>> model = HierarchicalClustering.train(sc.parallelize(sparse_data), 2)
+    >>> model.predict(array([0., 1., 0.])) == model.predict(array([0, 1.1, 0.]))
+    True
+    >>> model.predict(array([0., 0., 1.])) == model.predict(array([0, 0, 1.1]))
+    True
+    >>> model.predict(sparse_data[0]) == model.predict(sparse_data[1])
+    True
+    >>> model.predict(sparse_data[2]) == model.predict(sparse_data[3])
+    True
+    >>> type(model.clusterCenters)
+    <type 'list'>
+    >>> import os, tempfile
+    >>> num, path = tempfile.mkstemp()
+    >>> model.save(sc, path)
+    >>> sameModel = HierarchicalClusteringModel.load(sc, path)
+    >>> sameModel.predict(sparse_data[0]) == model.predict(sparse_data[0])
+    True
+    >>> try:
+    ...     os.removedirs(path)
+    ... except OSError:
+    ...     pass
+    """
+
+    def predict(self, x):
+        """Find the cluster to which x belongs in this model."""
+        if isinstance(x, RDD):
+            return self.call("predict", x.map(_convert_to_vector))
+        else:
+            return self.call("predict", _convert_to_vector(x))
+
+    @property
+    def clusterCenters(self):
+        """Get the cluster centers, represented as a list of NumPy arrays."""
+        centers = _java2py(self._sc, self.call("getCenters"))
+        return [c.toArray for c in centers]
+
+    @classmethod
+    def load(cls, sc, path):
+        java_model = sc._jvm.org.apache.spark.mllib.clustering \
+            .HierarchicalClusteringModel.load(sc._jsc.sc(), path)
+        return HierarchicalClusteringModel(java_model)
+
+
+class HierarchicalClustering(object):
+
+    @classmethod
+    def train(cls, rdd, k, maxIterations=100, maxRetries=10, seed=None):
+        model = callMLlibFunc("trainHierarchicalClusteringModel", rdd.map(_convert_to_vector),
+                              k, maxIterations, maxRetries, seed)
+        return HierarchicalClusteringModel(model)
 
 
 def _test():
