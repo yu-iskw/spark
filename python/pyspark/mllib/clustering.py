@@ -24,6 +24,7 @@ from pyspark.mllib.common import inherit_doc, _py2java, _java2py
 from pyspark.mllib.linalg import SparseVector, _convert_to_vector
 from pyspark.mllib.stat.distribution import MultivariateGaussian
 from pyspark.mllib.util import Saveable, Loader, inherit_doc
+from pyspark.mllib.util import JavaLoader, JavaSaveable
 
 __all__ = ['KMeansModel', 'KMeans',
            'GaussianMixtureModel', 'GaussianMixture',
@@ -196,7 +197,7 @@ class GaussianMixture(object):
 
 
 @inherit_doc
-class HierarchicalClusteringModel(JavaModelWrapper):
+class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
 
     """A clustering model derived from the hierarchical clustering method.
 
@@ -224,6 +225,16 @@ class HierarchicalClusteringModel(JavaModelWrapper):
     True
     >>> type(model.clusterCenters)
     <type 'list'>
+    >>> import os, tempfile
+    >>> num, path = tempfile.mkstemp()
+    >>> model.save(sc, path)
+    >>> sameModel = HierarchicalClusteringModel.load(sc, path)
+    >>> sameModel.predict(sparse_data[0]) == model.predict(sparse_data[0])
+    True
+    >>> try:
+    ...     os.removedirs(path)
+    ... except OSError:
+    ...     pass
     """
 
     def predict(self, x):
@@ -238,6 +249,11 @@ class HierarchicalClusteringModel(JavaModelWrapper):
         """Get the cluster centers, represented as a list of NumPy arrays."""
         centers = _java2py(self._sc, self.call("getCenters"))
         return [c.toArray for c in centers]
+
+    @classmethod
+    def load(cls, sc, path):
+        java_model = sc._jvm.org.apache.spark.mllib.clustering.HierarchicalClusteringModel.load(sc._jsc.sc(), path)
+        return HierarchicalClusteringModel(java_model)
 
 
 class HierarchicalClustering(object):
