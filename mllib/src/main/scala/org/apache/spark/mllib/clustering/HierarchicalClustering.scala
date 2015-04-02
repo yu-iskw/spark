@@ -98,7 +98,7 @@ object HierarchicalClustering extends Logging {
  * @param maxRetries the number of maximum retries
  * @param seed a random seed
  */
-class HierarchicalClustering(
+class HierarchicalClustering private (
   private var numClusters: Int,
   private var clusterMap: Map[Long, ClusterTree],
   private var maxIterations: Int,
