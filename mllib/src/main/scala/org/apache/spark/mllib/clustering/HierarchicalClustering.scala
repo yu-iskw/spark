@@ -520,7 +520,7 @@ class HierarchicalClustering private (
  * @param parent the parent cluster of the cluster
  * @param children the children nodes of the cluster
  */
-class ClusterTree(
+class ClusterTree private (
   val center: Vector,
   val records: Long,
   val variances: Vector,
