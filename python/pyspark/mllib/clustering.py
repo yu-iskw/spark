@@ -225,6 +225,8 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     True
     >>> type(model.clusterCenters)
     <type 'list'>
+    >>> type((model.clusterCenters)[0])
+    <type 'numpy.ndarray'>
     >>> import os, tempfile
     >>> num, path = tempfile.mkstemp()
     >>> model.save(sc, path)
@@ -248,7 +250,7 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     def clusterCenters(self):
         """Get the cluster centers, represented as a list of NumPy arrays."""
         centers = _java2py(self._sc, self.call("getCenters"))
-        return [c.toArray for c in centers]
+        return [c.toArray() for c in centers]
 
     @classmethod
     def load(cls, sc, path):
