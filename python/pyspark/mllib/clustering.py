@@ -280,13 +280,17 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     True
     >>> model.predict(array([8.0, 9.0])) == model.predict(array([9.0, 8.0]))
     True
+    >>> abs(model.WSSSE(rdd) - 2.82842712) < 10e-8
+    True
+
     >>> sparse_data = [
     ...     SparseVector(3, {1: 1.0}),
     ...     SparseVector(3, {1: 1.1}),
     ...     SparseVector(3, {2: 1.0}),
     ...     SparseVector(3, {2: 1.1})
     ... ]
-    >>> model = HierarchicalClustering.train(sc.parallelize(sparse_data), 2)
+    >>> sparse_rdd = sc.parallelize(sparse_data)
+    >>> model = HierarchicalClustering.train(sparse_rdd, 2)
     >>> model.predict(array([0., 1., 0.])) == model.predict(array([0, 1.1, 0.]))
     True
     >>> model.predict(array([0., 0., 1.])) == model.predict(array([0, 0, 1.1]))
@@ -299,6 +303,9 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     <type 'list'>
     >>> type((model.clusterCenters)[0])
     <type 'numpy.ndarray'>
+    >>> abs(model.WSSSE(sparse_rdd) - 0.2) < 10e-2
+    True
+
     >>> import os, tempfile
     >>> num, path = tempfile.mkstemp()
     >>> model.save(sc, path)
@@ -323,6 +330,10 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
         """Get the cluster centers, represented as a list of NumPy arrays."""
         centers = _java2py(self._sc, self.call("getCenters"))
         return [c.toArray() for c in centers]
+
+    def WSSSE(self, rdd):
+        """Get Within Set Sum of Squared Error (WSSSE)."""
+        return self.call("WSSSE", rdd.map(_convert_to_vector))
 
     @classmethod
     def load(cls, sc, path):
