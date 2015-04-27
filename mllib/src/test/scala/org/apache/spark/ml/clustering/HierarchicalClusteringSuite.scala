@@ -34,6 +34,31 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     sqlContext = new SQLContext(sc)
   }
 
+  test("getter & setter") {
+    val algo = new HierarchicalClustering()
+
+    // test default values and getters
+    intercept[NoSuchElementException] {
+      algo.getNumClusters
+    }
+    assert(algo.getMaxIter === 20)
+    assert(algo.getMaxRetries === 5)
+    assert(algo.getSeed === 1)
+    assert(algo.getFeaturesCol === "features")
+
+    // test setters
+    algo.setNumClusters(9)
+    assert(algo.getNumClusters === 9)
+    algo.setMaxIter(100)
+    assert(algo.getMaxIter === 100)
+    algo.setMaxRetries(50)
+    assert(algo.getMaxRetries === 50)
+    algo.setSeed(999)
+    assert(algo.getSeed === 999)
+    algo.setInputCol("elements")
+    assert(algo.getFeaturesCol === "elements")
+  }
+
   test("fit & predict") {
     val sqlContext = this.sqlContext
     // this is used to implicitly convert an RDD to a DataFrame.

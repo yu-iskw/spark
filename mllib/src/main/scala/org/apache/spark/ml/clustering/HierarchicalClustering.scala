@@ -33,7 +33,7 @@ import org.apache.spark.sql.{DataFrame, Row}
  */
 @AlphaComponent
 private[clustering]
-trait HierarchicalClusteringParams extends Params with HasMaxIter with HasInputCol {
+trait HierarchicalClusteringParams extends Params with HasMaxIter with HasFeaturesCol {
 
   /**
    * Param for the number of clusters you want.
@@ -41,7 +41,7 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasInputC
    */
   val numClusters = new IntParam(this, "numClusters", "number of clusters you want")
 
-  def getNumClusters(): Int = get(numClusters)
+  def getNumClusters: Int = get(numClusters)
 
   /**
    * Param for the maximum number of retries
@@ -49,7 +49,7 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasInputC
    */
   val maxRetries = new IntParam(this, "maxRetries", "maximum number of retries")
 
-  def getMaxRetries(): Int = get(maxRetries)
+  def getMaxRetries: Int = get(maxRetries)
 
   /**
    * Param for a random seed
@@ -57,7 +57,7 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasInputC
    */
   val seed = new IntParam(this, "seed", "random seed")
 
-  def getSeed(): Int = get(seed)
+  def getSeed: Int = get(seed)
 
   /**
    * Validates and transforms the input schema.
@@ -67,7 +67,7 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasInputC
    */
   protected def validateAndTransformSchema(schema: StructType, paramMap: ParamMap): StructType = {
     val map = this.paramMap ++ paramMap
-    assert(schema(map(inputCol)).dataType == ArrayType)
+    assert(schema(map(featuresCol)).dataType == ArrayType)
     schema
   }
 }
@@ -97,7 +97,7 @@ class HierarchicalClustering
   /** @group setParam */
   def setSeed(value: Int): this.type = set(seed, value)
 
-  def setInputCol(value: String): this.type = set(inputCol, value)
+  def setInputCol(value: String): this.type = set(featuresCol, value)
 
   /**
    * Fits a single model to the input data with provided parameter map.
@@ -122,7 +122,7 @@ class HierarchicalClustering
 
   def extractVector(dataset: DataFrame, paramMap: ParamMap): RDD[Vector] = {
     val map = this.paramMap ++ paramMap
-    dataset.select(col(map(inputCol))).map { case Row(point: Vector) => point }
+    dataset.select(col(map(featuresCol))).map { case Row(point: Vector) => point }
   }
 
   /**
@@ -135,9 +135,10 @@ class HierarchicalClustering
    * @param paramMap  Parameters passed to this stage
    * @return  Output schema from this stage
    */
-  override def transformSchema(schema: StructType, paramMap: ParamMap): StructType = schema
+  override def transformSchema(schema: StructType, paramMap: ParamMap): StructType = {
+    validateAndTransformSchema(schema, paramMap)
+  }
 }
-
 
 /**
  * :: AlphaComponent ::
