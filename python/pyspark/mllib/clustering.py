@@ -210,6 +210,10 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     True
     >>> abs(model.WSSSE(rdd) - 2.82842712) < 10e-8
     True
+    >>> model.toLinkageMatrix()
+    [[0.0, 1.0, 5.6568542494923806, 2.0]]
+    >>> model.toAdjacencyList()
+    [[0.0, 1.0, 5.6568542494923806], [0.0, 2.0, 5.6568542494923806]]
 
     >>> sparse_data = [
     ...     SparseVector(3, {1: 1.0}),
@@ -233,6 +237,10 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     <type 'numpy.ndarray'>
     >>> abs(model.WSSSE(sparse_rdd) - 0.2) < 10e-2
     True
+    >>> model.toLinkageMatrix()
+    [[0.0, 1.0, 0.74246212024587488, 2.0]]
+    >>> model.toAdjacencyList()
+    [[0.0, 1.0, 0.74246212024587488], [0.0, 2.0, 0.74246212024587488]]
 
     >>> import os, tempfile
     >>> num, path = tempfile.mkstemp()
@@ -252,6 +260,13 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
             return self.call("predict", x.map(_convert_to_vector))
         else:
             return self.call("predict", _convert_to_vector(x))
+
+    def toAdjacencyList(self):
+        """Convert a cluster dendrogram to a adjacency list with distances as their weights."""
+        return self.call("toJavaAdjacencyList")
+
+    def toLinkageMatrix(self):
+        return self.call("toJavaLinkageMatrix")
 
     @property
     def clusterCenters(self):
