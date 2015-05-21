@@ -315,7 +315,7 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     [[0.0, 1.0, 0.74246212024587488], [0.0, 2.0, 0.74246212024587488]]
 
     >>> import os, tempfile
-    >>> num, path = tempfile.mkstemp()
+    >>> path = os.path.join(tempfile.gettempdir(), str(id(model)))
     >>> model.save(sc, path)
     >>> sameModel = HierarchicalClusteringModel.load(sc, path)
     >>> sameModel.predict(sparse_data[0]) == model.predict(sparse_data[0])
@@ -349,6 +349,9 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     def WSSSE(self, rdd):
         """Get Within Set Sum of Squared Error (WSSSE)."""
         return self.call("WSSSE", rdd.map(_convert_to_vector))
+
+    def save(self, sc, path):
+        return self.call("save", sc, path)
 
     @classmethod
     def load(cls, sc, path):
