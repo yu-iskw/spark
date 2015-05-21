@@ -210,10 +210,12 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     True
     >>> abs(model.WSSSE(rdd) - 2.82842712) < 10e-8
     True
-    >>> model.toLinkageMatrix()
-    [[0.0, 1.0, 5.6568542494923806, 2.0]]
-    >>> model.toAdjacencyList()
-    [[0.0, 1.0, 5.6568542494923806], [0.0, 2.0, 5.6568542494923806]]
+    >>> linkage_list = model.toLinkageMatrix()
+    >>> [map(lambda y: round(y, 3), x) for x in linkage_list]
+    [[0.0, 1.0, 5.657, 2.0]]
+    >>> adjacency_list = model.toAdjacencyList()
+    >>> [map(lambda y: round(y, 3), x) for x in adjacency_list]
+    [[0.0, 1.0, 5.657], [0.0, 2.0, 5.657]]
 
     >>> sparse_data = [
     ...     SparseVector(3, {1: 1.0}),
