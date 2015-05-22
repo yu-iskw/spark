@@ -204,18 +204,18 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     >>> data = array([0.0,0.0, 1.0,1.0, 9.0,8.0, 8.0,9.0]).reshape(4, 2)
     >>> rdd = sc.parallelize(data)
     >>> model = HierarchicalClustering.train(rdd, 2)
+    >>> len(model.clusterCenters)
+    2
     >>> model.predict(array([0.0, 0.0])) == model.predict(array([1.0, 1.0]))
     True
     >>> model.predict(array([8.0, 9.0])) == model.predict(array([9.0, 8.0]))
     True
     >>> abs(model.WSSSE(rdd) - 2.82842712) < 10e-8
     True
-    >>> linkage_list = model.toLinkageMatrix()
-    >>> [map(lambda y: round(y, 3), x) for x in linkage_list]
-    [[0.0, 1.0, 5.657, 2.0]]
-    >>> adjacency_list = model.toAdjacencyList()
-    >>> [map(lambda y: round(y, 3), x) for x in adjacency_list]
-    [[0.0, 1.0, 5.657], [0.0, 2.0, 5.657]]
+    >>> len(model.toLinkageMatrix())
+    1
+    >>> len(model.toAdjacencyList())
+    2
 
     >>> sparse_data = [
     ...     SparseVector(3, {1: 1.0}),
@@ -233,18 +233,14 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     True
     >>> model.predict(sparse_data[2]) == model.predict(sparse_data[3])
     True
-    >>> type(model.clusterCenters)
-    <type 'list'>
-    >>> type((model.clusterCenters)[0])
-    <type 'numpy.ndarray'>
+    >>> len(model.clusterCenters)
+    2
     >>> abs(model.WSSSE(sparse_rdd) - 0.2) < 10e-2
     True
-    >>> linkage_list = model.toLinkageMatrix()
-    >>> [map(lambda y: round(y, 8), x) for x in linkage_list]
-    [[0.0, 1.0, 0.74246212, 2.0]]
-    >>> adjacency_list = model.toAdjacencyList()
-    >>> [map(lambda y: round(y, 8), x) for x in adjacency_list]
-    [[0.0, 1.0, 0.74246212], [0.0, 2.0, 0.74246212]]
+    >>> len(model.toLinkageMatrix())
+    1
+    >>> len(model.toAdjacencyList())
+    2
 
     >>> import os, tempfile
     >>> path = os.path.join(tempfile.gettempdir(), str(id(model)))
