@@ -159,4 +159,14 @@ class HierarchicalClusteringModel private[ml](
   override def transform(dataset: DataFrame, paramMap: ParamMap): DataFrame = dataset
 
   override def transformSchema(schema: StructType, paramMap: ParamMap): StructType = schema
+
+  def toLinkageMatrix(): Array[(Int, Int, Double, Int)] = parentModel.toLinkageMatrix()
+
+  def toJavaLinkageMatrix(): java.util.ArrayList[java.util.ArrayList[java.lang.Double]] =
+    parentModel.toJavaLinkageMatrix()
+
+  def toAdjacencyList(): Array[((Int, Int, Double))] = parentModel.toAdjacencyList()
+
+  def toJavaAdjacencyList(): java.util.ArrayList[java.util.ArrayList[java.lang.Double]] =
+      parentModel.toJavaAdjacencyList()
 }

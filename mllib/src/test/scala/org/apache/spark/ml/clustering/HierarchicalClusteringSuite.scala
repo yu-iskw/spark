@@ -89,5 +89,13 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     assert(model.predict(local(0).point) !== model.predict(local(2).point))
     assert(model.predict(local(0).point) !== model.predict(local(3).point))
     assert(model.predict(local(0).point) !== model.predict(local(4).point))
+
+    // convert into a linkage matrix
+    val linkageMatrix = model.toLinkageMatrix()
+    assert(linkageMatrix.length === 4)
+
+    // convert into an adjacency list
+    val adjacencyList = model.toAdjacencyList()
+    assert(adjacencyList.length === 8)
   }
 }
