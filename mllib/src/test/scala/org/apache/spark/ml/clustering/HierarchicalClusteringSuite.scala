@@ -17,10 +17,10 @@
 package org.apache.spark.ml.clustering
 
 import org.apache.spark.Logging
-import org.apache.spark.mllib.linalg.Vectors
-import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.util.MLlibTestSparkContext
 import org.apache.spark.sql.SQLContext
+
 import org.scalatest.FunSuite
 
 case class TestDataFrame(point: Vector)
@@ -59,7 +59,7 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     assert(algo.getFeaturesCol === "elements")
   }
 
-  test("fit & predict") {
+  test("fit & predict with dense vectors") {
     val sqlContext = this.sqlContext
     // this is used to implicitly convert an RDD to a DataFrame.
     import sqlContext.implicits._
@@ -79,6 +79,52 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
         .setSeed(1)
     val model = algo.fit(dataset)
 
+    assert(model.getCenters.length === 5)
+    assert(model.getClusters.length === 5)
+    assert(model.predict(local(0).point) === model.predict(local(5).point))
+    assert(model.predict(local(1).point) === model.predict(local(6).point))
+    assert(model.predict(local(2).point) === model.predict(local(7).point))
+    assert(model.predict(local(3).point) === model.predict(local(8).point))
+    assert(model.predict(local(4).point) === model.predict(local(9).point))
+
+    assert(model.predict(local(0).point) !== model.predict(local(1).point))
+    assert(model.predict(local(0).point) !== model.predict(local(2).point))
+    assert(model.predict(local(0).point) !== model.predict(local(3).point))
+    assert(model.predict(local(0).point) !== model.predict(local(4).point))
+
+    // convert into a linkage matrix
+    val linkageMatrix = model.toLinkageMatrix()
+    assert(linkageMatrix.length === 4)
+
+    // convert into an adjacency list
+    val adjacencyList = model.toAdjacencyList()
+    assert(adjacencyList.length === 8)
+  }
+
+  test("fit & predict with sparse vectors") {
+    val sqlContext = this.sqlContext
+    // this is used to implicitly convert an RDD to a DataFrame.
+    import sqlContext.implicits._
+
+    val local = (0 to 99).map { i =>
+      val elm = (i % 5).toDouble
+      val indexes = Array(i % 5)
+      val values = Array((i % 5).toDouble)
+      val point = Vectors.sparse(5, indexes, values)
+      TestDataFrame(point)
+    }
+    val dataset = sc.makeRDD(local, 2).toDF("point")
+
+    val algo = new HierarchicalClustering()
+        .setNumClusters(5)
+        .setInputCol("point")
+        .setMaxIter(20)
+        .setMaxRetries(5)
+        .setSeed(1)
+    val model = algo.fit(dataset)
+
+    assert(model.getCenters.length === 5)
+    assert(model.getClusters.length === 5)
     assert(model.predict(local(0).point) === model.predict(local(5).point))
     assert(model.predict(local(1).point) === model.predict(local(6).point))
     assert(model.predict(local(2).point) === model.predict(local(7).point))

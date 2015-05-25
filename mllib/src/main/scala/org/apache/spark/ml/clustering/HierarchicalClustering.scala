@@ -20,6 +20,7 @@ import org.apache.spark.annotation.AlphaComponent
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.{Estimator, Model}
 import org.apache.spark.mllib
+import org.apache.spark.mllib.clustering.ClusterTree
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
@@ -159,6 +160,10 @@ class HierarchicalClusteringModel private[ml](
   override def transform(dataset: DataFrame, paramMap: ParamMap): DataFrame = dataset
 
   override def transformSchema(schema: StructType, paramMap: ParamMap): StructType = schema
+
+  def getCenters: Array[Vector] = parentModel.getCenters
+
+  def getClusters: Array[ClusterTree] = parentModel.getClusters
 
   def toLinkageMatrix(): Array[(Int, Int, Double, Int)] = parentModel.toLinkageMatrix()
 
