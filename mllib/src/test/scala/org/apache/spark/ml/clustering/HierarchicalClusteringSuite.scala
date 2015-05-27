@@ -16,14 +16,52 @@
  */
 package org.apache.spark.ml.clustering
 
+import org.scalatest.FunSuite
+
 import org.apache.spark.Logging
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.util.MLlibTestSparkContext
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
-import org.scalatest.FunSuite
+private[spark]
+case class TestPoint(point: Vector)
 
-case class TestDataFrame(point: Vector)
+private[spark]
+object HierarchicalClusteringSuite {
+
+  def generateTestDataFrame( sqlContext: SQLContext, numClusters: Int, size: Int): DataFrame = {
+    import sqlContext.implicits._
+
+    val local = (0 to size).map { i =>
+      val elms = Array.fill(size)(0.0)
+      elms(i % numClusters) = i % numClusters
+      Vectors.dense(elms)
+    }.toArray
+
+    val sc = sqlContext.sparkContext
+    val rdd = sc.parallelize(local, 2)
+    val points = rdd.map (new TestPoint(_))
+    points.toDF("point")
+  }
+
+  def generateTestDataFrameWithSparceVectors(
+    sqlContext: SQLContext,
+    numClusters: Int,
+    size: Int): DataFrame = {
+    import sqlContext.implicits._
+
+    val local = (0 to size).map { i =>
+      val indexes = Array(i % numClusters)
+      val values = Array((i % numClusters).toDouble)
+      Vectors.sparse(numClusters, indexes, values)
+    }.toArray
+
+    val sc = sqlContext.sparkContext
+    val rdd = sc.parallelize(local, 2)
+    val points = rdd.map (new TestPoint(_))
+    points.toDF("point")
+  }
+}
 
 class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext with Logging {
 
@@ -61,36 +99,22 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
 
   test("fit & predict with dense vectors") {
     val sqlContext = this.sqlContext
-    // this is used to implicitly convert an RDD to a DataFrame.
-    import sqlContext.implicits._
-
-    val local = (0 to 99).map { i =>
-      val elm = (i % 5).toDouble
-      val point = Vectors.dense(elm, elm, elm)
-      TestPoint(point)
-    }
-    val dataset = sc.makeRDD(local, 2).toDF("point")
-
     val algo = new HierarchicalClustering()
         .setNumClusters(5)
         .setFeaturesCol("point")
         .setMaxIter(20)
         .setMaxRetries(5)
         .setSeed(1)
+
+    val dataset = HierarchicalClusteringSuite.generateTestDataFrame(sqlContext, 5, 99)
     val model = algo.fit(dataset)
 
     assert(model.getCenters.length === 5)
     assert(model.getClusters.length === 5)
-    assert(model.predict(local(0).point) === model.predict(local(5).point))
-    assert(model.predict(local(1).point) === model.predict(local(6).point))
-    assert(model.predict(local(2).point) === model.predict(local(7).point))
-    assert(model.predict(local(3).point) === model.predict(local(8).point))
-    assert(model.predict(local(4).point) === model.predict(local(9).point))
-
-    assert(model.predict(local(0).point) !== model.predict(local(1).point))
-    assert(model.predict(local(0).point) !== model.predict(local(2).point))
-    assert(model.predict(local(0).point) !== model.predict(local(3).point))
-    assert(model.predict(local(0).point) !== model.predict(local(4).point))
+    (0 to (model.getCenters.length - 1)).foreach { i =>
+      val point = model.getCenters.apply(i)
+      assert(model.predict(point) === i)
+    }
 
     // convert into a linkage matrix
     val linkageMatrix = model.toLinkageMatrix()
@@ -103,38 +127,22 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
 
   test("fit & predict with sparse vectors") {
     val sqlContext = this.sqlContext
-    // this is used to implicitly convert an RDD to a DataFrame.
-    import sqlContext.implicits._
-
-    val local = (0 to 99).map { i =>
-      val elm = (i % 5).toDouble
-      val indexes = Array(i % 5)
-      val values = Array((i % 5).toDouble)
-      val point = Vectors.sparse(5, indexes, values)
-      TestPoint(point)
-    }
-    val dataset = sc.makeRDD(local, 2).toDF("point")
-
     val algo = new HierarchicalClustering()
         .setNumClusters(5)
         .setFeaturesCol("point")
         .setMaxIter(20)
         .setMaxRetries(5)
         .setSeed(1)
+    val dataset =
+      HierarchicalClusteringSuite.generateTestDataFrameWithSparceVectors(sqlContext, 5, 99)
     val model = algo.fit(dataset)
 
     assert(model.getCenters.length === 5)
     assert(model.getClusters.length === 5)
-    assert(model.predict(local(0).point) === model.predict(local(5).point))
-    assert(model.predict(local(1).point) === model.predict(local(6).point))
-    assert(model.predict(local(2).point) === model.predict(local(7).point))
-    assert(model.predict(local(3).point) === model.predict(local(8).point))
-    assert(model.predict(local(4).point) === model.predict(local(9).point))
-
-    assert(model.predict(local(0).point) !== model.predict(local(1).point))
-    assert(model.predict(local(0).point) !== model.predict(local(2).point))
-    assert(model.predict(local(0).point) !== model.predict(local(3).point))
-    assert(model.predict(local(0).point) !== model.predict(local(4).point))
+    (0 to (model.getCenters.length - 1)).foreach { i =>
+      val point = model.getCenters.apply(i)
+      assert(model.predict(point) === i)
+    }
 
     // convert into a linkage matrix
     val linkageMatrix = model.toLinkageMatrix()
