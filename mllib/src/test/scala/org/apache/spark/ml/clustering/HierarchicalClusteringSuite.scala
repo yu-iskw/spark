@@ -55,7 +55,7 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     assert(algo.getMaxRetries === 50)
     algo.setSeed(999)
     assert(algo.getSeed === 999)
-    algo.setInputCol("elements")
+    algo.setFeaturesCol("elements")
     assert(algo.getFeaturesCol === "elements")
   }
 
@@ -67,13 +67,13 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     val local = (0 to 99).map { i =>
       val elm = (i % 5).toDouble
       val point = Vectors.dense(elm, elm, elm)
-      TestDataFrame(point)
+      TestPoint(point)
     }
     val dataset = sc.makeRDD(local, 2).toDF("point")
 
     val algo = new HierarchicalClustering()
         .setNumClusters(5)
-        .setInputCol("point")
+        .setFeaturesCol("point")
         .setMaxIter(20)
         .setMaxRetries(5)
         .setSeed(1)
@@ -111,13 +111,13 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
       val indexes = Array(i % 5)
       val values = Array((i % 5).toDouble)
       val point = Vectors.sparse(5, indexes, values)
-      TestDataFrame(point)
+      TestPoint(point)
     }
     val dataset = sc.makeRDD(local, 2).toDF("point")
 
     val algo = new HierarchicalClustering()
         .setNumClusters(5)
-        .setInputCol("point")
+        .setFeaturesCol("point")
         .setMaxIter(20)
         .setMaxRetries(5)
         .setSeed(1)

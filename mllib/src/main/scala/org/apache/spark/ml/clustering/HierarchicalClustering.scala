@@ -98,7 +98,7 @@ class HierarchicalClustering
   /** @group setParam */
   def setSeed(value: Int): this.type = set(seed, value)
 
-  def setInputCol(value: String): this.type = set(featuresCol, value)
+  def setFeaturesCol(value: String): this.type = set(featuresCol, value)
 
   /**
    * Fits a single model to the input data with provided parameter map.
