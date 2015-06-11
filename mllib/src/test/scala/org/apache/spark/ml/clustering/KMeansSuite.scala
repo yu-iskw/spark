@@ -21,9 +21,18 @@ import org.apache.spark.SparkFunSuite
 import org.apache.spark.mllib.clustering.KMeans
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.util.MLlibTestSparkContext
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 private[clustering] case class TestRow(features: Vector)
+
+object KMeansSuite {
+  def generateKMeansData(sql: SQLContext, rows: Int, dim: Int, k: Int): DataFrame = {
+    val sc = sql.sparkContext
+    val rdd = sc.parallelize(1 to rows).map(i => Vectors.dense(Array.fill(dim)((i % k).toDouble)))
+        .map(v => new TestRow(v))
+    sql.createDataFrame(rdd)
+  }
+}
 
 class KMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
 
@@ -33,14 +42,7 @@ class KMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    dataset = generateKMeansDataset(1000, 10, k).cache()
-  }
-
-  def generateKMeansDataset(rows: Int, dim: Int, k: Int): DataFrame = {
-    val rdd = sc.parallelize(1 to rows, 2)
-        .map(i => Vectors.dense(Array.fill(dim)((i % k).toDouble)))
-        .map(p => new TestRow(p))
-    sqlContext.createDataFrame(rdd)
+    dataset = KMeansSuite.generateKMeansData(sqlContext, 1000, 3, k)
   }
 
   test("default parameters") {
