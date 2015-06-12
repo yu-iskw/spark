@@ -83,20 +83,20 @@ function run_sql_tests() {
 
 function run_mllib_tests() {
     echo "Run mllib tests ..."
-    #run_test "pyspark.mllib.classification"
+    run_test "pyspark.mllib.classification"
     run_test "pyspark.mllib.clustering"
-    #run_test "pyspark.mllib.evaluation"
-    #run_test "pyspark.mllib.feature"
-    #run_test "pyspark.mllib.fpm"
-    #run_test "pyspark.mllib.linalg"
-    #run_test "pyspark.mllib.random"
-    #run_test "pyspark.mllib.recommendation"
-    #run_test "pyspark.mllib.regression"
-    #run_test "pyspark.mllib.stat._statistics"
-    #run_test "pyspark.mllib.stat.KernelDensity"
-    #run_test "pyspark.mllib.tree"
-    #run_test "pyspark.mllib.util"
-    #run_test "pyspark.mllib.tests"
+    run_test "pyspark.mllib.evaluation"
+    run_test "pyspark.mllib.feature"
+    run_test "pyspark.mllib.fpm"
+    run_test "pyspark.mllib.linalg"
+    run_test "pyspark.mllib.random"
+    run_test "pyspark.mllib.recommendation"
+    run_test "pyspark.mllib.regression"
+    run_test "pyspark.mllib.stat._statistics"
+    run_test "pyspark.mllib.stat.KernelDensity"
+    run_test "pyspark.mllib.tree"
+    run_test "pyspark.mllib.util"
+    run_test "pyspark.mllib.tests"
 }
 
 function run_ml_tests() {
@@ -143,11 +143,11 @@ fi
 echo "Testing with Python version:"
 $PYSPARK_PYTHON --version
 
-#run_core_tests
-#run_sql_tests
+run_core_tests
+run_sql_tests
 run_mllib_tests
-#run_ml_tests
-#run_streaming_tests
+run_ml_tests
+run_streaming_tests
 
 # Try to test with Python 3
 if [ $(which python3.4) ]; then
