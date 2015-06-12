@@ -18,21 +18,17 @@
 package org.apache.spark.mllib.api.python
 
 import java.io.OutputStream
-import java.lang
 import java.nio.{ByteBuffer, ByteOrder}
 import java.util.{ArrayList => JArrayList, List => JList, Map => JMap}
 
-import scala.Tuple2
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.language.existentials
 import scala.reflect.ClassTag
 
-import org.apache.spark.api.java.function.PairFunction
-
 import net.razorvine.pickle._
 
-import org.apache.spark.api.java.{JavaPairRDD, JavaRDD, JavaSparkContext}
+import org.apache.spark.api.java.{JavaRDD, JavaSparkContext}
 import org.apache.spark.api.python.SerDeUtil
 import org.apache.spark.mllib.classification._
 import org.apache.spark.mllib.clustering._
