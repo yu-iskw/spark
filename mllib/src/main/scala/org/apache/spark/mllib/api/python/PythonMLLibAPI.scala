@@ -18,17 +18,21 @@
 package org.apache.spark.mllib.api.python
 
 import java.io.OutputStream
+import java.lang
 import java.nio.{ByteBuffer, ByteOrder}
 import java.util.{ArrayList => JArrayList, List => JList, Map => JMap}
 
+import scala.Tuple2
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.language.existentials
 import scala.reflect.ClassTag
 
+import org.apache.spark.api.java.function.PairFunction
+
 import net.razorvine.pickle._
 
-import org.apache.spark.api.java.{JavaRDD, JavaSparkContext}
+import org.apache.spark.api.java.{JavaPairRDD, JavaRDD, JavaSparkContext}
 import org.apache.spark.api.python.SerDeUtil
 import org.apache.spark.mllib.classification._
 import org.apache.spark.mllib.clustering._
@@ -463,6 +467,26 @@ private[python] class PythonMLLibAPI extends Serializable {
     val model = als.run(ratingsJRDD.rdd)
     new MatrixFactorizationModelWrapper(model)
   }
+
+  /**
+   * Java stub for Python mllib LDA.run()
+   */
+  def trainLDAModel(
+    data: JavaRDD[LabeledPoint],
+    k: Int,
+    seed: java.lang.Long): LDAModel = {
+    val algo = new LDA()
+        .setK(k)
+
+    if (seed != null) algo.setSeed(seed)
+
+    try {
+      algo.run(data.rdd.map(x => (x.label.toLong, x.features)))
+    } finally {
+      data.rdd.unpersist(blocking = false)
+    }
+  }
+
 
   /**
    * Java stub for Python mllib FPGrowth.train().  This stub returns a handle
