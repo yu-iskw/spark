@@ -351,10 +351,12 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
         return self.call("WSSSE", rdd.map(_convert_to_vector))
 
     def save(self, sc, path):
+        """Save a trained hierarchical clustering model."""
         return self.call("save", sc, path)
 
     @classmethod
     def load(cls, sc, path):
+        """Load a trained hierarchical clustering model."""
         java_model = sc._jvm.org.apache.spark.mllib.clustering \
             .HierarchicalClusteringModel.load(sc._jsc.sc(), path)
         return HierarchicalClusteringModel(java_model)
@@ -364,6 +366,7 @@ class HierarchicalClustering(object):
 
     @classmethod
     def train(cls, rdd, k, maxIterations=100, maxRetries=10, seed=None):
+        """Train a hierarchical clustering model."""
         model = callMLlibFunc("trainHierarchicalClusteringModel", rdd.map(_convert_to_vector),
                               k, maxIterations, maxRetries, seed)
         return HierarchicalClusteringModel(model)
