@@ -272,6 +272,17 @@ class DistributedLDAModel private (
     }
   }
 
+  def describeTopicsPython(): java.util.ArrayList[LDATopic] = describeTopicsPython(vocabSize)
+
+  def describeTopicsPython(maxTermsPerTopics: Int): java.util.ArrayList[LDATopic] = {
+    val javaList = new java.util.ArrayList[LDATopic]()
+    describeTopics(maxTermsPerTopics).foreach { case (terms, termWeights) =>
+        val topic = new LDATopic(terms, termWeights)
+        javaList.add(topic)
+    }
+    javaList
+  }
+
   // TODO
   // override def logLikelihood(documents: RDD[(Long, Vector)]): Double = ???
 
@@ -355,3 +366,5 @@ class DistributedLDAModel private (
   // override def topicDistributions(documents: RDD[(Long, Vector)]): RDD[(Long, Vector)] = ???
 
 }
+
+case class LDATopic(terms: Array[Int], termWeights: Array[Double])

@@ -1248,6 +1248,45 @@ private[spark] object SerDe extends Serializable {
     }
   }
 
+  // Pickler for LDATopic
+  private[python] class LDATopicPickler extends BasePickler[LDATopic] {
+
+    def saveState(obj: Object, out: OutputStream, pickler: Pickler): Unit = {
+      val topic: LDATopic = obj.asInstanceOf[LDATopic]
+      val n = topic.terms.size
+      val termsBytes = new Array[Byte](4 * n)
+      val order = ByteOrder.nativeOrder()
+      ByteBuffer.wrap(termsBytes).order(order).asIntBuffer().put(topic.terms)
+      val termWeightsBytes = new Array[Byte](8 * n)
+      ByteBuffer.wrap(termWeightsBytes).order(order).asDoubleBuffer().put(topic.termWeights)
+
+      out.write(Opcodes.BINSTRING)
+      out.write(PickleUtils.integer_to_bytes(termsBytes.length))
+      out.write(termsBytes)
+      out.write(Opcodes.BINSTRING)
+      out.write(PickleUtils.integer_to_bytes(termWeightsBytes.length))
+      out.write(termWeightsBytes)
+      out.write(Opcodes.TUPLE2)
+    }
+
+    def construct(args: Array[Object]): Object = {
+      if (args.length != 2) {
+        throw new PickleException("should be 2")
+      }
+      val termsBytes = getBytes(args(0))
+      val termWeightsBytes = getBytes(args(1))
+      val n = termsBytes.length / 4
+      val terms = new Array[Int](n)
+      val weights = new Array[Double](n)
+      if (n > 0) {
+        val order = ByteOrder.nativeOrder()
+        ByteBuffer.wrap(termsBytes).order(order).asIntBuffer().get(terms)
+        ByteBuffer.wrap(termWeightsBytes).order(order).asDoubleBuffer().get(weights)
+      }
+      new LDATopic(terms, weights)
+    }
+  }
+
   var initialized = false
   // This should be called before trying to serialize any above classes
   // In cluster mode, this should be put in the closure
@@ -1261,6 +1300,7 @@ private[spark] object SerDe extends Serializable {
         new SparseVectorPickler().register()
         new LabeledPointPickler().register()
         new RatingPickler().register()
+        new LDATopicPickler().register()
         initialized = true
       }
     }

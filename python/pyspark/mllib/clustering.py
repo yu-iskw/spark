@@ -17,22 +17,23 @@
 
 import sys
 import array as pyarray
+from collections import namedtuple
 
 if sys.version > '3':
     xrange = range
 
-from numpy import array
+from numpy import array, frombuffer, int32, float64
 
 from pyspark import RDD
 from pyspark import SparkContext
 from pyspark.mllib.common import JavaModelWrapper, callMLlibFunc, callJavaFunc, _py2java, _java2py
-from pyspark.mllib.linalg import SparseVector, _convert_to_vector
+from pyspark.mllib.linalg import SparseVector, _convert_to_vector, _format_float
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.stat.distribution import MultivariateGaussian
 from pyspark.mllib.util import Saveable, Loader, inherit_doc
 
 __all__ = ['KMeansModel', 'KMeans', 'GaussianMixtureModel', 'GaussianMixture',
-           'LDA', 'LDAModel']
+           'LDA', 'LDAModel', 'LDATopic']
 
 
 @inherit_doc
@@ -266,14 +267,36 @@ class GaussianMixture(object):
         return GaussianMixtureModel(weight, mvg_obj)
 
 
-def _test():
-    import doctest
-    globs = globals().copy()
-    globs['sc'] = SparkContext('local[4]', 'PythonTest', batchSize=2)
-    (failure_count, test_count) = doctest.testmod(globs=globs, optionflags=doctest.ELLIPSIS)
-    globs['sc'].stop()
-    if failure_count:
-        exit(-1)
+class LDATopic(object):
+
+    def __init__(self, terms, termWeights):
+        if isinstance(terms, bytes):
+            assert isinstance(termWeights, bytes), "term weights should be string too"
+            if terms:
+                self.terms = frombuffer(terms, int32)
+                self.termWeights = frombuffer(termWeights, float64)
+            else:
+                # frombuffer() doesn't work well with empty string in older version
+                self.terms = array([], dtype=int32)
+                self.termWeights = array([], dtype=float64)
+        else:
+            self.term = array(terms, dtype=int32)
+            self.termWeights = array(termWeights, dtype=float64)
+
+    def __reduce__(self):
+        return LDATopic, (self.terms.tostring(), self.termWeights.tostring())
+
+    def __str__(self):
+        inds = "[" + ",".join([str(i) for i in self.terms]) + "]"
+        vals = "[" + ",".join([str(v) for v in self.termWeights]) + "]"
+        return "(" + ",".join((inds, vals)) + ")"
+
+    def __repr__(self):
+        inds = self.terms
+        vals = self.termWeights
+        entries = ", ".join(["{0}: {1}".format(inds[i], _format_float(vals[i]))
+                             for i in xrange(len(inds))])
+        return "LDATopic({{{0}}})".format(entries)
 
 
 class LDAModel(JavaModelWrapper):
@@ -303,6 +326,13 @@ class LDAModel(JavaModelWrapper):
     >>> topics = model.topicsMatrix()
     >>> topics_expect = array([[0.5,  0.5], [0.5, 0.5]])
     >>> assert_almost_equal(topics, topics_expect, 1)
+    >>> weightedTermTopics = model.describeTopics()
+    >>> len(weightedTermTopics)
+    2
+    >>> type(weightedTermTopics[0])
+    <class 'pyspark.mllib.clustering.LDATopic'>
+    >>> len(model.describeTopics(model.vocabSize()))
+    2
     """
 
     def topicsMatrix(self):
@@ -314,12 +344,11 @@ class LDAModel(JavaModelWrapper):
         return self.call("vocabSize")
 
     def describeTopics(self, maxTermsPerTopic=None):
-        """Return the topics described by weighted terms.
-
-        TODO:
-        Implementing this method is a little hard. Since Scala's return value consistes of tuples.
-        """
-        raise NotImplementedError("LDAModel.describeTopics() in Python must be implemented.")
+        """Return the topics described by weighted terms."""
+        if maxTermsPerTopic is None:
+            return self.call("describeTopicsPython")
+        else:
+            return self.call("describeTopicsPython", maxTermsPerTopic)
 
 
 class LDA():
@@ -332,6 +361,16 @@ class LDA():
                               docConcentration, topicConcentration, seed,
                               checkpointInterval, optimizer)
         return LDAModel(model)
+
+
+def _test():
+    import doctest
+    globs = globals().copy()
+    globs['sc'] = SparkContext('local[4]', 'PythonTest', batchSize=2)
+    (failure_count, test_count) = doctest.testmod(globs=globs, optionflags=doctest.ELLIPSIS)
+    globs['sc'].stop()
+    if failure_count:
+        exit(-1)
 
 
 if __name__ == "__main__":
