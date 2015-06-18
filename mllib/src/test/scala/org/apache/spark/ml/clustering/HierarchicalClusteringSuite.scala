@@ -90,7 +90,7 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     assert(algo.getFeaturesCol === "elements")
   }
 
-  test("fit & predict with dense vectors") {
+  test("fit, predict and transform with dense vectors") {
     val sqlContext = this.sqlContext
     val algo = new HierarchicalClustering()
         .setNumClusters(5)
@@ -109,6 +109,10 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
       assert(model.predict(point) === i)
     }
 
+    // transform
+    val transformed = model.transform(dataset)
+    assert(transformed.columns === Array("point", "prediction"))
+
     // convert into a linkage matrix
     val linkageMatrix = model.toLinkageMatrix()
     assert(linkageMatrix.length === 4)
@@ -118,7 +122,7 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
     assert(adjacencyList.length === 8)
   }
 
-  test("fit & predict with sparse vectors") {
+  test("fit, predict and transform with sparse vectors") {
     val sqlContext = this.sqlContext
     val algo = new HierarchicalClustering()
         .setNumClusters(5)
@@ -136,6 +140,10 @@ class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext wi
       val point = model.getCenters.apply(i)
       assert(model.predict(point) === i)
     }
+
+    // transform
+    val transformed = model.transform(dataset)
+    assert(transformed.columns === Array("point", "prediction"))
 
     // convert into a linkage matrix
     val linkageMatrix = model.toLinkageMatrix()

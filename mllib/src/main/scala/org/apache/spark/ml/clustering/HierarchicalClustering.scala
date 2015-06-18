@@ -119,14 +119,9 @@ class HierarchicalClustering(override val uid: String)
         .setSeed(map(seed))
     val parentModel = algo.run(oldData)
     val model = new HierarchicalClusteringModel(uid, map, parentModel)
-    model
+    copyValues(model)
   }
 
-  /**
-   * :: DeveloperApi ::
-   *
-   * Derives the output schema from the input schema.
-   */
   override def transformSchema(schema: StructType): StructType = {
     validateAndTransformSchema(schema)
   }
