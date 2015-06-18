@@ -313,17 +313,6 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     1
     >>> len(model.toAdjacencyList())
     2
-
-    >>> import os, tempfile
-    >>> path = os.path.join(tempfile.gettempdir(), str(id(model)))
-    >>> model.save(sc, path)
-    >>> sameModel = HierarchicalClusteringModel.load(sc, path)
-    >>> sameModel.predict(sparse_data[0]) == model.predict(sparse_data[0])
-    True
-    >>> try:
-    ...     os.removedirs(path)
-    ... except OSError:
-    ...     pass
     """
 
     def predict(self, x):
@@ -349,17 +338,6 @@ class HierarchicalClusteringModel(JavaModelWrapper, JavaSaveable, JavaLoader):
     def WSSSE(self, rdd):
         """Get Within Set Sum of Squared Error (WSSSE)."""
         return self.call("WSSSE", rdd.map(_convert_to_vector))
-
-    def save(self, sc, path):
-        """Save a trained hierarchical clustering model."""
-        return self.call("save", sc, path)
-
-    @classmethod
-    def load(cls, sc, path):
-        """Load a trained hierarchical clustering model."""
-        java_model = sc._jvm.org.apache.spark.mllib.clustering \
-            .HierarchicalClusteringModel.load(sc._jsc.sc(), path)
-        return HierarchicalClusteringModel(java_model)
 
 
 class HierarchicalClustering(object):
