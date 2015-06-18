@@ -65,13 +65,6 @@ object HierarchicalClusteringSuite {
 
 class HierarchicalClusteringSuite extends FunSuite with MLlibTestSparkContext with Logging {
 
-  private var sqlContext: SQLContext = _
-
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    sqlContext = new SQLContext(sc)
-  }
-
   test("getter & setter") {
     val algo = new HierarchicalClustering()
 

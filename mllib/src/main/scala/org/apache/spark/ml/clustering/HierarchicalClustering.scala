@@ -18,11 +18,12 @@ package org.apache.spark.ml.clustering
 
 import org.apache.spark.annotation.AlphaComponent
 import org.apache.spark.ml.param._
+import org.apache.spark.ml.param.shared.{HasFeaturesCol, HasMaxIter, HasPredictionCol}
+import org.apache.spark.ml.util.{Identifiable, SchemaUtils}
 import org.apache.spark.ml.{Estimator, Model}
 import org.apache.spark.mllib
 import org.apache.spark.mllib.clustering.ClusterTree
-import org.apache.spark.mllib.linalg.Vector
-import org.apache.spark.rdd.RDD
+import org.apache.spark.mllib.linalg.{Vector, VectorUDT}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -34,7 +35,8 @@ import org.apache.spark.sql.{DataFrame, Row}
  */
 @AlphaComponent
 private[clustering]
-trait HierarchicalClusteringParams extends Params with HasMaxIter with HasFeaturesCol {
+trait HierarchicalClusteringParams
+    extends Params with HasMaxIter with HasFeaturesCol with HasPredictionCol {
 
   /**
    * Param for the number of clusters you want.
@@ -42,7 +44,7 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasFeatur
    */
   val numClusters = new IntParam(this, "numClusters", "number of clusters you want")
 
-  def getNumClusters: Int = get(numClusters)
+  def getNumClusters: Int = $(numClusters)
 
   /**
    * Param for the maximum number of retries
@@ -50,7 +52,7 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasFeatur
    */
   val maxRetries = new IntParam(this, "maxRetries", "maximum number of retries")
 
-  def getMaxRetries: Int = get(maxRetries)
+  def getMaxRetries: Int = $(maxRetries)
 
   /**
    * Param for a random seed
@@ -58,18 +60,16 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasFeatur
    */
   val seed = new IntParam(this, "seed", "random seed")
 
-  def getSeed: Int = get(seed)
+  def getSeed: Int = $(seed)
 
   /**
    * Validates and transforms the input schema.
    * @param schema input schema
-   * @param paramMap extra params
    * @return output schema
    */
-  protected def validateAndTransformSchema(schema: StructType, paramMap: ParamMap): StructType = {
-    val map = this.paramMap ++ paramMap
-    assert(schema(map(featuresCol)).dataType == ArrayType)
-    schema
+  protected def validateAndTransformSchema(schema: StructType): StructType = {
+    SchemaUtils.checkColumnType(schema, $(featuresCol), new VectorUDT)
+    SchemaUtils.appendColumn(schema, $(predictionCol), IntegerType)
   }
 }
 
@@ -79,12 +79,14 @@ trait HierarchicalClusteringParams extends Params with HasMaxIter with HasFeatur
  * TODO write a description for the hierarchical clustering.
  */
 @AlphaComponent
-class HierarchicalClustering
+class HierarchicalClustering(override val uid: String)
     extends Estimator[HierarchicalClusteringModel] with HierarchicalClusteringParams {
 
   setMaxIter(20)
   setMaxRetries(5)
   setSeed(1)
+
+  def this() = this(Identifiable.randomUID("hierarchical clustering"))
 
   /** @group setParam */
   def setNumClusters(value: Int): this.type = set(numClusters, value)
@@ -104,40 +106,29 @@ class HierarchicalClustering
    * Fits a single model to the input data with provided parameter map.
    *
    * @param dataset input dataset
-   * @param paramMap Parameter map.
-   *                 These values override any specified in this Estimator's embedded ParamMap.
    * @return fitted model
    */
-  override def fit(dataset: DataFrame, paramMap: ParamMap): HierarchicalClusteringModel = {
-    val map = this.paramMap ++ paramMap
-    val oldData = extractVector(dataset, paramMap)
+  override def fit(dataset: DataFrame): HierarchicalClusteringModel = {
+    val map = this.extractParamMap()
+    val oldData = dataset.select(col(map(featuresCol))).map { case Row(point: Vector) => point }
+
     val algo = new mllib.clustering.HierarchicalClustering()
         .setNumClusters(map(numClusters))
         .setMaxIterations(map(maxIter))
         .setMaxRetries(map(maxRetries))
         .setSeed(map(seed))
     val parentModel = algo.run(oldData)
-    val model = new HierarchicalClusteringModel(this, map, parentModel)
+    val model = new HierarchicalClusteringModel(uid, map, parentModel)
     model
-  }
-
-  def extractVector(dataset: DataFrame, paramMap: ParamMap): RDD[Vector] = {
-    val map = this.paramMap ++ paramMap
-    dataset.select(col(map(featuresCol))).map { case Row(point: Vector) => point }
   }
 
   /**
    * :: DeveloperApi ::
    *
-   * Derives the output schema from the input schema and parameters.
-   * The schema describes the columns and types of the data.
-   *
-   * @param schema  Input schema to this stage
-   * @param paramMap  Parameters passed to this stage
-   * @return  Output schema from this stage
+   * Derives the output schema from the input schema.
    */
-  override def transformSchema(schema: StructType, paramMap: ParamMap): StructType = {
-    validateAndTransformSchema(schema, paramMap)
+  override def transformSchema(schema: StructType): StructType = {
+    validateAndTransformSchema(schema)
   }
 }
 
@@ -148,8 +139,8 @@ class HierarchicalClustering
  */
 @AlphaComponent
 class HierarchicalClusteringModel private[ml](
-    override val parent: HierarchicalClustering,
-    override val fittingParamMap: ParamMap,
+    override val uid: String,
+    val fittingParamMap: ParamMap,
     val parentModel: mllib.clustering.HierarchicalClusteringModel)
     extends Model[HierarchicalClusteringModel] with HierarchicalClusteringParams {
 
@@ -157,9 +148,16 @@ class HierarchicalClusteringModel private[ml](
     parentModel.predict(point)
   }
 
-  override def transform(dataset: DataFrame, paramMap: ParamMap): DataFrame = dataset
+  override def transform(dataset: DataFrame): DataFrame = {
+    dataset.select(
+      dataset("*"),
+      callUDF(predict _, IntegerType, col($(featuresCol))).as($(predictionCol))
+    )
+  }
 
-  override def transformSchema(schema: StructType, paramMap: ParamMap): StructType = schema
+  override def transformSchema(schema: StructType): StructType = {
+    validateAndTransformSchema(schema)
+  }
 
   def getCenters: Array[Vector] = parentModel.getCenters
 
