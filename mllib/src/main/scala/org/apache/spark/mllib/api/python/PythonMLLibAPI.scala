@@ -468,7 +468,7 @@ private[python] class PythonMLLibAPI extends Serializable {
    * Java stub for Python mllib LDA.run()
    */
   def trainLDAModel(
-      data: JavaRDD[LabeledPoint],
+      data: JavaRDD[java.util.List[Any]],
       k: Int,
       maxIterations: Int,
       docConcentration: Double,
@@ -486,11 +486,9 @@ private[python] class PythonMLLibAPI extends Serializable {
 
     if (seed != null) algo.setSeed(seed)
 
-    try {
-      algo.run(data.rdd.map(x => (x.label.toLong, x.features)))
-    } finally {
-      data.rdd.unpersist(blocking = false)
-    }
+    val documents = data.rdd.map(_.asScala.toArray)
+        .map(r => (r(0).asInstanceOf[Int].toLong, r(1).asInstanceOf[Vector]))
+    algo.run(documents)
   }
 
 
