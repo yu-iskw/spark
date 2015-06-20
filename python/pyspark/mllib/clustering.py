@@ -27,7 +27,6 @@ from pyspark import RDD
 from pyspark import SparkContext
 from pyspark.mllib.common import JavaModelWrapper, callMLlibFunc, callJavaFunc, _py2java, _java2py
 from pyspark.mllib.linalg import SparseVector, _convert_to_vector
-from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.stat.distribution import MultivariateGaussian
 from pyspark.mllib.util import Saveable, Loader, inherit_doc
 
@@ -281,7 +280,7 @@ class LDAModel(JavaModelWrapper):
     """ A clustering model derived from the LDA method.
 
     Latent Dirichlet Allocation (LDA), a topic model designed for text documents.
-    Terminologyu
+    Terminology
     - "word" = "term": an element of the vocabulary
     - "token": instance of a term appearing in a document
     - "topic": multinomial distribution over words representing some concept
@@ -289,12 +288,10 @@ class LDAModel(JavaModelWrapper):
     - Original LDA paper (journal version):
     Blei, Ng, and Jordan.  "Latent Dirichlet Allocation."  JMLR, 2003.
 
-    >>> from pyspark.mllib.linalg import Vectors
-    >>> from collections import namedtuple
     >>> from numpy.testing import assert_almost_equal
     >>> data = [
-    ...     LabeledPoint(1, [0.0, 1.0]),
-    ...     LabeledPoint(2, [1.0, 0.0]),
+    ...     (1L, [0.0, 1.0]),
+    ...     (2L, [1.0, 0.0]),
     ... ]
     >>> rdd =  sc.parallelize(data)
     >>> model = LDA.train(rdd, k=2)
@@ -327,8 +324,20 @@ class LDA():
     @classmethod
     def train(cls, rdd, k=10, maxIterations=20, docConcentration=-1.0,
               topicConcentration=-1.0, seed=None, checkpointInterval=10, optimizer="em"):
-        """Train a LDA model."""
-        model = callMLlibFunc("trainLDAModel", rdd, k, maxIterations,
+        """
+        Train a LDA model.
+        :param rdd:  Dataset of (doc ID, word count vector) pairs
+        :param k:  PLEASE FILL IN OTHER PARAM DOC
+        :param maxIterations:
+        :param docConcentration:
+        :param topicConcentration:
+        :param seed:
+        :param checkpointInterval:
+        :param optimizer:
+        :return:
+        """
+        vectorizedData = rdd.map(lambda id_doc: [id_doc[0], _convert_to_vector(id_doc[1])])
+        model = callMLlibFunc("trainLDAModel", vectorizedData, k, maxIterations,
                               docConcentration, topicConcentration, seed,
                               checkpointInterval, optimizer)
         return LDAModel(model)
