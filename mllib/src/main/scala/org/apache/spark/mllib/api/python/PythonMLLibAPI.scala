@@ -66,9 +66,9 @@ private[python] class PythonMLLibAPI extends Serializable {
 
   def recieveInt(value: Int): Int = value
 
-  def recieveObjectAsLong(value: Object): Long = value.asInstanceOf[Long]
+  def recieveObjectAsLong(value: Object): java.lang.Long = value.asInstanceOf[java.lang.Long]
 
-  def recieveObjectAsInt(value: Object): Int = value.asInstanceOf[Int]
+  def recieveObjectAsInt(value: Object): java.lang.Integer = value.asInstanceOf[java.lang.Integer]
 
   /**
    * Loads and serializes labeled points saved with `RDD#saveAsTextFile`.

@@ -57,7 +57,7 @@ class PythonAndJavaTester(object):
         >>> PythonAndJavaTester.putInt(sc, 1)
         >>> PythonAndJavaTester.putInt(sc, 1L)
         """
-        return callMLlibFunc("recieveLong", value)
+        return callMLlibFunc("recieveInt", value)
 
     @classmethod
     def putLongAsObject(cls, sc, value):
