@@ -487,7 +487,7 @@ private[python] class PythonMLLibAPI extends Serializable {
     if (seed != null) algo.setSeed(seed)
 
     val documents = data.rdd.map(_.asScala.toArray)
-        .map(r => (r(0).asInstanceOf[Int].toLong, r(1).asInstanceOf[Vector]))
+        .map(r => (r(0).asInstanceOf[Long], r(1).asInstanceOf[Vector]))
     algo.run(documents)
   }
 

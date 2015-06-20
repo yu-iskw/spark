@@ -293,8 +293,8 @@ class LDAModel(JavaModelWrapper):
     >>> from collections import namedtuple
     >>> from numpy.testing import assert_almost_equal
     >>> data = [
-    ...     [1, Vectors.dense([0.0, 1.0])],
-    ...     [2, SparseVector(2, {0: 1.0})],
+    ...     [1L, Vectors.dense([0.0, 1.0])],
+    ...     [2L, SparseVector(2, {0: 1.0})],
     ... ]
     >>> rdd =  sc.parallelize(data)
     >>> model = LDA.train(rdd, k=2)
