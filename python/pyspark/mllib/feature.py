@@ -37,9 +37,43 @@ from pyspark.mllib.linalg import (
     Vector, Vectors, DenseVector, SparseVector, _convert_to_vector)
 from pyspark.mllib.regression import LabeledPoint
 
-__all__ = ['Normalizer', 'StandardScalerModel', 'StandardScaler',
+__all__ = ['PythonAndJavaTester', 'Normalizer', 'StandardScalerModel', 'StandardScaler',
            'HashingTF', 'IDFModel', 'IDF', 'Word2Vec', 'Word2VecModel',
            'ChiSqSelector', 'ChiSqSelectorModel', 'ElementwiseProduct']
+
+class PythonAndJavaTester(object):
+
+    @classmethod
+    def putLong(cls, sc, value):
+        """
+        >>> PythonAndJavaTester.putLong(sc, 1)
+        >>> PythonAndJavaTester.putLong(sc, 1L)
+        """
+        return callMLlibFunc("recieveLong", value)
+
+    @classmethod
+    def putInt(cls, sc, value):
+        """
+        >>> PythonAndJavaTester.putInt(sc, 1)
+        >>> PythonAndJavaTester.putInt(sc, 1L)
+        """
+        return callMLlibFunc("recieveLong", value)
+
+    @classmethod
+    def putLongAsObject(cls, sc, value):
+        """
+        >>> PythonAndJavaTester.putLongAsObject(sc, 1)
+        >>> PythonAndJavaTester.putLongAsObject(sc, 1L)
+        """
+        return callMLlibFunc("recieveObjectAsLong", value)
+
+    @classmethod
+    def putIntAsObject(cls, sc, value):
+        """
+        >>> PythonAndJavaTester.putIntAsObject(sc, 1)
+        >>> PythonAndJavaTester.putIntAsObject(sc, 1L)
+        """
+        return callMLlibFunc("recieveObjectAsInt", value)
 
 
 class VectorTransformer(object):

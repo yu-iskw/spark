@@ -1,0 +1,710 @@
+15/06/21 01:39:48 INFO SparkContext: Running Spark version 1.5.0-SNAPSHOT
+15/06/21 01:39:48 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+15/06/21 01:39:49 INFO SecurityManager: Changing view acls to: 01004981
+15/06/21 01:39:49 INFO SecurityManager: Changing modify acls to: 01004981
+15/06/21 01:39:49 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(01004981); users with modify permissions: Set(01004981)
+15/06/21 01:39:49 INFO Slf4jLogger: Slf4jLogger started
+15/06/21 01:39:49 INFO Remoting: Starting remoting
+15/06/21 01:39:49 INFO Remoting: Remoting started; listening on addresses :[akka.tcp://sparkDriver@192.168.1.11:51759]
+15/06/21 01:39:49 INFO Utils: Successfully started service 'sparkDriver' on port 51759.
+15/06/21 01:39:49 INFO SparkEnv: Registering MapOutputTracker
+15/06/21 01:39:49 INFO SparkEnv: Registering BlockManagerMaster
+15/06/21 01:39:49 INFO DiskBlockManager: Created local directory at /private/var/folders/ky/zj8x1z751hn8q9s1qq7481d0bvy53m/T/spark-9ab5134a-d41e-41b6-a4c6-457e2d4f8e33/blockmgr-fc1b8a01-b148-4309-a965-0acd9d7e6761
+15/06/21 01:39:49 INFO MemoryStore: MemoryStore started with capacity 265.4 MB
+15/06/21 01:39:49 INFO HttpFileServer: HTTP File server directory is /private/var/folders/ky/zj8x1z751hn8q9s1qq7481d0bvy53m/T/spark-9ab5134a-d41e-41b6-a4c6-457e2d4f8e33/httpd-9047bf81-f5aa-45ae-9530-b8853c0fbc78
+15/06/21 01:39:49 INFO HttpServer: Starting HTTP Server
+15/06/21 01:39:49 INFO Utils: Successfully started service 'HTTP file server' on port 51760.
+15/06/21 01:39:49 INFO SparkEnv: Registering OutputCommitCoordinator
+15/06/21 01:39:49 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+15/06/21 01:39:49 INFO SparkUI: Started SparkUI at http://192.168.1.11:4040
+15/06/21 01:39:50 INFO Executor: Starting executor ID driver on host localhost
+15/06/21 01:39:50 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 51761.
+15/06/21 01:39:50 INFO NettyBlockTransferService: Server created on 51761
+15/06/21 01:39:50 INFO BlockManagerMaster: Trying to register BlockManager
+15/06/21 01:39:50 INFO BlockManagerMasterEndpoint: Registering block manager localhost:51761 with 265.4 MB RAM, BlockManagerId(driver, localhost, 51761)
+15/06/21 01:39:50 INFO BlockManagerMaster: Registered BlockManager
+15/06/21 01:39:50 INFO SparkContext: Starting job: first at ChiSqTest.scala:81
+15/06/21 01:39:50 INFO DAGScheduler: Got job 0 (first at ChiSqTest.scala:81) with 1 output partitions (allowLocal=true)
+15/06/21 01:39:50 INFO DAGScheduler: Final stage: ResultStage 0(first at ChiSqTest.scala:81)
+15/06/21 01:39:50 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:50 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:50 INFO DAGScheduler: Submitting ResultStage 0 (MapPartitionsRDD[2] at mapPartitions at PythonMLLibAPI.scala:1306), which has no missing parents
+15/06/21 01:39:50 INFO MemoryStore: ensureFreeSpace(4240) called with curMem=0, maxMem=278302556
+15/06/21 01:39:50 INFO MemoryStore: Block broadcast_0 stored as values in memory (estimated size 4.1 KB, free 265.4 MB)
+15/06/21 01:39:50 INFO MemoryStore: ensureFreeSpace(2578) called with curMem=4240, maxMem=278302556
+15/06/21 01:39:50 INFO MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 2.5 KB, free 265.4 MB)
+15/06/21 01:39:50 INFO BlockManagerInfo: Added broadcast_0_piece0 in memory on localhost:51761 (size: 2.5 KB, free: 265.4 MB)
+15/06/21 01:39:50 INFO SparkContext: Created broadcast 0 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:50 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 0 (MapPartitionsRDD[2] at mapPartitions at PythonMLLibAPI.scala:1306)
+15/06/21 01:39:50 INFO TaskSchedulerImpl: Adding task set 0.0 with 1 tasks
+15/06/21 01:39:50 INFO TaskSetManager: Starting task 0.0 in stage 0.0 (TID 0, localhost, PROCESS_LOCAL, 1497 bytes)
+15/06/21 01:39:50 INFO Executor: Running task 0.0 in stage 0.0 (TID 0)
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 198, boot = 168, init = 7, finish = 23
+15/06/21 01:39:51 INFO Executor: Finished task 0.0 in stage 0.0 (TID 0). 985 bytes result sent to driver
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 0.0 in stage 0.0 (TID 0) in 264 ms on localhost (1/1)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool 
+15/06/21 01:39:51 INFO DAGScheduler: ResultStage 0 (first at ChiSqTest.scala:81) finished in 0.278 s
+15/06/21 01:39:51 INFO DAGScheduler: Job 0 finished: first at ChiSqTest.scala:81, took 0.436267 s
+15/06/21 01:39:51 INFO SparkContext: Starting job: countByValue at ChiSqTest.scala:117
+15/06/21 01:39:51 INFO DAGScheduler: Registering RDD 5 (countByValue at ChiSqTest.scala:117)
+15/06/21 01:39:51 INFO DAGScheduler: Got job 1 (countByValue at ChiSqTest.scala:117) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:51 INFO DAGScheduler: Final stage: ResultStage 2(countByValue at ChiSqTest.scala:117)
+15/06/21 01:39:51 INFO DAGScheduler: Parents of final stage: List(ShuffleMapStage 1)
+15/06/21 01:39:51 INFO DAGScheduler: Missing parents: List(ShuffleMapStage 1)
+15/06/21 01:39:51 INFO DAGScheduler: Submitting ShuffleMapStage 1 (MapPartitionsRDD[5] at countByValue at ChiSqTest.scala:117), which has no missing parents
+15/06/21 01:39:51 INFO MemoryStore: ensureFreeSpace(5616) called with curMem=6818, maxMem=278302556
+15/06/21 01:39:51 INFO MemoryStore: Block broadcast_1 stored as values in memory (estimated size 5.5 KB, free 265.4 MB)
+15/06/21 01:39:51 INFO MemoryStore: ensureFreeSpace(3223) called with curMem=12434, maxMem=278302556
+15/06/21 01:39:51 INFO MemoryStore: Block broadcast_1_piece0 stored as bytes in memory (estimated size 3.1 KB, free 265.4 MB)
+15/06/21 01:39:51 INFO BlockManagerInfo: Added broadcast_1_piece0 in memory on localhost:51761 (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:51 INFO SparkContext: Created broadcast 1 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:51 INFO DAGScheduler: Submitting 4 missing tasks from ShuffleMapStage 1 (MapPartitionsRDD[5] at countByValue at ChiSqTest.scala:117)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Adding task set 1.0 with 4 tasks
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 0.0 in stage 1.0 (TID 1, localhost, PROCESS_LOCAL, 1486 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 1.0 in stage 1.0 (TID 2, localhost, PROCESS_LOCAL, 1486 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 2.0 in stage 1.0 (TID 3, localhost, PROCESS_LOCAL, 1481 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 3.0 in stage 1.0 (TID 4, localhost, PROCESS_LOCAL, 1481 bytes)
+15/06/21 01:39:51 INFO Executor: Running task 0.0 in stage 1.0 (TID 1)
+15/06/21 01:39:51 INFO Executor: Running task 1.0 in stage 1.0 (TID 2)
+15/06/21 01:39:51 INFO Executor: Running task 2.0 in stage 1.0 (TID 3)
+15/06/21 01:39:51 INFO Executor: Running task 3.0 in stage 1.0 (TID 4)
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 39, boot = -145, init = 184, finish = 0
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 49, boot = 11, init = 5, finish = 33
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 73, boot = 38, init = 2, finish = 33
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 63, boot = 27, init = 3, finish = 33
+15/06/21 01:39:51 INFO Executor: Finished task 1.0 in stage 1.0 (TID 2). 944 bytes result sent to driver
+15/06/21 01:39:51 INFO Executor: Finished task 3.0 in stage 1.0 (TID 4). 944 bytes result sent to driver
+15/06/21 01:39:51 INFO Executor: Finished task 2.0 in stage 1.0 (TID 3). 944 bytes result sent to driver
+15/06/21 01:39:51 INFO Executor: Finished task 0.0 in stage 1.0 (TID 1). 944 bytes result sent to driver
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 0.0 in stage 1.0 (TID 1) in 201 ms on localhost (1/4)
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 2.0 in stage 1.0 (TID 3) in 199 ms on localhost (2/4)
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 1.0 in stage 1.0 (TID 2) in 200 ms on localhost (3/4)
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 3.0 in stage 1.0 (TID 4) in 199 ms on localhost (4/4)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Removed TaskSet 1.0, whose tasks have all completed, from pool 
+15/06/21 01:39:51 INFO DAGScheduler: ShuffleMapStage 1 (countByValue at ChiSqTest.scala:117) finished in 0.204 s
+15/06/21 01:39:51 INFO DAGScheduler: looking for newly runnable stages
+15/06/21 01:39:51 INFO DAGScheduler: running: Set()
+15/06/21 01:39:51 INFO DAGScheduler: waiting: Set(ResultStage 2)
+15/06/21 01:39:51 INFO DAGScheduler: failed: Set()
+15/06/21 01:39:51 INFO DAGScheduler: Missing parents for ResultStage 2: List()
+15/06/21 01:39:51 INFO DAGScheduler: Submitting ResultStage 2 (ShuffledRDD[6] at countByValue at ChiSqTest.scala:117), which is now runnable
+15/06/21 01:39:51 INFO MemoryStore: ensureFreeSpace(2304) called with curMem=15657, maxMem=278302556
+15/06/21 01:39:51 INFO MemoryStore: Block broadcast_2 stored as values in memory (estimated size 2.3 KB, free 265.4 MB)
+15/06/21 01:39:51 INFO MemoryStore: ensureFreeSpace(1372) called with curMem=17961, maxMem=278302556
+15/06/21 01:39:51 INFO MemoryStore: Block broadcast_2_piece0 stored as bytes in memory (estimated size 1372.0 B, free 265.4 MB)
+15/06/21 01:39:51 INFO BlockManagerInfo: Added broadcast_2_piece0 in memory on localhost:51761 (size: 1372.0 B, free: 265.4 MB)
+15/06/21 01:39:51 INFO SparkContext: Created broadcast 2 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:51 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 2 (ShuffledRDD[6] at countByValue at ChiSqTest.scala:117)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Adding task set 2.0 with 4 tasks
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 0.0 in stage 2.0 (TID 5, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 2.0 in stage 2.0 (TID 6, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 3.0 in stage 2.0 (TID 7, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 1.0 in stage 2.0 (TID 8, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:51 INFO Executor: Running task 0.0 in stage 2.0 (TID 5)
+15/06/21 01:39:51 INFO Executor: Running task 2.0 in stage 2.0 (TID 6)
+15/06/21 01:39:51 INFO Executor: Running task 1.0 in stage 2.0 (TID 8)
+15/06/21 01:39:51 INFO Executor: Running task 3.0 in stage 2.0 (TID 7)
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Getting 3 non-empty blocks out of 4 blocks
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Getting 1 non-empty blocks out of 4 blocks
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Getting 0 non-empty blocks out of 4 blocks
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Getting 3 non-empty blocks out of 4 blocks
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 5 ms
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 5 ms
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 5 ms
+15/06/21 01:39:51 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 5 ms
+15/06/21 01:39:51 INFO Executor: Finished task 1.0 in stage 2.0 (TID 8). 882 bytes result sent to driver
+15/06/21 01:39:51 INFO Executor: Finished task 3.0 in stage 2.0 (TID 7). 1204 bytes result sent to driver
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 1.0 in stage 2.0 (TID 8) in 30 ms on localhost (1/4)
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 3.0 in stage 2.0 (TID 7) in 32 ms on localhost (2/4)
+15/06/21 01:39:51 INFO Executor: Finished task 2.0 in stage 2.0 (TID 6). 1387 bytes result sent to driver
+15/06/21 01:39:51 INFO Executor: Finished task 0.0 in stage 2.0 (TID 5). 1442 bytes result sent to driver
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 2.0 in stage 2.0 (TID 6) in 36 ms on localhost (3/4)
+15/06/21 01:39:51 INFO DAGScheduler: ResultStage 2 (countByValue at ChiSqTest.scala:117) finished in 0.039 s
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 0.0 in stage 2.0 (TID 5) in 38 ms on localhost (4/4)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Removed TaskSet 2.0, whose tasks have all completed, from pool 
+15/06/21 01:39:51 INFO DAGScheduler: Job 1 finished: countByValue at ChiSqTest.scala:117, took 0.292704 s
+15/06/21 01:39:51 INFO BlockManagerInfo: Removed broadcast_2_piece0 on localhost:51761 in memory (size: 1372.0 B, free: 265.4 MB)
+15/06/21 01:39:51 INFO BlockManagerInfo: Removed broadcast_1_piece0 on localhost:51761 in memory (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:51 INFO ContextCleaner: Cleaned shuffle 0
+15/06/21 01:39:51 INFO BlockManagerInfo: Removed broadcast_0_piece0 on localhost:51761 in memory (size: 2.5 KB, free: 265.4 MB)
+15/06/21 01:39:51 INFO SparkContext: Starting job: collect at <doctest __main__.ElementwiseProduct[6]>:1
+15/06/21 01:39:51 INFO DAGScheduler: Got job 2 (collect at <doctest __main__.ElementwiseProduct[6]>:1) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:51 INFO DAGScheduler: Final stage: ResultStage 3(collect at <doctest __main__.ElementwiseProduct[6]>:1)
+15/06/21 01:39:51 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:51 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:51 INFO DAGScheduler: Submitting ResultStage 3 (MapPartitionsRDD[11] at mapPartitions at PythonMLLibAPI.scala:1296), which has no missing parents
+15/06/21 01:39:51 INFO MemoryStore: ensureFreeSpace(5176) called with curMem=0, maxMem=278302556
+15/06/21 01:39:51 INFO MemoryStore: Block broadcast_3 stored as values in memory (estimated size 5.1 KB, free 265.4 MB)
+15/06/21 01:39:51 INFO MemoryStore: ensureFreeSpace(3077) called with curMem=5176, maxMem=278302556
+15/06/21 01:39:51 INFO MemoryStore: Block broadcast_3_piece0 stored as bytes in memory (estimated size 3.0 KB, free 265.4 MB)
+15/06/21 01:39:51 INFO BlockManagerInfo: Added broadcast_3_piece0 in memory on localhost:51761 (size: 3.0 KB, free: 265.4 MB)
+15/06/21 01:39:51 INFO SparkContext: Created broadcast 3 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:51 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 3 (MapPartitionsRDD[11] at mapPartitions at PythonMLLibAPI.scala:1296)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Adding task set 3.0 with 4 tasks
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 0.0 in stage 3.0 (TID 9, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 1.0 in stage 3.0 (TID 10, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 2.0 in stage 3.0 (TID 11, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:51 INFO TaskSetManager: Starting task 3.0 in stage 3.0 (TID 12, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:51 INFO Executor: Running task 0.0 in stage 3.0 (TID 9)
+15/06/21 01:39:51 INFO Executor: Running task 1.0 in stage 3.0 (TID 10)
+15/06/21 01:39:51 INFO Executor: Running task 2.0 in stage 3.0 (TID 11)
+15/06/21 01:39:51 INFO Executor: Running task 3.0 in stage 3.0 (TID 12)
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 5, boot = -534, init = 539, finish = 0
+15/06/21 01:39:51 INFO Executor: Finished task 0.0 in stage 3.0 (TID 9). 666 bytes result sent to driver
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 2, boot = -450, init = 452, finish = 0
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 0.0 in stage 3.0 (TID 9) in 27 ms on localhost (1/4)
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 19, boot = -496, init = 515, finish = 0
+15/06/21 01:39:51 INFO PythonRDD: Times: total = 28, boot = -484, init = 512, finish = 0
+15/06/21 01:39:51 INFO Executor: Finished task 3.0 in stage 3.0 (TID 12). 764 bytes result sent to driver
+15/06/21 01:39:51 INFO Executor: Finished task 2.0 in stage 3.0 (TID 11). 666 bytes result sent to driver
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 3.0 in stage 3.0 (TID 12) in 52 ms on localhost (2/4)
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 2.0 in stage 3.0 (TID 11) in 54 ms on localhost (3/4)
+15/06/21 01:39:51 INFO Executor: Finished task 1.0 in stage 3.0 (TID 10). 764 bytes result sent to driver
+15/06/21 01:39:51 INFO TaskSetManager: Finished task 1.0 in stage 3.0 (TID 10) in 65 ms on localhost (4/4)
+15/06/21 01:39:51 INFO TaskSchedulerImpl: Removed TaskSet 3.0, whose tasks have all completed, from pool 
+15/06/21 01:39:51 INFO DAGScheduler: ResultStage 3 (collect at <doctest __main__.ElementwiseProduct[6]>:1) finished in 0.068 s
+15/06/21 01:39:51 INFO DAGScheduler: Job 2 finished: collect at <doctest __main__.ElementwiseProduct[6]>:1, took 0.080699 s
+15/06/21 01:39:52 INFO SparkContext: Starting job: treeAggregate at IDF.scala:53
+15/06/21 01:39:52 INFO DAGScheduler: Got job 3 (treeAggregate at IDF.scala:53) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:52 INFO DAGScheduler: Final stage: ResultStage 4(treeAggregate at IDF.scala:53)
+15/06/21 01:39:52 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ResultStage 4 (MapPartitionsRDD[15] at treeAggregate at IDF.scala:53), which has no missing parents
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(5160) called with curMem=8253, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_4 stored as values in memory (estimated size 5.0 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(3090) called with curMem=13413, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_4_piece0 stored as bytes in memory (estimated size 3.0 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_4_piece0 in memory on localhost:51761 (size: 3.0 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 4 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 4 (MapPartitionsRDD[15] at treeAggregate at IDF.scala:53)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 4.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 4.0 (TID 13, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 4.0 (TID 14, localhost, PROCESS_LOCAL, 1443 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 4.0 (TID 15, localhost, PROCESS_LOCAL, 1446 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 4.0 (TID 16, localhost, PROCESS_LOCAL, 1431 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 4.0 (TID 13)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 4.0 (TID 14)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 4.0 (TID 15)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 4.0 (TID 16)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 3, boot = -159, init = 162, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 4.0 (TID 13). 865 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 4.0 (TID 13) in 25 ms on localhost (1/4)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 10, boot = -139, init = 149, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 26, boot = -143, init = 169, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 43, boot = -159, init = 202, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 4.0 (TID 16). 1030 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 4.0 (TID 14). 1030 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 4.0 (TID 15). 1030 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 4.0 (TID 16) in 303 ms on localhost (2/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 4.0 (TID 14) in 306 ms on localhost (3/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 4.0 (TID 15) in 306 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 4.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ResultStage 4 (treeAggregate at IDF.scala:53) finished in 0.310 s
+15/06/21 01:39:52 INFO DAGScheduler: Job 3 finished: treeAggregate at IDF.scala:53, took 0.328381 s
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(88) called with curMem=16503, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_5 stored as values in memory (estimated size 88.0 B, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(155) called with curMem=16591, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_5_piece0 stored as bytes in memory (estimated size 155.0 B, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_5_piece0 in memory on localhost:51761 (size: 155.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 5 from broadcast at IDF.scala:175
+15/06/21 01:39:52 INFO SparkContext: Starting job: collect at <doctest __main__.IDF[6]>:1
+15/06/21 01:39:52 INFO DAGScheduler: Got job 4 (collect at <doctest __main__.IDF[6]>:1) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:52 INFO DAGScheduler: Final stage: ResultStage 5(collect at <doctest __main__.IDF[6]>:1)
+15/06/21 01:39:52 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ResultStage 5 (MapPartitionsRDD[19] at mapPartitions at PythonMLLibAPI.scala:1296), which has no missing parents
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(5328) called with curMem=16746, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_6 stored as values in memory (estimated size 5.2 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(3139) called with curMem=22074, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_6_piece0 stored as bytes in memory (estimated size 3.1 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_6_piece0 in memory on localhost:51761 (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 6 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 5 (MapPartitionsRDD[19] at mapPartitions at PythonMLLibAPI.scala:1296)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 5.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 5.0 (TID 17, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 5.0 (TID 18, localhost, PROCESS_LOCAL, 1443 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 5.0 (TID 19, localhost, PROCESS_LOCAL, 1446 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 5.0 (TID 20, localhost, PROCESS_LOCAL, 1431 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 5.0 (TID 17)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 5.0 (TID 19)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 5.0 (TID 20)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 5.0 (TID 18)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 2, boot = -306, init = 307, finish = 1
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 4, boot = -322, init = 326, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 5.0 (TID 19). 772 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 5.0 (TID 19) in 28 ms on localhost (1/4)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 22, boot = -318, init = 340, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 19, boot = -290, init = 309, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 5.0 (TID 18). 775 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 5.0 (TID 17). 666 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 5.0 (TID 20). 763 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 5.0 (TID 18) in 34 ms on localhost (2/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 5.0 (TID 17) in 36 ms on localhost (3/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 5.0 (TID 20) in 34 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 5.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ResultStage 5 (collect at <doctest __main__.IDF[6]>:1) finished in 0.040 s
+15/06/21 01:39:52 INFO DAGScheduler: Job 4 finished: collect at <doctest __main__.IDF[6]>:1, took 0.050875 s
+15/06/21 01:39:52 INFO SparkContext: Starting job: collect at <doctest __main__.Normalizer[4]>:1
+15/06/21 01:39:52 INFO DAGScheduler: Got job 5 (collect at <doctest __main__.Normalizer[4]>:1) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:52 INFO DAGScheduler: Final stage: ResultStage 6(collect at <doctest __main__.Normalizer[4]>:1)
+15/06/21 01:39:52 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ResultStage 6 (MapPartitionsRDD[24] at mapPartitions at PythonMLLibAPI.scala:1296), which has no missing parents
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(5008) called with curMem=25213, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_7 stored as values in memory (estimated size 4.9 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(2963) called with curMem=30221, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_7_piece0 stored as bytes in memory (estimated size 2.9 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_7_piece0 in memory on localhost:51761 (size: 2.9 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 7 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 6 (MapPartitionsRDD[24] at mapPartitions at PythonMLLibAPI.scala:1296)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 6.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 6.0 (TID 21, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 6.0 (TID 22, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 6.0 (TID 23, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 6.0 (TID 24, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 6.0 (TID 22)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 6.0 (TID 21)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 6.0 (TID 24)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 6.0 (TID 23)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 4, boot = -92, init = 96, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 3, boot = -77, init = 80, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 5, boot = -94, init = 99, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 6.0 (TID 23). 666 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 6.0 (TID 22). 666 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 6.0 (TID 23) in 23 ms on localhost (1/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 6.0 (TID 22) in 25 ms on localhost (2/4)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 19, boot = -81, init = 100, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 6.0 (TID 24). 764 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 6.0 (TID 21). 666 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 6.0 (TID 24) in 31 ms on localhost (3/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 6.0 (TID 21) in 34 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 6.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ResultStage 6 (collect at <doctest __main__.Normalizer[4]>:1) finished in 0.036 s
+15/06/21 01:39:52 INFO DAGScheduler: Job 5 finished: collect at <doctest __main__.Normalizer[4]>:1, took 0.048100 s
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 57, in __main__.PythonAndJavaTester.putInt
+Failed example:
+    PythonAndJavaTester.putInt(sc, 1)
+Expected nothing
+Got:
+    1L
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 58, in __main__.PythonAndJavaTester.putInt
+Failed example:
+    PythonAndJavaTester.putInt(sc, 1L)
+Expected nothing
+Got:
+    1L
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 73, in __main__.PythonAndJavaTester.putIntAsObject
+Failed example:
+    PythonAndJavaTester.putIntAsObject(sc, 1)
+Expected nothing
+Got:
+    1
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 74, in __main__.PythonAndJavaTester.putIntAsObject
+Failed example:
+    PythonAndJavaTester.putIntAsObject(sc, 1L)
+Exception raised:
+    Traceback (most recent call last):
+      File "/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/doctest.py", line 1253, in __run
+        compileflags, 1) in test.globs
+      File "<doctest __main__.PythonAndJavaTester.putIntAsObject[1]>", line 1, in <module>
+        PythonAndJavaTester.putIntAsObject(sc, 1L)
+      File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 76, in putIntAsObject
+        return callMLlibFunc("recieveObjectAsInt", value)
+      File "pyspark/mllib/common.py", line 128, in callMLlibFunc
+        return callJavaFunc(sc, api, *args)
+      File "pyspark/mllib/common.py", line 121, in callJavaFunc
+        return _java2py(sc, func(*args))
+      File "/Users/01004981/local/src/spark/myspark2/python/lib/py4j-0.8.2.1-src.zip/py4j/java_gateway.py", line 538, in __call__
+        self.target_id, self.name)
+      File "/Users/01004981/local/src/spark/myspark2/python/lib/py4j-0.8.2.1-src.zip/py4j/protocol.py", line 300, in get_return_value
+        format(target_id, '.', name), value)
+    Py4JJavaError: An error occurred while calling o112.recieveObjectAsInt.
+    : java.lang.ClassCastException: java.lang.Long cannot be cast to java.lang.Integer
+    	at scala.runtime.BoxesRunTime.unboxToInt(BoxesRunTime.java:106)
+    	at org.apache.spark.mllib.api.python.PythonMLLibAPI.recieveObjectAsInt(PythonMLLibAPI.scala:71)
+    	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    	at java.lang.reflect.Method.invoke(Method.java:606)
+    	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:231)
+    	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:379)
+    	at py4j.Gateway.invoke(Gateway.java:259)
+    	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:133)
+    	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+    	at py4j.GatewayConnection.run(GatewayConnection.java:207)
+    	at java.lang.Thread.run(Thread.java:745)
+
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 49, in __main__.PythonAndJavaTester.putLong
+Failed example:
+    PythonAndJavaTester.putLong(sc, 1)
+Expected nothing
+Got:
+    1L
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 50, in __main__.PythonAndJavaTester.putLong
+Failed example:
+    PythonAndJavaTester.putLong(sc, 1L)
+Expected nothing
+Got:
+    1L
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 65, in __main__.PythonAndJavaTester.putLongAsObject
+Failed example:
+  15/06/21 01:39:52 INFO SparkContext: Starting job: treeAggregate at StandardScaler.scala:52
+15/06/21 01:39:52 INFO DAGScheduler: Got job 6 (treeAggregate at StandardScaler.scala:52) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:52 INFO DAGScheduler: Final stage: ResultStage 7(treeAggregate at StandardScaler.scala:52)
+15/06/21 01:39:52 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ResultStage 7 (MapPartitionsRDD[28] at treeAggregate at StandardScaler.scala:52), which has no missing parents
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(5296) called with curMem=33184, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_8 stored as values in memory (estimated size 5.2 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(3158) called with curMem=38480, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_8_piece0 stored as bytes in memory (estimated size 3.1 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_8_piece0 in memory on localhost:51761 (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 8 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 7 (MapPartitionsRDD[28] at treeAggregate at StandardScaler.scala:52)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 7.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 7.0 (TID 25, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 7.0 (TID 26, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 7.0 (TID 27, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 7.0 (TID 28, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 7.0 (TID 25)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 7.0 (TID 26)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 7.0 (TID 27)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 7.0 (TID 28)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 2, boot = -96, init = 98, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 5, boot = -95, init = 100, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 7.0 (TID 28). 1233 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 7.0 (TID 28) in 14 ms on localhost (1/4)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 14, boot = -97, init = 111, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 7.0 (TID 26). 1233 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 7.0 (TID 27). 989 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 7.0 (TID 26) in 26 ms on localhost (2/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 7.0 (TID 27) in 27 ms on localhost (3/4)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 19, boot = -85, init = 104, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 7.0 (TID 25). 989 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 7.0 (TID 25) in 34 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 7.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ResultStage 7 (treeAggregate at StandardScaler.scala:52) finished in 0.036 s
+15/06/21 01:39:52 INFO DAGScheduler: Job 6 finished: treeAggregate at StandardScaler.scala:52, took 0.047644 s
+15/06/21 01:39:52 INFO SparkContext: Starting job: collect at <doctest __main__.StandardScaler[5]>:1
+15/06/21 01:39:52 INFO DAGScheduler: Got job 7 (collect at <doctest __main__.StandardScaler[5]>:1) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:52 INFO DAGScheduler: Final stage: ResultStage 8(collect at <doctest __main__.StandardScaler[5]>:1)
+15/06/21 01:39:52 INFO DAGScheduler: Parents of final stage: List()
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents: List()
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ResultStage 8 (MapPartitionsRDD[32] at mapPartitions at PythonMLLibAPI.scala:1296), which has no missing parents
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(5272) called with curMem=41638, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_9 stored as values in memory (estimated size 5.1 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(3161) called with curMem=46910, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_9_piece0 stored as bytes in memory (estimated size 3.1 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_9_piece0 in memory on localhost:51761 (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 9 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 8 (MapPartitionsRDD[32] at mapPartitions at PythonMLLibAPI.scala:1296)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 8.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 8.0 (TID 29, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 8.0 (TID 30, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 8.0 (TID 31, localhost, PROCESS_LOCAL, 1355 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 8.0 (TID 32, localhost, PROCESS_LOCAL, 1438 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 8.0 (TID 30)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 8.0 (TID 29)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 8.0 (TID 32)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 8.0 (TID 31)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 4, boot = -53, init = 57, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 2, boot = -40, init = 42, finish = 0
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 5, boot = -43, init = 48, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 8.0 (TID 32). 764 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 8.0 (TID 32) in 21 ms on localhost (1/4)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 20, boot = -50, init = 70, finish = 0
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 8.0 (TID 29). 666 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 8.0 (TID 31). 666 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 8.0 (TID 30). 764 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 8.0 (TID 29) in 33 ms on localhost (2/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 8.0 (TID 31) in 32 ms on localhost (3/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 8.0 (TID 30) in 33 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 8.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ResultStage 8 (collect at <doctest __main__.StandardScaler[5]>:1) finished in 0.037 s
+15/06/21 01:39:52 INFO DAGScheduler: Job 7 finished: collect at <doctest __main__.StandardScaler[5]>:1, took 0.047723 s
+15/06/21 01:39:52 INFO SparkContext: Starting job: collect at Word2Vec.scala:157
+15/06/21 01:39:52 INFO DAGScheduler: Registering RDD 38 (map at Word2Vec.scala:148)
+15/06/21 01:39:52 INFO DAGScheduler: Got job 8 (collect at Word2Vec.scala:157) with 4 output partitions (allowLocal=false)
+15/06/21 01:39:52 INFO DAGScheduler: Final stage: ResultStage 10(collect at Word2Vec.scala:157)
+15/06/21 01:39:52 INFO DAGScheduler: Parents of final stage: List(ShuffleMapStage 9)
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents: List(ShuffleMapStage 9)
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ShuffleMapStage 9 (MapPartitionsRDD[38] at map at Word2Vec.scala:148), which has no missing parents
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(5824) called with curMem=50071, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_10 stored as values in memory (estimated size 5.7 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(3440) called with curMem=55895, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_10_piece0 stored as bytes in memory (estimated size 3.4 KB, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_10_piece0 in memory on localhost:51761 (size: 3.4 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 10 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ShuffleMapStage 9 (MapPartitionsRDD[38] at map at Word2Vec.scala:148)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 9.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 9.0 (TID 33, localhost, PROCESS_LOCAL, 1344 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 9.0 (TID 34, localhost, PROCESS_LOCAL, 1808 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 9.0 (TID 35, localhost, PROCESS_LOCAL, 1344 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 9.0 (TID 36, localhost, PROCESS_LOCAL, 1808 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 9.0 (TID 33)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 9.0 (TID 34)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 9.0 (TID 35)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 9.0 (TID 36)
+15/06/21 01:39:52 INFO CacheManager: Partition rdd_35_3 not found, computing it
+15/06/21 01:39:52 INFO CacheManager: Partition rdd_35_2 not found, computing it
+15/06/21 01:39:52 INFO CacheManager: Partition rdd_35_0 not found, computing it
+15/06/21 01:39:52 INFO CacheManager: Partition rdd_35_1 not found, computing it
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 1, boot = -82, init = 83, finish = 0
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(138) called with curMem=59335, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block rdd_35_1 stored as bytes in memory (estimated size 138.0 B, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added rdd_35_1 in memory on localhost:51761 (size: 138.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 13, boot = -92, init = 105, finish = 0
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(26) called with curMem=59473, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block rdd_35_0 stored as bytes in memory (estimated size 26.0 B, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added rdd_35_0 in memory on localhost:51761 (size: 26.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 20, boot = -93, init = 113, finish = 0
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(26) called with curMem=59499, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block rdd_35_2 stored as bytes in memory (estimated size 26.0 B, free 265.4 MB)
+15/06/21 01:39:52 INFO PythonRDD: Times: total = 2, boot = -96, init = 98, finish = 0
+15/06/21 01:39:52 INFO BlockManagerInfo: Added rdd_35_2 in memory on localhost:51761 (size: 26.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(138) called with curMem=59525, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block rdd_35_3 stored as bytes in memory (estimated size 138.0 B, free 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added rdd_35_3 in memory on localhost:51761 (size: 138.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 9.0 (TID 35). 1524 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 9.0 (TID 34). 1524 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 9.0 (TID 33). 1524 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 9.0 (TID 35) in 51 ms on localhost (1/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 9.0 (TID 34) in 52 ms on localhost (2/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 9.0 (TID 33) in 54 ms on localhost (3/4)
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 9.0 (TID 36). 1524 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 9.0 (TID 36) in 67 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 9.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ShuffleMapStage 9 (map at Word2Vec.scala:148) finished in 0.070 s
+15/06/21 01:39:52 INFO DAGScheduler: looking for newly runnable stages
+15/06/21 01:39:52 INFO DAGScheduler: running: Set()
+15/06/21 01:39:52 INFO DAGScheduler: waiting: Set(ResultStage 10)
+15/06/21 01:39:52 INFO DAGScheduler: failed: Set()
+15/06/21 01:39:52 INFO DAGScheduler: Missing parents for ResultStage 10: List()
+15/06/21 01:39:52 INFO DAGScheduler: Submitting ResultStage 10 (MapPartitionsRDD[41] at filter at Word2Vec.scala:156), which is now runnable
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(4112) called with curMem=59663, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_11 stored as values in memory (estimated size 4.0 KB, free 265.3 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(2141) called with curMem=63775, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_11_piece0 stored as bytes in memory (estimated size 2.1 KB, free 265.3 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_11_piece0 in memory on localhost:51761 (size: 2.1 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 11 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:52 INFO DAGScheduler: Submitting 4 missing tasks from ResultStage 10 (MapPartitionsRDD[41] at filter at Word2Vec.scala:156)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Adding task set 10.0 with 4 tasks
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 0.0 in stage 10.0 (TID 37, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 1.0 in stage 10.0 (TID 38, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 2.0 in stage 10.0 (TID 39, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:52 INFO TaskSetManager: Starting task 3.0 in stage 10.0 (TID 40, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:52 INFO Executor: Running task 0.0 in stage 10.0 (TID 37)
+15/06/21 01:39:52 INFO Executor: Running task 1.0 in stage 10.0 (TID 38)
+15/06/21 01:39:52 INFO Executor: Running task 2.0 in stage 10.0 (TID 39)
+15/06/21 01:39:52 INFO Executor: Running task 3.0 in stage 10.0 (TID 40)
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Getting 2 non-empty blocks out of 4 blocks
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 0 ms
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Getting 2 non-empty blocks out of 4 blocks
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 0 ms
+15/06/21 01:39:52 INFO Executor: Finished task 3.0 in stage 10.0 (TID 40). 1403 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 1.0 in stage 10.0 (TID 38). 1403 bytes result sent to driver
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Getting 2 non-empty blocks out of 4 blocks
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 0 ms
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Getting 2 non-empty blocks out of 4 blocks
+15/06/21 01:39:52 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 0 ms
+15/06/21 01:39:52 INFO Executor: Finished task 2.0 in stage 10.0 (TID 39). 1403 bytes result sent to driver
+15/06/21 01:39:52 INFO Executor: Finished task 0.0 in stage 10.0 (TID 37). 910 bytes result sent to driver
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 3.0 in stage 10.0 (TID 40) in 15 ms on localhost (1/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 0.0 in stage 10.0 (TID 37) in 18 ms on localhost (2/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 1.0 in stage 10.0 (TID 38) in 18 ms on localhost (3/4)
+15/06/21 01:39:52 INFO TaskSetManager: Finished task 2.0 in stage 10.0 (TID 39) in 18 ms on localhost (4/4)
+15/06/21 01:39:52 INFO TaskSchedulerImpl: Removed TaskSet 10.0, whose tasks have all completed, from pool 
+15/06/21 01:39:52 INFO DAGScheduler: ResultStage 10 (collect at Word2Vec.scala:157) finished in 0.020 s
+15/06/21 01:39:52 INFO DAGScheduler: Job 8 finished: collect at Word2Vec.scala:157, took 0.115001 s
+15/06/21 01:39:52 INFO Word2Vec: trainWordsCount = 440
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(4040) called with curMem=65916, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_12 stored as values in memory (estimated size 3.9 KB, free 265.3 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(4052) called with curMem=69956, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_12_piece0 stored as bytes in memory (estimated size 4.0 KB, free 265.3 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_12_piece0 in memory on localhost:51761 (size: 4.0 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 12 from broadcast at Word2Vec.scala:276
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(1352) called with curMem=74008, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_13 stored as values in memory (estimated size 1352.0 B, free 265.3 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(337) called with curMem=75360, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_13_piece0 stored as bytes in memory (estimated size 337.0 B, free 265.3 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_13_piece0 in memory on localhost:51761 (size: 337.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Removed broadcast_11_piece0 on localhost:51761 in memory (size: 2.1 KB, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 13 from broadcast at Word2Vec.scala:277
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(408) called with curMem=69444, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_14 stored as values in memory (estimated size 408.0 B, free 265.3 MB)
+15/06/21 01:39:52 INFO MemoryStore: ensureFreeSpace(192) called with curMem=69852, maxMem=278302556
+15/06/21 01:39:52 INFO MemoryStore: Block broadcast_14_piece0 stored as bytes in memory (estimated size 192.0 B, free 265.3 MB)
+15/06/21 01:39:52 INFO BlockManagerInfo: Added broadcast_14_piece0 in memory on localhost:51761 (size: 192.0 B, free: 265.4 MB)
+15/06/21 01:39:52 INFO SparkContext: Created broadcast 14 from broadcast at Word2Vec.scala:278
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_10_piece0 on localhost:51761 in memory (size: 3.4 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO ContextCleaner: Cleaned shuffle 1
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_9_piece0 on localhost:51761 in memory (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_8_piece0 on localhost:51761 in memory (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_7_piece0 on localhost:51761 in memory (size: 2.9 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_6_piece0 on localhost:51761 in memory (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_4_piece0 on localhost:51761 in memory (size: 3.0 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Removed broadcast_3_piece0 on localhost:51761 in memory (size: 3.0 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO SparkContext: Starting job: collect at Word2Vec.scala:392
+15/06/21 01:39:53 INFO DAGScheduler: Registering RDD 43 (repartition at Word2Vec.scala:301)
+15/06/21 01:39:53 INFO DAGScheduler: Registering RDD 47 (mapPartitionsWithIndex at Word2Vec.scala:315)
+15/06/21 01:39:53 INFO DAGScheduler: Got job 9 (collect at Word2Vec.scala:392) with 1 output partitions (allowLocal=false)
+15/06/21 01:39:53 INFO DAGScheduler: Final stage: ResultStage 13(collect at Word2Vec.scala:392)
+15/06/21 01:39:53 INFO DAGScheduler: Parents of final stage: List(ShuffleMapStage 12)
+15/06/21 01:39:53 INFO DAGScheduler: Missing parents: List(ShuffleMapStage 12)
+15/06/21 01:39:53 INFO DAGScheduler: Submitting ShuffleMapStage 11 (MapPartitionsRDD[43] at repartition at Word2Vec.scala:301), which has no missing parents
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(8816) called with curMem=10952, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block broadcast_15 stored as values in memory (estimated size 8.6 KB, free 265.4 MB)
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(4382) called with curMem=19768, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block broadcast_15_piece0 stored as bytes in memory (estimated size 4.3 KB, free 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Added broadcast_15_piece0 in memory on localhost:51761 (size: 4.3 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO SparkContext: Created broadcast 15 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:53 INFO DAGScheduler: Submitting 4 missing tasks from ShuffleMapStage 11 (MapPartitionsRDD[43] at repartition at Word2Vec.scala:301)
+15/06/21 01:39:53 INFO TaskSchedulerImpl: Adding task set 11.0 with 4 tasks
+15/06/21 01:39:53 INFO TaskSetManager: Starting task 0.0 in stage 11.0 (TID 41, localhost, PROCESS_LOCAL, 1344 bytes)
+15/06/21 01:39:53 INFO TaskSetManager: Starting task 1.0 in stage 11.0 (TID 42, localhost, PROCESS_LOCAL, 1808 bytes)
+15/06/21 01:39:53 INFO TaskSetManager: Starting task 2.0 in stage 11.0 (TID 43, localhost, PROCESS_LOCAL, 1344 bytes)
+15/06/21 01:39:53 INFO TaskSetManager: Starting task 3.0 in stage 11.0 (TID 44, localhost, PROCESS_LOCAL, 1808 bytes)
+15/06/21 01:39:53 INFO Executor: Running task 0.0 in stage 11.0 (TID 41)
+15/06/21 01:39:53 INFO Executor: Running task 1.0 in stage 11.0 (TID 42)
+15/06/21 01:39:53 INFO Executor: Running task 3.0 in stage 11.0 (TID 44)
+15/06/21 01:39:53 INFO Executor: Running task 2.0 in stage 11.0 (TID 43)
+15/06/21 01:39:53 INFO BlockManager: Found block rdd_35_0 locally
+15/06/21 01:39:53 INFO BlockManager: Found block rdd_35_2 locally
+15/06/21 01:39:53 INFO BlockManager: Found block rdd_35_3 locally
+15/06/21 01:39:53 INFO BlockManager: Found block rdd_35_1 locally
+15/06/21 01:39:53 INFO Executor: Finished task 2.0 in stage 11.0 (TID 43). 2063 bytes result sent to driver
+15/06/21 01:39:53 INFO Executor: Finished task 0.0 in stage 11.0 (TID 41). 2063 bytes result sent to driver
+15/06/21 01:39:53 INFO TaskSetManager: Finished task 2.0 in stage 11.0 (TID 43) in 15 ms on localhost (1/4)
+15/06/21 01:39:53 INFO TaskSetManager: Finished task 0.0 in stage 11.0 (TID 41) in 16 ms on localhost (2/4)
+15/06/21 01:39:53 INFO Executor: Finished task 1.0 in stage 11.0 (TID 42). 2063 bytes result sent to driver
+15/06/21 01:39:53 INFO Executor: Finished task 3.0 in stage 11.0 (TID 44). 2063 bytes result sent to driver
+15/06/21 01:39:53 INFO TaskSetManager: Finished task 1.0 in stage 11.0 (TID 42) in 20 ms on localhost (3/4)
+15/06/21 01:39:53 INFO TaskSetManager: Finished task 3.0 in stage 11.0 (TID 44) in 20 ms on localhost (4/4)
+15/06/21 01:39:53 INFO TaskSchedulerImpl: Removed TaskSet 11.0, whose tasks have all completed, from pool 
+15/06/21 01:39:53 INFO DAGScheduler: ShuffleMapStage 11 (repartition at Word2Vec.scala:301) finished in 0.021 s
+15/06/21 01:39:53 INFO DAGScheduler: looking for newly runnable stages
+15/06/21 01:39:53 INFO DAGScheduler: running: Set()
+15/06/21 01:39:53 INFO DAGScheduler: waiting: Set(ShuffleMapStage 12, ResultStage 13)
+15/06/21 01:39:53 INFO DAGScheduler: failed: Set()
+15/06/21 01:39:53 INFO DAGScheduler: Missing parents for ShuffleMapStage 12: List()
+15/06/21 01:39:53 INFO DAGScheduler: Missing parents for ResultStage 13: List(ShuffleMapStage 12)
+15/06/21 01:39:53 INFO DAGScheduler: Submitting ShuffleMapStage 12 (MapPartitionsRDD[47] at mapPartitionsWithIndex at Word2Vec.scala:315), which is now runnable
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(6688) called with curMem=24150, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block broadcast_16 stored as values in memory (estimated size 6.5 KB, free 265.4 MB)
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(3163) called with curMem=30838, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block broadcast_16_piece0 stored as bytes in memory (estimated size 3.1 KB, free 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Added broadcast_16_piece0 in memory on localhost:51761 (size: 3.1 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO SparkContext: Created broadcast 16 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:53 INFO DAGScheduler: Submitting 1 missing tasks from ShuffleMapStage 12 (MapPartitionsRDD[47] at mapPartitionsWithIndex at Word2Vec.scala:315)
+15/06/21 01:39:53 INFO TaskSchedulerImpl: Adding task set 12.0 with 1 tasks
+15/06/21 01:39:53 INFO TaskSetManager: Starting task 0.0 in stage 12.0 (TID 45, localhost, PROCESS_LOCAL, 1443 bytes)
+15/06/21 01:39:53 INFO Executor: Running task 0.0 in stage 12.0 (TID 45)
+15/06/21 01:39:53 INFO CacheManager: Partition rdd_46_0 not found, computing it
+15/06/21 01:39:53 INFO ShuffleBlockFetcherIterator: Getting 2 non-empty blocks out of 4 blocks
+15/06/21 01:39:53 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 0 ms
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(1816) called with curMem=34001, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block rdd_46_0 stored as values in memory (estimated size 1816.0 B, free 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Added rdd_46_0 in memory on localhost:51761 (size: 1816.0 B, free: 265.4 MB)
+15/06/21 01:39:53 WARN BLAS: Failed to load implementation from: com.github.fommil.netlib.NativeSystemBLAS
+15/06/21 01:39:53 WARN BLAS: Failed to load implementation from: com.github.fommil.netlib.NativeRefBLAS
+15/06/21 01:39:53 INFO Executor: Finished task 0.0 in stage 12.0 (TID 45). 1675 bytes result sent to driver
+15/06/21 01:39:53 INFO TaskSetManager: Finished task 0.0 in stage 12.0 (TID 45) in 49 ms on localhost (1/1)
+15/06/21 01:39:53 INFO TaskSchedulerImpl: Removed TaskSet 12.0, whose tasks have all completed, from pool 
+15/06/21 01:39:53 INFO DAGScheduler: ShuffleMapStage 12 (mapPartitionsWithIndex at Word2Vec.scala:315) finished in 0.049 s
+15/06/21 01:39:53 INFO DAGScheduler: looking for newly runnable stages
+15/06/21 01:39:53 INFO DAGScheduler: running: Set()
+15/06/21 01:39:53 INFO DAGScheduler: waiting: Set(ResultStage 13)
+15/06/21 01:39:53 INFO DAGScheduler: failed: Set()
+15/06/21 01:39:53 INFO DAGScheduler: Missing parents for ResultStage 13: List()
+15/06/21 01:39:53 INFO DAGScheduler: Submitting ResultStage 13 (ShuffledRDD[48] at reduceByKey at Word2Vec.scala:389), which is now runnable
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(5000) called with curMem=35817, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block broadcast_17 stored as values in memory (estimated size 4.9 KB, free 265.4 MB)
+15/06/21 01:39:53 INFO MemoryStore: ensureFreeSpace(2298) called with curMem=40817, maxMem=278302556
+15/06/21 01:39:53 INFO MemoryStore: Block broadcast_17_piece0 stored as bytes in memory (estimated size 2.2 KB, free 265.4 MB)
+15/06/21 01:39:53 INFO BlockManagerInfo: Added broadcast_17_piece0 in memory on localhost:51761 (size: 2.2 KB, free: 265.4 MB)
+15/06/21 01:39:53 INFO SparkContext: Created broadcast 17 from broadcast at DAGScheduler.scala:893
+15/06/21 01:39:53 INFO DAGScheduler: Submitting 1 missing tasks from ResultStage 13 (ShuffledRDD[48] at reduceByKey at Word2Vec.scala:389)
+15/06/21 01:39:53 INFO TaskSchedulerImpl: Adding task set 13.0 with 1 tasks
+15/06/21 01:39:53 INFO TaskSetManager: Starting task 0.0 in stage 13.0 (TID 46, localhost, PROCESS_LOCAL, 1165 bytes)
+15/06/21 01:39:53 INFO Executor: Running task 0.0 in stage 13.0 (TID 46)
+15/06/21 01:39:53 INFO ShuffleBlockFetcherIterator: Getting 1 non-empty blocks out of 1 blocks
+15/06/21 01:39:53 INFO ShuffleBlockFetcherIterator: Started 0 remote fetches in 0 ms
+15/06/21 01:39:53 INFO Executor: Finished task 0.0 in stage 13.0 (TID 46). 1354 bytes result sent to driver
+15/06/21 01:39:53 INFO TaskSetManager: Finished task 0.0 in stage 13.0 (TID 46) in 5 ms on localhost (1/1)
+15/06/21 01:39:53 INFO TaskSchedulerImpl: Removed TaskSet 13.0, whose tasks have all completed, from pool 
+15/06/21 01:39:53 INFO DAGScheduler: ResultStage 13 (collect at Word2Vec.scala:392) finished in 0.006 s
+15/06/21 01:39:53 INFO DAGScheduler: Job 9 finished: collect at Word2Vec.scala:392, took 0.102156 s
+15/06/21 01:39:53 INFO MapPartitionsRDD: Removing RDD 46 from persistence list
+15/06/21 01:39:53 INFO BlockManager: Removing RDD 46
+15/06/21 01:39:53 INFO MapPartitionsRDD: Removing RDD 35 from persistence list
+15/06/21 01:39:53 INFO BlockManager: Removing RDD 35
+15/06/21 01:39:53 INFO SparkUI: Stopped Spark web UI at http://192.168.1.11:4040
+15/06/21 01:39:53 INFO DAGScheduler: Stopping DAGScheduler
+15/06/21 01:39:53 INFO MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+15/06/21 01:39:53 INFO Utils: path = /private/var/folders/ky/zj8x1z751hn8q9s1qq7481d0bvy53m/T/spark-9ab5134a-d41e-41b6-a4c6-457e2d4f8e33/blockmgr-fc1b8a01-b148-4309-a965-0acd9d7e6761, already present as root for deletion.
+15/06/21 01:39:53 INFO MemoryStore: MemoryStore cleared
+15/06/21 01:39:53 INFO BlockManager: BlockManager stopped
+15/06/21 01:39:53 INFO BlockManagerMaster: BlockManagerMaster stopped
+15/06/21 01:39:53 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+15/06/21 01:39:53 INFO SparkContext: Successfully stopped SparkContext
+15/06/21 01:39:53 INFO RemoteActorRefProvider$RemotingTerminator: Shutting down remote daemon.
+15/06/21 01:39:53 INFO RemoteActorRefProvider$RemotingTerminator: Remote daemon shut down; proceeding with flushing remote transports.
+15/06/21 01:39:53 INFO RemoteActorRefProvider$RemotingTerminator: Remoting shut down.
+  PythonAndJavaTester.putLongAsObject(sc, 1)
+Exception raised:
+    Traceback (most recent call last):
+      File "/System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/doctest.py", line 1253, in __run
+        compileflags, 1) in test.globs
+      File "<doctest __main__.PythonAndJavaTester.putLongAsObject[0]>", line 1, in <module>
+        PythonAndJavaTester.putLongAsObject(sc, 1)
+      File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 68, in putLongAsObject
+        return callMLlibFunc("recieveObjectAsLong", value)
+      File "pyspark/mllib/common.py", line 128, in callMLlibFunc
+        return callJavaFunc(sc, api, *args)
+      File "pyspark/mllib/common.py", line 121, in callJavaFunc
+        return _java2py(sc, func(*args))
+      File "/Users/01004981/local/src/spark/myspark2/python/lib/py4j-0.8.2.1-src.zip/py4j/java_gateway.py", line 538, in __call__
+        self.target_id, self.name)
+      File "/Users/01004981/local/src/spark/myspark2/python/lib/py4j-0.8.2.1-src.zip/py4j/protocol.py", line 300, in get_return_value
+        format(target_id, '.', name), value)
+    Py4JJavaError: An error occurred while calling o116.recieveObjectAsLong.
+    : java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.Long
+    	at scala.runtime.BoxesRunTime.unboxToLong(BoxesRunTime.java:110)
+    	at org.apache.spark.mllib.api.python.PythonMLLibAPI.recieveObjectAsLong(PythonMLLibAPI.scala:69)
+    	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+    	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    	at java.lang.reflect.Method.invoke(Method.java:606)
+    	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:231)
+    	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:379)
+    	at py4j.Gateway.invoke(Gateway.java:259)
+    	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:133)
+    	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+    	at py4j.GatewayConnection.run(GatewayConnection.java:207)
+    	at java.lang.Thread.run(Thread.java:745)
+
+**********************************************************************
+File "/Users/01004981/local/src/spark/myspark2/python/pyspark/mllib/feature.py", line 66, in __main__.PythonAndJavaTester.putLongAsObject
+Failed example:
+    PythonAndJavaTester.putLongAsObject(sc, 1L)
+Expected nothing
+Got:
+    1L
+**********************************************************************
+4 items had failures:
+   2 of   2 in __main__.PythonAndJavaTester.putInt
+   2 of   2 in __main__.PythonAndJavaTester.putIntAsObject
+   2 of   2 in __main__.PythonAndJavaTester.putLong
+   2 of   2 in __main__.PythonAndJavaTester.putLongAsObject
+***Test Failed*** 8 failures.
+        7.72 real         0.31 user         0.36 sys
+15/06/21 01:39:54 INFO Utils: Shutdown hook called
+15/06/21 01:39:54 INFO Utils: Deleting directory /private/var/folders/ky/zj8x1z751hn8q9s1qq7481d0bvy53m/T/spark-9ab5134a-d41e-41b6-a4c6-457e2d4f8e33/pyspark-5b7560ec-053f-4d91-9ae3-50785ab971f2
+15/06/21 01:39:54 INFO Utils: Deleting directory /private/var/folders/ky/zj8x1z751hn8q9s1qq7481d0bvy53m/T/spark-9ab5134a-d41e-41b6-a4c6-457e2d4f8e33

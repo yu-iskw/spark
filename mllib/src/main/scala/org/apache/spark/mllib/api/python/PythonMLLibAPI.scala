@@ -61,6 +61,15 @@ import org.apache.spark.util.Utils
  */
 private[python] class PythonMLLibAPI extends Serializable {
 
+
+  def recieveLong(value: Long): Long = value
+
+  def recieveInt(value: Int): Int = value
+
+  def recieveObjectAsLong(value: Object): Long = value.asInstanceOf[Long]
+
+  def recieveObjectAsInt(value: Object): Int = value.asInstanceOf[Int]
+
   /**
    * Loads and serializes labeled points saved with `RDD#saveAsTextFile`.
    * @param jsc Java SparkContext
