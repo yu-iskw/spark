@@ -699,9 +699,10 @@ test_that("filter() on a DataFrame", {
   expect_equal(count(filtered3), 1)
   filtered4 <- filter(df, "age in (19, 30)")
   expect_equal(count(filtered4), 2)
-  filtered5 <- df$age %in% c(19, 23)
-  expect_equal(class(filtered5), "")
-  expect_equal(filtered5, c(19, 23))
+  filtered5 <- where(df, df$age %in% c(19))
+  expect_equal(count(filtered5), 1)
+  filtered6 <- where(df, df$age %in% c(19, 30))
+  expect_equal(count(filtered6), 2)
 })
 
 test_that("join() on a DataFrame", {

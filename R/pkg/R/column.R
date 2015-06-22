@@ -95,19 +95,9 @@ createInOperator <- function(op) {
   setMethod("%in%",
             signature(x = "Column"),
             function(x, table) {
-              print("start %in% testing")
-              foo <- table
-              #foo <- as.list(table)
-              #foo <- sapply(foo, function(e) {ifelse(class(e) == "Column", e@jc, e)})
-              #foo <- sapply(foo, function(e) {ifelse(class(e) == "Column", e, col(e))})
-              foo <- listToSeq(as.list(foo))
-              #foo <- as.list(foo)
-              bar <- callJMethod(x@jc, "in", foo)
-              print("hoge")
-              print(column(bar))
-              print("fuga")
-              return(bar)
-              #return(table)
+              table <- listToSeq(as.list(table))
+              bar <- callJMethod(x@jc, "in", table)
+              return(column(bar))
             })
 }
 
