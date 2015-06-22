@@ -95,13 +95,19 @@ createInOperator <- function(op) {
   setMethod("%in%",
             signature(x = "Column"),
             function(x, table) {
-              table <- as.list(table)
-              if (class(table) == list("Column", "")) {
-                table <- lapply(table, function(x) {x@jc})
-              }
-              table <- serialize(table, connection = NULL)
-              jc <- callJMethod(x@jc, "in", table)
-              column(jc)
+              print("start %in% testing")
+              foo <- table
+              #foo <- as.list(table)
+              #foo <- sapply(foo, function(e) {ifelse(class(e) == "Column", e@jc, e)})
+              #foo <- sapply(foo, function(e) {ifelse(class(e) == "Column", e, col(e))})
+              foo <- listToSeq(as.list(foo))
+              #foo <- as.list(foo)
+              bar <- callJMethod(x@jc, "in", foo)
+              print("hoge")
+              print(column(bar))
+              print("fuga")
+              return(bar)
+              #return(table)
             })
 }
 

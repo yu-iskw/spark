@@ -696,11 +696,12 @@ test_that("filter() on a DataFrame", {
 
   # test suites for %in%
   filtered3 <- filter(df, "age in (19)")
-  expect_true(count(filtered3) == 1)
+  expect_equal(count(filtered3), 1)
   filtered4 <- filter(df, "age in (19, 30)")
-  expect_true(count(filtered4) == 2)
-  filtered5 <- df$age %in% c(19)
-  expect_true(count(filtered5) == 1)
+  expect_equal(count(filtered4), 2)
+  filtered5 <- df$age %in% c(19, 23)
+  expect_equal(class(filtered5), "")
+  expect_equal(filtered5, c(19, 23))
 })
 
 test_that("join() on a DataFrame", {
