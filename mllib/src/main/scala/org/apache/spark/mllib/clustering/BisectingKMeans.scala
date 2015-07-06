@@ -476,6 +476,23 @@ class BisectingKMeans private (
   }
 }
 
+private[this]
+case class ClusterNodeStat private (
+    n: Long,
+    sums: BV[Double],
+    sumOfSquares: BV[Double]) extends Serializable {
+
+  // initialization
+  val center: BV[Double] = sums :/ n.toDouble
+  val variances: BV[Double] = n match {
+    case n if n > 1 => sumOfSquares.:*(n.toDouble) - (sums :* sums).:/(n * (n - 1.0))
+    case _ => BV.zeros[Double](sums.size)
+  }
+
+  def this(n: Long, sums: BV[Double], sumOfSquares: BV[Double]) =
+    this(n, sums, sumOfSquares, center, variances)
+}
+
 /**
  * A cluster as a tree node which can have its sub nodes
  *
