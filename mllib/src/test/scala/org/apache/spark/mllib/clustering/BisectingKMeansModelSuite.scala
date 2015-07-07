@@ -147,8 +147,9 @@ class BisectingKMeansModelSuite
   }
 
   test("clustering should be done correctly") {
-    for (numClusters <- Array(9, 99, 999)) {
-      val app = new BisectingKMeans().setNumClusters(numClusters).setSeed(1)
+//    for (numClusters <- Array(9, 99, 999)) {
+    for (numClusters <- Array(99)) {
+      val app = new BisectingKMeans().setNumClusters(numClusters).setSeed(1).setMaxRetries(100)
       val localData = (1 to 1000).toSeq.map { i =>
         val label = i % numClusters
         val sparseVector = Vectors.sparse(numClusters, Seq((label, label.toDouble)))
@@ -158,14 +159,15 @@ class BisectingKMeansModelSuite
       // dense version
       val denseData = sc.parallelize(localData.map(_._2), 2)
       val denseModel = app.run(denseData)
+      val hoge = denseModel.getClusters.filter(_.criterion > 0)
       assert(denseModel.getCenters.length === numClusters)
-      assert(denseModel.getClusters.forall(_.variancesNorm == 0.0))
+      assert(denseModel.getClusters.forall(_.criterion == 0.0))
 
       // sparse version
       val sparseData = sc.parallelize(localData.map(_._3), 2)
       val sparseModel = app.run(sparseData)
       assert(sparseModel.getCenters.length === numClusters)
-      assert(sparseModel.getClusters.forall(_.variancesNorm == 0.0))
+      assert(sparseModel.getClusters.forall(_.criterion == 0.0))
     }
   }
 }
