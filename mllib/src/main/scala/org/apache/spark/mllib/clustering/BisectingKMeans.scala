@@ -139,7 +139,7 @@ class BisectingKMeans private (
     val maxAllNodesInTree = math.pow(2, multiplier + 10).toInt
 
 //    while (nodeStats.size < maxAllNodesInTree && noMoreDividable == false) {
-      while (nodeStats.size < maxAllNodesInTree && noMoreDividable == false) {
+    while (nodeStats.size < maxAllNodesInTree && noMoreDividable == false) {
       log.info(s"${sc.appName} starts step ${step}")
 
       // can be clustered if the number of divided nodeStats is equal to 0
@@ -262,8 +262,10 @@ class BisectingKMeans private (
    * Gets the new divided centers
    */
   private[clustering]
-  def getDividedClusterStats(data: RDD[(Long, BV[Double])],
-    dividedClusters: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
+  def getDividedClusterStats(
+      data: RDD[(Long, BV[Double])],
+      dividedClusters: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
+
     val sc = data.sparkContext
     val appName = sc.appName
 
@@ -277,6 +279,7 @@ class BisectingKMeans private (
     }
 
     // divide input data
+    val hoge = data.map(_._1).distinct()
     var dividableData = data.filter { case (idx, point) => dividableKeys.contains(idx)}
     val dividableClusters = dividedClusters.filter { case (k, v) => dividableKeys.contains(k)}
     val idealIndexes = dividableKeys.flatMap(idx => Array(2 * idx, 2 * idx + 1).toIterator)
@@ -298,6 +301,18 @@ class BisectingKMeans private (
       stats = stats ++ missingStats
       tryTimes += 1
     }
+    stats.foreach { case (i, stat) =>
+      val exists = (i % 2) match {
+        case 0 => stats.contains(i + 1)
+        case 1 => stats.contains(i - 1)
+      }
+      if (exists == false) {
+        println(1)
+      }
+    }
+    if (stats.size == 0) {
+      println(1)
+    }
     stats
   }
 
@@ -305,15 +320,16 @@ class BisectingKMeans private (
    * Divides the input data
    *
    * @param data the pairs of cluster index and point which you want to divide
-   * @param clusters the clusters you want to divide AS a Map class
+   * @param currentStats the clusters you want to divide AS a Map class
    * @return divided clusters as Map
    */
   private[clustering]
-  def divide(data: RDD[(Long, BV[Double])],
-    clusters: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
+  def divide(
+    data: RDD[(Long, BV[Double])],
+    currentStats: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
 
     val sc = data.sparkContext
-    val centers = clusters.map { case (idx, cluster) => (idx, cluster.center)}
+    val centers = currentStats.map { case (idx, cluster) => (idx, cluster.center)}
     var newCenters = initChildrenCenter(centers)
     if (newCenters.size == 0) {
       return Map.empty[Long, ClusterNodeStat]
@@ -324,16 +340,11 @@ class BisectingKMeans private (
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     val bcMetric = sc.broadcast(metric)
 
-    val vectorSize = newCenters(newCenters.keySet.min).size
-    var stats = newCenters.keys.map { idx =>
-      (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
-    }.toMap
-
     var subIter = 0
-    var diffVariances = Double.MaxValue
-    var oldVariances = Double.MaxValue
-    var variances = Double.MaxValue
-    while (subIter < this.maxIterations && diffVariances > 10E-4) {
+    val vectorSize = newCenters(newCenters.keySet.min).size
+    var nextStats = Map.empty[Long, (BV[Double], Double, BV[Double])]
+//    while (subIter < this.maxIterations) {
+    while (nextStats.size != 2 * currentStats.size) {
       // calculate summary of each cluster
       val eachStats = data.mapPartitions { iter =>
         val map = mutable.Map.empty[Long, (BV[Double], Double, BV[Double])]
@@ -366,16 +377,11 @@ class BisectingKMeans private (
       bcNewCenters = sc.broadcast(newCenters)
 
       // update summary of each cluster
-      stats = eachStats.toMap
-
-      variances = stats.map { case (idx, (sum, n, sumOfSquares)) =>
-        math.pow(sumOfSquares.toArray.sum, 1.0 / sumOfSquares.size)
-      }.sum
-      diffVariances = math.abs(oldVariances - variances) / oldVariances
-      oldVariances = variances
+      nextStats = eachStats
       subIter += 1
     }
-    stats.map { case (i, (sums, rows, sumOfSquares)) =>
+
+    nextStats.map { case (i, (sums, rows, sumOfSquares)) =>
       i -> new ClusterNodeStat(rows.toLong, sums, sumOfSquares)
     }
   }
@@ -457,23 +463,36 @@ class BisectingKMeans private (
    */
   private[clustering]
   def updateClusterIndex(
-    data: RDD[(Long, BV[Double])],
-    dividedClusters: Map[Long, ClusterNodeStat]): RDD[(Long, BV[Double])] = {
+      data: RDD[(Long, BV[Double])],
+      dividedClusters: Map[Long, ClusterNodeStat]): RDD[(Long, BV[Double])] = {
+
     // extract the centers of the clusters
     val sc = data.sparkContext
     var centers = dividedClusters.map { case (idx, cluster) => (idx, cluster.center)}
     val bcCenters = sc.broadcast(centers)
+
+//    dividedClusters.foreach { case (i, stat) =>
+//      val exists = (i % 2) match {
+//        case 0 => dividedClusters.contains(i + 1)
+//        case 1 => dividedClusters.contains(i - 1)
+//      }
+//      if (exists == false) {
+//        println(1)
+//      }
+//    }
 
     // TODO Supports distance metrics other Euclidean distance metric
     val metric = (bv1: BV[Double], bv2: BV[Double]) => breezeNorm(bv1 - bv2, 2.0)
     val bcMetric = sc.broadcast(metric)
 
     // update the indexes to their children indexes
-    data.map { case (idx, point) =>
+    val hoge = data.map { case (idx, point) =>
       val childrenIndexes = Array(2 * idx, 2 * idx + 1).filter(c => bcCenters.value.contains(c))
       childrenIndexes.length match {
         // stay the index if the number of children is not enough
-        case s if s < 2 => (idx, point)
+        case s if s < 2 => {
+          (idx, point)
+        }
         // update the indexes
         case _ => {
           val nextCenters = childrenIndexes.map(bcCenters.value(_))
@@ -484,6 +503,13 @@ class BisectingKMeans private (
         }
       }
     }
+    val foo = hoge.map(_._1).distinct().collect()
+    val bar = hoge.map(x => (x._1, 1)).reduceByKey(_ + _)
+    if (foo.size != dividedClusters.size) {
+      val hoo = dividedClusters.map(_._1).filterNot(foo.contains(_)).toSeq.sorted
+      println(2)
+    }
+    hoge
   }
 }
 
