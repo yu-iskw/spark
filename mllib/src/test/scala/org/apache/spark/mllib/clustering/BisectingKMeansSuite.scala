@@ -47,12 +47,12 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
   }
 
   test("run") {
-    val algo = new BisectingKMeans().setNumClusters(123)
+    val algo = new BisectingKMeans().setNumClusters(123).setSeed(1)
     val localSeed: Seq[Vector] = (0 to 999).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
     assert(model.getClusters.length == 123)
-    assert(model.node.getHeight ~== 702.8641 absTol 10E-4)
+    assert(model.node.getHeight ~== 705.692 absTol 10E-3)
 
     // check the relations between a parent cluster and its children
     assert(model.node.getParent === None)
@@ -84,31 +84,31 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
     val seed = sc.parallelize(localSeed)
     val data = algo.initData(seed)
 
-    val clusters = algo.summarizeAsClusters(data)
+    val clusters = algo.summarize(data)
     assert(clusters.size === 1)
-    assert(clusters(1).center === Vectors.dense(49.5, 49.5))
-    assert(clusters(1).records === 100)
+    assert(clusters(1).center === Vectors.dense(49.5, 49.5).toBreeze)
+    assert(clusters(1).rows === 100)
 
     val data2 = seed.map(v => ((v.apply(0) / 25).toLong + 1L, v.toBreeze))
-    val clusters2 = algo.summarizeAsClusters(data2)
+    val clusters2 = algo.summarize(data2)
     assert(clusters2.size === 4)
-    assert(clusters2(1).center === Vectors.dense(12.0, 12.0))
-    assert(clusters2(1).records === 25)
-    assert(clusters2(2).center === Vectors.dense(37.0, 37.0))
-    assert(clusters2(2).records === 25)
-    assert(clusters2(3).center === Vectors.dense(62.0, 62.0))
-    assert(clusters2(3).records === 25)
-    assert(clusters2(4).center === Vectors.dense(87.0, 87.0))
-    assert(clusters2(4).records === 25)
+    assert(clusters2(1).center === Vectors.dense(12.0, 12.0).toBreeze)
+    assert(clusters2(1).rows === 25)
+    assert(clusters2(2).center === Vectors.dense(37.0, 37.0).toBreeze)
+    assert(clusters2(2).rows === 25)
+    assert(clusters2(3).center === Vectors.dense(62.0, 62.0).toBreeze)
+    assert(clusters2(3).rows === 25)
+    assert(clusters2(4).center === Vectors.dense(87.0, 87.0).toBreeze)
+    assert(clusters2(4).rows === 25)
   }
 
   test("getChildrenCenter") {
     val algo = new BisectingKMeans
-    val centers = Map(
-      2L -> Vectors.dense(1.0, 1.0).toBreeze,
-      3L -> Vectors.dense(2.0, 2.0).toBreeze
+    val stats = Map[Long, ClusterNodeStat](
+      2L -> new ClusterNodeStat(10, Vectors.dense(1.0, 1.0).toBreeze, Vectors.zeros(2).toBreeze),
+      3L -> new ClusterNodeStat(10, Vectors.dense(2.0, 2.0).toBreeze, Vectors.zeros(2).toBreeze)
     )
-    val initNextCenters = algo.initChildrenCenter(centers)
+    val initNextCenters = algo.initChildrenCenter(stats)
     assert(initNextCenters.size === 4)
     assert(initNextCenters.keySet === Set(4, 5, 6, 7))
   }
@@ -117,18 +117,18 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
     val algo = new BisectingKMeans
     val seed = (0 to 99).map(i => ((i / 50) + 2L, Vectors.dense(i, i).toBreeze))
     val data = sc.parallelize(seed)
-    val clusters = algo.summarizeAsClusters(data)
-    val newClusters = algo.getDividedClusters(data, clusters)
+    val stats = algo.summarize(data)
+    val newClusters = algo.getDividedClusters(data, stats)
 
     assert(newClusters.size === 4)
-    assert(newClusters(4).center === Vectors.dense(12.0, 12.0))
-    assert(newClusters(4).records === 25)
-    assert(newClusters(5).center === Vectors.dense(37.0, 37.0))
-    assert(newClusters(5).records === 25)
-    assert(newClusters(6).center === Vectors.dense(62.0, 62.0))
-    assert(newClusters(6).records === 25)
-    assert(newClusters(7).center === Vectors.dense(87.0, 87.0))
-    assert(newClusters(7).records === 25)
+    assert(newClusters(4).center === Vectors.dense(12.0, 12.0).toBreeze)
+    assert(newClusters(4).rows === 25)
+    assert(newClusters(5).center === Vectors.dense(37.0, 37.0).toBreeze)
+    assert(newClusters(5).rows === 25)
+    assert(newClusters(6).center === Vectors.dense(62.0, 62.0).toBreeze)
+    assert(newClusters(6).rows === 25)
+    assert(newClusters(7).center === Vectors.dense(87.0, 87.0).toBreeze)
+    assert(newClusters(7).rows === 25)
   }
 
   test("should assign each data to new clusters") {
@@ -141,10 +141,10 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
       (3L, Vectors.dense(11.0, 11.0))
     ).map { case (idx, vector) => (idx, vector.toBreeze)}
     val newClusters = Map(
-      4L -> new ClusterNode(Vectors.dense(1.0, 1.0), 3, Vectors.dense(1.0, 1.0)),
-      5L -> new ClusterNode(Vectors.dense(4.0, 4.0), 3, Vectors.dense(1.0, 1.0)),
-      6L -> new ClusterNode(Vectors.dense(7.0, 7.0), 3, Vectors.dense(1.0, 1.0)),
-      7L -> new ClusterNode(Vectors.dense(10.0, 10.0), 3, Vectors.dense(1.0, 1.0))
+      4L -> new ClusterNodeStat(3L, BV[Double](1.0, 1.0) :* 3.0, BV[Double](1.0, 1.0)),
+      5L -> new ClusterNodeStat(3L, BV[Double](4.0, 4.0) :* 3.0, BV[Double](1.0, 1.0)),
+      6L -> new ClusterNodeStat(3L, BV[Double](7.0, 7.0) :* 3.0, BV[Double](1.0, 1.0)),
+      7L -> new ClusterNodeStat(3L, BV[Double](10.0, 10.0) :* 3.0, BV[Double](1.0, 1.0))
     )
     val data = sc.parallelize(seed)
     val result = algo.updateClusterIndex(data, newClusters).collect().toSeq
