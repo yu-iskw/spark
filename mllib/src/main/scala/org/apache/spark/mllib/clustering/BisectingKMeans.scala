@@ -209,7 +209,7 @@ class BisectingKMeans private (
     stats: Map[Long, ClusterNodeStat]): Map[Long, ClusterNode] = {
 
     stats.map { case (i, stat) =>
-      i -> new ClusterNode(Vectors.fromBreeze(stat.center), stat.rows, Vectors.fromBreeze(stat.variances))
+      i -> new ClusterNode(Vectors.fromBreeze(stat.center), stat.rows, breezeNorm(stat.variances, 2.0))
     }
   }
 
@@ -400,7 +400,7 @@ class BisectingKMeans private (
     var leavesQueue = Map(rootIndex -> root)
     while (leavesQueue.size > 0 && numLeavesClusters < numClusters) {
       // pick up the cluster whose variance is the maximum in the queue
-      val mostScattered = leavesQueue.maxBy(_._2.variancesNorm)
+      val mostScattered = leavesQueue.maxBy(_._2.criterion)
       val mostScatteredKey = mostScattered._1
       val mostScatteredCluster = mostScattered._2
 
@@ -485,27 +485,25 @@ case class ClusterNodeStat (
  * A cluster as a tree node which can have its sub nodes
  *
  * @param center the center of the cluster
- * @param records the number of rows in the cluster
+ * @param rows the number of rows in the cluster
  * @param variances variance vectors
- * @param variancesNorm the norm of variance vector
+ * @param criterion the norm of variance vector
  * @param localHeight the maximal distance between this node and its children
  * @param parent the parent cluster of the cluster
  * @param children the children nodes of the cluster
  */
 class ClusterNode private (
   val center: Vector,
-  val records: Long,
-  val variances: Vector,
-  val variancesNorm: Double,
+  val rows: Long,
+  val criterion: Double,
   private var localHeight: Double,
   private var parent: Option[ClusterNode],
   private var children: Seq[ClusterNode]) extends Serializable {
 
-  require(!variancesNorm.isNaN)
+  require(!criterion.isNaN)
 
-  def this(center: Vector, rows: Long, variances: Vector) =
-    this(center, rows, variances, breezeNorm(variances.toBreeze, 2.0),
-      0.0, None, Array.empty[ClusterNode])
+  def this(center: Vector, rows: Long, criterion: Double) =
+    this(center, rows, criterion, 0.0, None, Array.empty[ClusterNode])
 
   /**
    * Inserts a sub node as its child
@@ -538,7 +536,7 @@ class ClusterNode private (
       case _ => Array(this) ++ this.children.flatMap(child => child.toArray.toIterator)
     }
     array.sortWith { case (a, b) =>
-      a.getDepth < b.getDepth && a.variances.toArray.sum < b.variances.toArray.sum
+      a.getDepth < b.getDepth && a.criterion < b.criterion
     }
   }
 
