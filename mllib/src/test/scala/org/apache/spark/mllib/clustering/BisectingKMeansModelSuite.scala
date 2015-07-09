@@ -155,6 +155,7 @@ class BisectingKMeansModelSuite
         val denseVector = Vectors.fromBreeze(sparseVector.toBreeze.toDenseVector)
         (label, denseVector, sparseVector)
       }
+
       // dense version
       val denseData = sc.parallelize(localData.map(_._2), 2)
       val denseModel = app.run(denseData)
