@@ -20,10 +20,8 @@ package org.apache.spark.mllib.clustering
 import scala.collection.{Map, mutable}
 
 import breeze.linalg.{SparseVector => BSV, Vector => BV, norm => breezeNorm}
-
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.util.random.XORShiftRandom
 import org.apache.spark.{Logging, SparkException}
 
 
@@ -291,7 +289,7 @@ class BisectingKMeans private (
     currentStats: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
 
     val sc = data.sparkContext
-    var newCenters = initChildrenCenter(currentStats)
+    var newCenters = initChildrenCenter(data, currentStats)
     if (newCenters.size == 0) {
       return Map.empty[Long, ClusterNodeStat]
     }
@@ -362,19 +360,23 @@ class BisectingKMeans private (
    * Gets the initial centers for bisect k-means
    */
   private[clustering]
-  def initChildrenCenter(stats: Map[Long, ClusterNodeStat]): Map[Long, BV[Double]] = {
+  def initChildrenCenter(
+    data: RDD[(Long, BV[Double])],
+    stats: Map[Long, ClusterNodeStat]): Map[Long, BV[Double]] = {
 
-    val rand = new XORShiftRandom()
-    rand.setSeed(this.seed)
-
-    stats.flatMap { case (idx, stat) =>
-      val childrenIndexes = Array(2 * idx, 2 * idx + 1)
-      val relativeErrorCoefficient = 0.001
-      val center = stat.center
-      Array(
-        (2 * idx, center.map(elm => elm - (elm * relativeErrorCoefficient * rand.nextDouble()))),
-        (2 * idx + 1, center.map(elm => elm + (elm * relativeErrorCoefficient * rand.nextDouble())))
-      )
+    val fractions = stats.map { case (i, stat) =>
+      val fraction = (10.0 / stat.rows) match {
+        case v if v > 1.0 => 1.0
+        case _ => 10.0 / stat.rows
+      }
+      i -> fraction
+    }
+    val samples =  data.filter(row => fractions.contains(row._1))
+      .sampleByKey(false, fractions, getSeed).reduceByKey((x, y) => x).collectAsMap
+    stats.flatMap { case (i, stat) =>
+      val centers = Seq(stat.center, samples(i))
+        .sortWith((a, b) => breezeNorm(a, 1.0) < breezeNorm(b, 1.0))
+      Array((2 * i, centers(0)), (2 * i + 1, centers(1)))
     }.toMap
   }
 

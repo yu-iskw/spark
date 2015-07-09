@@ -52,7 +52,7 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
     val data = sc.parallelize(localSeed, 2)
     val model = algo.run(data)
     assert(model.getClusters.length == 123)
-    assert(model.node.getHeight ~== 705.692 absTol 10E-3)
+    assert(model.node.getHeight ~== 706.3996 absTol 10E-4)
 
     // check the relations between a parent cluster and its children
     assert(model.node.getParent === None)
@@ -62,9 +62,9 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
   }
 
   test("run with too many cluster size than the records") {
-    val algo = new BisectingKMeans().setNumClusters(123)
+    val algo = new BisectingKMeans().setNumClusters(123).setSeed(1)
     val localSeed: Seq[Vector] = (0 to 99).map(i => Vectors.dense(i.toDouble, i.toDouble)).toSeq
-    val data = sc.parallelize(localSeed, 2)
+    val data = sc.parallelize(localSeed)
     val model = algo.run(data)
     assert(model.getClusters.length == 100)
     assert(model.node.getHeight ~== 72.12489 absTol 10E-4)
@@ -104,31 +104,43 @@ class BisectingKMeansSuite extends SparkFunSuite with MLlibTestSparkContext {
 
   test("getChildrenCenter") {
     val algo = new BisectingKMeans
-    val stats = Map[Long, ClusterNodeStat](
-      2L -> new ClusterNodeStat(10, Vectors.dense(1.0, 1.0).toBreeze, Vectors.zeros(2).toBreeze),
-      3L -> new ClusterNodeStat(10, Vectors.dense(2.0, 2.0).toBreeze, Vectors.zeros(2).toBreeze)
+    val local = Seq(
+      (2L, BV[Double](0.9, 0.9)),
+      (2L, BV[Double](1.1, 1.1)),
+      (3L, BV[Double](1.9, 1.9)),
+      (3L, BV[Double](2.1, 2.1))
     )
-    val initNextCenters = algo.initChildrenCenter(stats)
+    val data = sc.parallelize(local)
+    val stats = Map[Long, ClusterNodeStat](
+      2L -> new ClusterNodeStat(2, BV[Double](1.0, 1.0) * 2.0, BV.zeros[Double](2)),
+      3L -> new ClusterNodeStat(2, BV[Double](2.0, 2.0) * 2.0, BV.zeros[Double](2))
+    )
+    val initNextCenters = algo.initChildrenCenter(data, stats)
     assert(initNextCenters.size === 4)
     assert(initNextCenters.keySet === Set(4, 5, 6, 7))
   }
 
   test("should divide clusters") {
-    val algo = new BisectingKMeans
-    val seed = (0 to 99).map(i => ((i / 50) + 2L, Vectors.dense(i, i).toBreeze))
-    val data = sc.parallelize(seed)
+    val algo = new BisectingKMeans().setSeed(5)
+    val local = Seq(
+      (2L, BV[Double](0.9, 0.9)), (2L, BV[Double](1.1, 1.1)),
+      (2L, BV[Double](9.9, 9.9)), (2L, BV[Double](10.1, 10.1)),
+      (3L, BV[Double](99.9, 99.9)), (3L, BV[Double](100.1, 100.1)),
+      (3L, BV[Double](109.9, 109.9)), (3L, BV[Double](110.1, 110.1))
+    )
+    val data = sc.parallelize(local)
     val stats = algo.summarize(data)
     val newClusters = algo.getDividedClusters(data, stats)
 
     assert(newClusters.size === 4)
-    assert(newClusters(4).center === Vectors.dense(12.0, 12.0).toBreeze)
-    assert(newClusters(4).rows === 25)
-    assert(newClusters(5).center === Vectors.dense(37.0, 37.0).toBreeze)
-    assert(newClusters(5).rows === 25)
-    assert(newClusters(6).center === Vectors.dense(62.0, 62.0).toBreeze)
-    assert(newClusters(6).rows === 25)
-    assert(newClusters(7).center === Vectors.dense(87.0, 87.0).toBreeze)
-    assert(newClusters(7).rows === 25)
+    assert(newClusters(4).center === BV[Double](1.0, 1.0))
+    assert(newClusters(4).rows === 2)
+    assert(newClusters(5).center === BV[Double](10.0, 10.0))
+    assert(newClusters(5).rows === 2)
+    assert(newClusters(6).center === BV[Double](100.0, 100.0))
+    assert(newClusters(6).rows === 2)
+    assert(newClusters(7).center === BV[Double](110.0, 110.0))
+    assert(newClusters(7).rows === 2)
   }
 
   test("should assign each data to new clusters") {
