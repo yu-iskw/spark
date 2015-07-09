@@ -17,9 +17,9 @@
 
 package org.apache.spark.mllib.clustering
 
-import scala.collection.{Map, mutable}
+import scala.collection.{mutable, Map}
 
-import breeze.linalg.{SparseVector => BSV, Vector => BV, norm => breezeNorm}
+import breeze.linalg.{SparseVector => BSV, Vector => BV, norm => breezeNorm, any => breezeAny}
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{Logging, SparkException}
@@ -239,14 +239,12 @@ class BisectingKMeans private (
    */
   private[clustering]
   def getDividedClusters(data: RDD[(Long, BV[Double])],
-    dividedClusters: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
+    leafClusters: Map[Long, ClusterNodeStat]): Map[Long, ClusterNodeStat] = {
     val sc = data.sparkContext
     val appName = sc.appName
 
     // get keys of dividable clusters
-    val dividableKeys = dividedClusters.filter { case (idx, cluster) =>
-      cluster.variances.toArray.sum > 0.0 && cluster.rows >= 2
-    }.keySet
+    val dividableKeys = leafClusters.filter { case (idx, cluster) => cluster.isDividable }.keySet
     if (dividableKeys.size == 0) {
       log.info(s"There is no dividable clusters in ${appName}.")
       return Map.empty[Long, ClusterNodeStat]
@@ -254,15 +252,16 @@ class BisectingKMeans private (
 
     // divide input data
     var dividableData = data.filter { case (idx, point) => dividableKeys.contains(idx)}
-    val dividableClusters = dividedClusters.filter { case (k, v) => dividableKeys.contains(k)}
+    val dividableClusters = leafClusters.filter { case (k, v) => dividableKeys.contains(k)}
     val idealIndexes = dividableKeys.flatMap(idx => Array(2 * idx, 2 * idx + 1).toIterator)
-    var stats = divide(data, dividableClusters)
+//    var stats = divide(data, dividableClusters)
+    var stats = divide(dividableData, dividableClusters)
     // if there are clusters which failed to be divided, retry to split the failed clusters
     var tryTimes = 1
     while (stats.size < dividableKeys.size * 2 && tryTimes <= this.maxRetries) {
       // get the indexes of clusters which is failed to be divided
       val failedIndexes = idealIndexes.filterNot(stats.keySet.contains).map(idx => idx / 2)
-      val failedCenters = dividedClusters.filter { case (idx, clstr) => failedIndexes.contains(idx)}
+      val failedCenters = leafClusters.filter { case (idx, clstr) => failedIndexes.contains(idx)}
       log.info(s"# failed clusters is ${failedCenters.size} of ${dividableKeys.size}" +
           s"at ${tryTimes} times in ${appName}")
 
@@ -300,9 +299,10 @@ class BisectingKMeans private (
     val bcMetric = sc.broadcast(metric)
 
     val vectorSize = newCenters(newCenters.keySet.min).size
-    var stats = newCenters.keys.map { idx =>
-      (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
-    }.toMap
+    var stats = Map.empty[Long, (BV[Double], Double, BV[Double])]
+//      newCenters.keys.map { idx =>
+//      (idx, (BSV.zeros[Double](vectorSize).toVector, 0.0, BSV.zeros[Double](vectorSize).toVector))
+//    }.toMap
 
     var subIter = 0
     var diffVariances = Double.MaxValue
@@ -364,20 +364,46 @@ class BisectingKMeans private (
     data: RDD[(Long, BV[Double])],
     stats: Map[Long, ClusterNodeStat]): Map[Long, BV[Double]] = {
 
-    val fractions = stats.map { case (i, stat) =>
-      val fraction = (10.0 / stat.rows) match {
-        case v if v > 1.0 => 1.0
-        case _ => 10.0 / stat.rows
+    val samples =  data.mapPartitions { iter =>
+      val map = mutable.Map.empty[Long, mutable.Set[BV[Double]]]
+      iter.foreach { case (i, point) =>
+        if (map.contains(i) && map(i).size > 3) {
+          map(i).drop(0)
+        }
+        if (! map.contains(i)) {
+          map.update(i, mutable.Set.empty[BV[Double]])
+        }
+        map(i).add(point)
       }
-      i -> fraction
+      map.toIterator
+    }.reduceByKey { case (points1, points2) =>
+      points1.union(points2).take(2)
+    }.collect()
+
+    if (! samples.forall(_._2.size > 1)) {
+      val hoge = data.map(x => (x._1, 1)).reduceByKey(_ + _).collect()
+      println(0)
     }
-    val samples =  data.filter(row => fractions.contains(row._1))
-      .sampleByKey(false, fractions, getSeed).reduceByKey((x, y) => x).collectAsMap
-    stats.flatMap { case (i, stat) =>
-      val centers = Seq(stat.center, samples(i))
-        .sortWith((a, b) => breezeNorm(a, 1.0) < breezeNorm(b, 1.0))
+
+    samples.flatMap { case (i, points) =>
+//      val centers = points.toArray.sortWith((a, b) => breezeNorm(a, 1.0) < breezeNorm(b, 1.0))
+      val centers = points.toArray.sortWith((a, b) => breezeNorm(a, 1.0) < breezeNorm(b, 1.0))
       Array((2 * i, centers(0)), (2 * i + 1, centers(1)))
     }.toMap
+
+//    val samples =  data.filter(row => fractions.contains(row._1))
+//      .sampleByKey(false, fractions, getSeed).reduceByKey((x, y) => x).collectAsMap
+//    val hoge = data.map(x => (x._1, 1)).reduceByKey(_ + _).collect
+//    if (stats.forall(x => samples.contains(x._1)) == false) {
+//      val foo = stats.filterNot(x => samples.contains(x._1))
+//      val bar = data.filter(_._1 == 58).collect()
+//      println(1)
+//    }
+//    stats.flatMap { case (i, stat) =>
+//      val centers = Seq(stat.center, samples(i))
+//        .sortWith((a, b) => breezeNorm(a, 1.0) < breezeNorm(b, 1.0))
+//      Array((2 * i, centers(0)), (2 * i + 1, centers(1)))
+//    }.toMap
   }
 
   /**
@@ -455,7 +481,9 @@ class BisectingKMeans private (
       val childrenIndexes = Array(2 * idx, 2 * idx + 1).filter(c => bcCenters.value.contains(c))
       childrenIndexes.length match {
         // stay the index if the number of children is not enough
-        case s if s < 2 => (idx, point)
+        case s if s < 2 => {
+          (idx, point)
+        }
         // update the indexes
         case _ => {
           val nextCenters = childrenIndexes.map(bcCenters.value(_))
@@ -478,9 +506,11 @@ case class ClusterNodeStat (
   // initialization
   val center: BV[Double] = sums :/ rows.toDouble
   val variances: BV[Double] = rows match {
-    case n if n > 1 => sumOfSquares.:*(n.toDouble) - (sums :* sums).:/(n * (n - 1.0))
+    case n if n > 1 => sumOfSquares.:/(n.toDouble) - (sums :* sums).:/(n.toDouble * n.toDouble)
     case _ => BV.zeros[Double](sums.size)
   }
+
+  def isDividable: Boolean = breezeAny(variances) && rows >= 2
 }
 
 /**
@@ -488,7 +518,6 @@ case class ClusterNodeStat (
  *
  * @param center the center of the cluster
  * @param rows the number of rows in the cluster
- * @param variances variance vectors
  * @param criterion the norm of variance vector
  * @param localHeight the maximal distance between this node and its children
  * @param parent the parent cluster of the cluster

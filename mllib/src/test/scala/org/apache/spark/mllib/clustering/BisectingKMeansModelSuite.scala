@@ -70,9 +70,9 @@ class BisectingKMeansModelSuite
     assert(adjacencyList(0) === (0, 1, 2.5981))
     assert(adjacencyList(1) === (0, 6, 2.5981))
     assert(adjacencyList(2) === (1, 2, 1.7321))
-    assert(adjacencyList(3) === (1, 5, 1.7321))
-    assert(adjacencyList(4) === (2, 3, 0.866))
-    assert(adjacencyList(5) === (2, 4, 0.866))
+    assert(adjacencyList(3) === (1, 3, 1.7321))
+    assert(adjacencyList(4) === (3, 4, 0.866))
+    assert(adjacencyList(5) === (3, 5, 0.866))
     assert(adjacencyList(6) === (6, 7, 0.866))
     assert(adjacencyList(7) === (6, 8, 0.866))
 
@@ -80,9 +80,9 @@ class BisectingKMeansModelSuite
     val linkageMatrix = model.toLinkageMatrix
         .map(x => (x._1, x._2, math.round(10E3 * x._3) / 10E3, x._4))
     assert(linkageMatrix.length === 4)
-    assert(linkageMatrix(0) === (0, 1, 0.866, 2))
+    assert(linkageMatrix(0) === (1, 2, 0.866, 2))
     assert(linkageMatrix(1) === (3, 4, 0.866, 2))
-    assert(linkageMatrix(2) === (5, 2, 2.5981, 3))
+    assert(linkageMatrix(2) === (0, 5, 2.5981, 3))
     assert(linkageMatrix(3) === (7, 6, 5.1962, 5))
   }
 
@@ -127,8 +127,8 @@ class BisectingKMeansModelSuite
     val adjacencyList = model.toAdjacencyList
         .map(x => (x._1, x._2, math.round(10E3 * x._3) / 10E3))
     assert(adjacencyList.length === 8)
-    assert(adjacencyList(0) === (0, 1, 1.5652))
-    assert(adjacencyList(1) === (0, 6, 1.5652))
+    assert(adjacencyList(0) === (0, 1, 3.2863))
+    assert(adjacencyList(1) === (0, 8, 3.2863))
     assert(adjacencyList(2) === (1, 2, 1.3744))
     assert(adjacencyList(3) === (1, 5, 1.3744))
     assert(adjacencyList(4) === (2, 3, 0.5))
