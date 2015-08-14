@@ -163,3 +163,52 @@ setMethod("n", signature(x = "Column"),
           function(x) {
             count(x)
           })
+
+#' rdname functions
+setMethod("date_format", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "date_format", y@jc, x)
+            column(jc)
+          })
+
+#' rdname functions
+setMethod("decode", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "decode", y@jc, x)
+            column(jc)
+          })
+
+#' rdname functions
+setMethod("encode", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "encode", y@jc, x)
+            column(jc)
+          })
+
+#' rdname functions
+setMethod("from_utc_timestamp", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "from_utc_timestamp", y@jc, x)
+            column(jc)
+          })
+
+#' rdname functions
+setMethod("instr", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "instr", y@jc, x)
+            column(jc)
+          })
+
+#' rdname functions
+setMethod("next_day", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "next_day", y@jc, x)
+            column(jc)
+          })
+
+#' rdname functions
+setMethod("to_utc_timestamp", signature(y = "Column", x = "character"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "to_utc_timestamp", y@jc, x)
+            column(jc)
+          })

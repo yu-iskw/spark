@@ -696,6 +696,10 @@ setGeneric("datediff", function(y, x) { standardGeneric("datediff") })
 
 #' @rdname functions
 #' @export
+setGeneric("date_format", function(y, x) { standardGeneric("date_format") })
+
+#' @rdname functions
+#' @export
 setGeneric("dayofmonth", function(x) { standardGeneric("dayofmonth") })
 
 #' @rdname functions
@@ -704,7 +708,19 @@ setGeneric("dayofyear", function(x) { standardGeneric("dayofyear") })
 
 #' @rdname functions
 #' @export
+setGeneric("decode", function(y, x) { standardGeneric("decode") })
+
+#' @rdname functions
+#' @export
+setGeneric("encode", function(y, x) { standardGeneric("encode") })
+
+#' @rdname functions
+#' @export
 setGeneric("explode", function(x) { standardGeneric("explode") })
+
+#' @rdname functions
+#' @export
+setGeneric("from_utc_timestamp", function(y, x) { standardGeneric("from_utc_timestamp") })
 
 #' @rdname column
 #' @export
@@ -721,6 +737,10 @@ setGeneric("hour", function(x) { standardGeneric("hour") })
 #' @rdname functions
 #' @export
 setGeneric("initcap", function(x) { standardGeneric("initcap") })
+
+#' @rdname functions
+#' @export
+setGeneric("instr", function(y, x) { standardGeneric("instr") })
 
 #' @rdname functions
 #' @export
@@ -769,6 +789,10 @@ setGeneric("nanvl", function(y, x) { standardGeneric("nanvl") })
 #' @rdname functions
 #' @export
 setGeneric("negate", function(x) { standardGeneric("negate") })
+
+#' @rdname functions
+#' @export
+setGeneric("next_day", function(y, x) { standardGeneric("next_day") })
 
 #' @rdname functions
 #' @export
@@ -825,6 +849,10 @@ setGeneric("toRadians", function(x) { standardGeneric("toRadians") })
 #' @rdname functions
 #' @export
 setGeneric("to_date", function(x) { standardGeneric("to_date") })
+
+#' @rdname functions
+#' @export
+setGeneric("to_utc_timestamp", function(y, x) { standardGeneric("to_utc_timestamp") })
 
 #' @rdname functions
 #' @export
