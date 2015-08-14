@@ -690,44 +690,45 @@ writeLines(mockLinesNa, jsonPathNa)
 #  ## nolint end
 #})
 #
-#test_that("string operators", {
-#  df <- jsonFile(sqlContext, jsonPath)
-#  expect_equal(count(where(df, like(df$name, "A%"))), 1)
-#  expect_equal(count(where(df, startsWith(df$name, "A"))), 1)
-#  expect_equal(first(select(df, substr(df$name, 1, 2)))[[1]], "Mi")
-#  expect_equal(collect(select(df, cast(df$age, "string")))[[2, 1]], "30")
-#  expect_equal(collect(select(df, concat(df$name, lit(":"), df$age)))[[2, 1]], "Andy:30")
-#})
-#
-test_that("date functions on a DataFrame", {
-  .originalTimeZone <- Sys.getenv("TZ")
-  Sys.setenv(TZ = "UTC")
-  l <- list(list(a = 1L, b = as.Date("2012-12-13")),
-            list(a = 2L, b = as.Date("2013-12-14")),
-            list(a = 3L, b = as.Date("2014-12-15")))
-  df <- createDataFrame(sqlContext, l)
-  expect_equal(collect(select(df, dayofmonth(df$b)))[, 1], c(13, 14, 15))
-  expect_equal(collect(select(df, dayofyear(df$b)))[, 1], c(348, 348, 349))
-  expect_equal(collect(select(df, weekofyear(df$b)))[, 1], c(50, 50, 51))
-  expect_equal(collect(select(df, year(df$b)))[, 1], c(2012, 2013, 2014))
-  expect_equal(collect(select(df, month(df$b)))[, 1], c(12, 12, 12))
-  expect_equal(collect(select(df, last_day(df$b)))[, 1],
-               c(as.Date("2012-12-31"), as.Date("2013-12-31"), as.Date("2014-12-31")))
-  expect_equal(collect(select(df, next_day(df$b, "MONDAY")))[, 1],
-               c(as.Date("2012-12-17"), as.Date("2013-12-16"), as.Date("2014-12-22")))
-  expect_equal(collect(select(df, date_format(df$b, "y")))[, 1], c("2012", "2013", "2014"))
-
-  l2 <- list(list(a = 1L, b = as.POSIXlt("2012-12-13 12:34:00", tz = "UTC")),
-            list(a = 2L, b = as.POSIXlt("2014-12-15 01:24:34", tz = "UTC")))
-  df2 <- createDataFrame(sqlContext, l2)
-  expect_equal(collect(select(df2, minute(df2$b)))[, 1], c(34, 24))
-  expect_equal(collect(select(df2, second(df2$b)))[, 1], c(0, 34))
-  expect_equal(collect(select(df2, from_utc_timestamp(df2$b, "JST")))[, 1],
-               c(as.POSIXlt("2012-12-13 21:34:00 UTC"), as.POSIXlt("2014-12-15 10:24:34 UTC")))
-  expect_equal(collect(select(df2, to_utc_timestamp(df2$b, "JST")))[, 1],
-               c(as.POSIXlt("2012-12-13 03:34:00 UTC"), as.POSIXlt("2014-12-14 16:24:34 UTC")))
-  Sys.setenv(TZ = .originalTimeZone)
+test_that("string operators", {
+  df <- jsonFile(sqlContext, jsonPath)
+  expect_equal(count(where(df, like(df$name, "A%"))), 1)
+  expect_equal(count(where(df, startsWith(df$name, "A"))), 1)
+  expect_equal(first(select(df, substr(df$name, 1, 2)))[[1]], "Mi") 
+  expect_equal(collect(select(df, cast(df$age, "string")))[[2, 1]], "30")
+  expect_equal(collect(select(df, concat(df$name, lit(":"), df$age)))[[2, 1]], "Andy:30")
+  expect_equal(collect(select(df, instr(df$name, "i")))[, 1], c(2, 0, 5))
 })
+
+#test_that("date functions on a DataFrame", {
+#  .originalTimeZone <- Sys.getenv("TZ")
+#  Sys.setenv(TZ = "UTC")
+#  l <- list(list(a = 1L, b = as.Date("2012-12-13")),
+#            list(a = 2L, b = as.Date("2013-12-14")),
+#            list(a = 3L, b = as.Date("2014-12-15")))
+#  df <- createDataFrame(sqlContext, l)
+#  expect_equal(collect(select(df, dayofmonth(df$b)))[, 1], c(13, 14, 15))
+#  expect_equal(collect(select(df, dayofyear(df$b)))[, 1], c(348, 348, 349))
+#  expect_equal(collect(select(df, weekofyear(df$b)))[, 1], c(50, 50, 51))
+#  expect_equal(collect(select(df, year(df$b)))[, 1], c(2012, 2013, 2014))
+#  expect_equal(collect(select(df, month(df$b)))[, 1], c(12, 12, 12))
+#  expect_equal(collect(select(df, last_day(df$b)))[, 1],
+#               c(as.Date("2012-12-31"), as.Date("2013-12-31"), as.Date("2014-12-31")))
+#  expect_equal(collect(select(df, next_day(df$b, "MONDAY")))[, 1],
+#               c(as.Date("2012-12-17"), as.Date("2013-12-16"), as.Date("2014-12-22")))
+#  expect_equal(collect(select(df, date_format(df$b, "y")))[, 1], c("2012", "2013", "2014"))
+#
+#  l2 <- list(list(a = 1L, b = as.POSIXlt("2012-12-13 12:34:00", tz = "UTC")),
+#            list(a = 2L, b = as.POSIXlt("2014-12-15 01:24:34", tz = "UTC")))
+#  df2 <- createDataFrame(sqlContext, l2)
+#  expect_equal(collect(select(df2, minute(df2$b)))[, 1], c(34, 24))
+#  expect_equal(collect(select(df2, second(df2$b)))[, 1], c(0, 34))
+#  expect_equal(collect(select(df2, from_utc_timestamp(df2$b, "JST")))[, 1],
+#               c(as.POSIXlt("2012-12-13 21:34:00 UTC"), as.POSIXlt("2014-12-15 10:24:34 UTC")))
+#  expect_equal(collect(select(df2, to_utc_timestamp(df2$b, "JST")))[, 1],
+#               c(as.POSIXlt("2012-12-13 03:34:00 UTC"), as.POSIXlt("2014-12-14 16:24:34 UTC")))
+#  Sys.setenv(TZ = .originalTimeZone)
+#})
 
 #test_that("greatest() and least() on a DataFrame", {
 #  l <- list(list(a = 1, b = 2), list(a = 3, b = 4))
