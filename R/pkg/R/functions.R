@@ -172,20 +172,6 @@ setMethod("date_format", signature(y = "Column", x = "character"),
           })
 
 #' rdname functions
-setMethod("decode", signature(y = "Column", x = "character"),
-          function(y, x) {
-            jc <- callJStatic("org.apache.spark.sql.functions", "decode", y@jc, x)
-            column(jc)
-          })
-
-#' rdname functions
-setMethod("encode", signature(y = "Column", x = "character"),
-          function(y, x) {
-            jc <- callJStatic("org.apache.spark.sql.functions", "encode", y@jc, x)
-            column(jc)
-          })
-
-#' rdname functions
 setMethod("from_utc_timestamp", signature(y = "Column", x = "character"),
           function(y, x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "from_utc_timestamp", y@jc, x)

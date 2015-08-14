@@ -708,14 +708,6 @@ setGeneric("dayofyear", function(x) { standardGeneric("dayofyear") })
 
 #' @rdname functions
 #' @export
-setGeneric("decode", function(y, x) { standardGeneric("decode") })
-
-#' @rdname functions
-#' @export
-setGeneric("encode", function(y, x) { standardGeneric("encode") })
-
-#' @rdname functions
-#' @export
 setGeneric("explode", function(x) { standardGeneric("explode") })
 
 #' @rdname functions

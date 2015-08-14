@@ -698,7 +698,7 @@ writeLines(mockLinesNa, jsonPathNa)
 #  expect_equal(collect(select(df, cast(df$age, "string")))[[2, 1]], "30")
 #  expect_equal(collect(select(df, concat(df$name, lit(":"), df$age)))[[2, 1]], "Andy:30")
 #})
-
+#
 test_that("date functions on a DataFrame", {
   .originalTimeZone <- Sys.getenv("TZ")
   Sys.setenv(TZ = "UTC")
