@@ -656,6 +656,10 @@ setGeneric("startsWith", function(x, ...) { standardGeneric("startsWith") })
 
 #' @rdname functions
 #' @export
+setGeneric("add_months", function(y, x) { standardGeneric("add_months") })
+
+#' @rdname functions
+#' @export
 setGeneric("ascii", function(x) { standardGeneric("ascii") })
 
 #' @rdname functions
@@ -696,7 +700,15 @@ setGeneric("datediff", function(y, x) { standardGeneric("datediff") })
 
 #' @rdname functions
 #' @export
+setGeneric("date_add", function(y, x) { standardGeneric("date_add") })
+
+#' @rdname functions
+#' @export
 setGeneric("date_format", function(y, x) { standardGeneric("date_format") })
+
+#' @rdname functions
+#' @export
+setGeneric("date_sub", function(y, x) { standardGeneric("date_sub") })
 
 #' @rdname functions
 #' @export
@@ -713,6 +725,10 @@ setGeneric("explode", function(x) { standardGeneric("explode") })
 #' @rdname functions
 #' @export
 setGeneric("from_utc_timestamp", function(y, x) { standardGeneric("from_utc_timestamp") })
+
+#' @rdname functions
+#' @export
+setGeneric("format_number", function(y, x) { standardGeneric("format_number") })
 
 #' @rdname column
 #' @export
@@ -809,6 +825,22 @@ setGeneric("second", function(x) { standardGeneric("second") })
 #' @rdname functions
 #' @export
 setGeneric("sha1", function(x) { standardGeneric("sha1") })
+
+#' @rdname functions
+#' @export
+setGeneric("sha2", function(y, x) { standardGeneric("sha2") })
+
+#' @rdname functions
+#' @export
+setGeneric("shiftLeft", function(y, x) { standardGeneric("shiftLeft") })
+
+#' @rdname functions
+#' @export
+setGeneric("shiftRight", function(y, x) { standardGeneric("shiftRight") })
+
+#' @rdname functions
+#' @export
+setGeneric("shiftRightUnsigned", function(y, x) { standardGeneric("shiftRightUnsigned") })
 
 #' @rdname functions
 #' @export

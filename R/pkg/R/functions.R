@@ -164,37 +164,95 @@ setMethod("n", signature(x = "Column"),
             count(x)
           })
 
-#' rdname functions
+#' @rdname functions
 setMethod("date_format", signature(y = "Column", x = "character"),
           function(y, x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "date_format", y@jc, x)
             column(jc)
           })
 
-#' rdname functions
+#' @rdname functions
 setMethod("from_utc_timestamp", signature(y = "Column", x = "character"),
           function(y, x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "from_utc_timestamp", y@jc, x)
             column(jc)
           })
 
-#' rdname functions
+#' @rdname functions
 setMethod("instr", signature(y = "Column", x = "character"),
           function(y, x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "instr", y@jc, x)
             column(jc)
           })
 
-#' rdname functions
+#' @rdname functions
 setMethod("next_day", signature(y = "Column", x = "character"),
           function(y, x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "next_day", y@jc, x)
             column(jc)
           })
 
-#' rdname functions
+#' @rdname functions
 setMethod("to_utc_timestamp", signature(y = "Column", x = "character"),
           function(y, x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "to_utc_timestamp", y@jc, x)
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("add_months", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "add_months", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("date_add", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "date_add", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("date_sub", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "date_sub", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("format_number", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "format_number", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+#' @param y column to compute SHA-2 on.
+#' @param x one of 224, 256, 384, or 512.
+setMethod("sha2", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "sha2", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("shiftLeft", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "shiftLeft", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("shiftRight", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "shiftRight", y@jc, as.integer(x))
+            column(jc)
+          })
+
+#' @rdname functions
+setMethod("shiftRightUnsigned", signature(y = "Column", x = "numeric"),
+          function(y, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "shiftRightUnsigned", y@jc, as.integer(x))
             column(jc)
           })

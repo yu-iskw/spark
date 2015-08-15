@@ -670,26 +670,29 @@ writeLines(mockLinesNa, jsonPathNa)
 #  expect_equal(collect(df3)[[3, 1]], TRUE)
 #})
 #
-#test_that("column binary mathfunctions", {
-#  lines <- c("{\"a\":1, \"b\":5}",
-#             "{\"a\":2, \"b\":6}",
-#             "{\"a\":3, \"b\":7}",
-#             "{\"a\":4, \"b\":8}")
-#  jsonPathWithDup <- tempfile(pattern="sparkr-test", fileext=".tmp")
-#  writeLines(lines, jsonPathWithDup)
-#  df <- jsonFile(sqlContext, jsonPathWithDup)
-#  expect_equal(collect(select(df, atan2(df$a, df$b)))[1, "ATAN2(a, b)"], atan2(1, 5))
-#  expect_equal(collect(select(df, atan2(df$a, df$b)))[2, "ATAN2(a, b)"], atan2(2, 6))
-#  expect_equal(collect(select(df, atan2(df$a, df$b)))[3, "ATAN2(a, b)"], atan2(3, 7))
-#  expect_equal(collect(select(df, atan2(df$a, df$b)))[4, "ATAN2(a, b)"], atan2(4, 8))
-#  ## nolint start
-#  expect_equal(collect(select(df, hypot(df$a, df$b)))[1, "HYPOT(a, b)"], sqrt(1^2 + 5^2))
-#  expect_equal(collect(select(df, hypot(df$a, df$b)))[2, "HYPOT(a, b)"], sqrt(2^2 + 6^2))
-#  expect_equal(collect(select(df, hypot(df$a, df$b)))[3, "HYPOT(a, b)"], sqrt(3^2 + 7^2))
-#  expect_equal(collect(select(df, hypot(df$a, df$b)))[4, "HYPOT(a, b)"], sqrt(4^2 + 8^2))
-#  ## nolint end
-#})
-#
+test_that("column binary mathfunctions", {
+  lines <- c("{\"a\":1, \"b\":5}",
+             "{\"a\":2, \"b\":6}",
+             "{\"a\":3, \"b\":7}",
+             "{\"a\":4, \"b\":8}")
+  jsonPathWithDup <- tempfile(pattern="sparkr-test", fileext=".tmp")
+  writeLines(lines, jsonPathWithDup)
+  df <- jsonFile(sqlContext, jsonPathWithDup)
+  expect_equal(collect(select(df, atan2(df$a, df$b)))[1, "ATAN2(a, b)"], atan2(1, 5))
+  expect_equal(collect(select(df, atan2(df$a, df$b)))[2, "ATAN2(a, b)"], atan2(2, 6))
+  expect_equal(collect(select(df, atan2(df$a, df$b)))[3, "ATAN2(a, b)"], atan2(3, 7))
+  expect_equal(collect(select(df, atan2(df$a, df$b)))[4, "ATAN2(a, b)"], atan2(4, 8))
+  ## nolint start
+  expect_equal(collect(select(df, hypot(df$a, df$b)))[1, "HYPOT(a, b)"], sqrt(1^2 + 5^2))
+  expect_equal(collect(select(df, hypot(df$a, df$b)))[2, "HYPOT(a, b)"], sqrt(2^2 + 6^2))
+  expect_equal(collect(select(df, hypot(df$a, df$b)))[3, "HYPOT(a, b)"], sqrt(3^2 + 7^2))
+  expect_equal(collect(select(df, hypot(df$a, df$b)))[4, "HYPOT(a, b)"], sqrt(4^2 + 8^2))
+  ## nolint end
+  expect_equal(collect(select(df, shiftLeft(df$b, 1)))[4, 1], 16)
+  expect_equal(collect(select(df, shiftRight(df$b, 1)))[4, 1], 4)
+  expect_equal(collect(select(df, shiftRightUnsigned(df$b, 1)))[4, 1], 4)
+})
+
 test_that("string operators", {
   df <- jsonFile(sqlContext, jsonPath)
   expect_equal(count(where(df, like(df$name, "A%"))), 1)
@@ -698,37 +701,47 @@ test_that("string operators", {
   expect_equal(collect(select(df, cast(df$age, "string")))[[2, 1]], "30")
   expect_equal(collect(select(df, concat(df$name, lit(":"), df$age)))[[2, 1]], "Andy:30")
   expect_equal(collect(select(df, instr(df$name, "i")))[, 1], c(2, 0, 5))
+  expect_equal(collect(select(df, format_number(df$age, 2)))[2, 1], "30.00")
+  expect_equal(collect(select(df, sha1(df$name)))[2, 1], "ab5a000e88b5d9d0fa2575f5c6263eb93452405d")
+  expect_equal(collect(select(df, sha2(df$name, 256)))[2, 1],
+               "80f2aed3c618c423ddf05a2891229fba44942d907173152442cf6591441ed6dc")
 })
 
-#test_that("date functions on a DataFrame", {
-#  .originalTimeZone <- Sys.getenv("TZ")
-#  Sys.setenv(TZ = "UTC")
-#  l <- list(list(a = 1L, b = as.Date("2012-12-13")),
-#            list(a = 2L, b = as.Date("2013-12-14")),
-#            list(a = 3L, b = as.Date("2014-12-15")))
-#  df <- createDataFrame(sqlContext, l)
-#  expect_equal(collect(select(df, dayofmonth(df$b)))[, 1], c(13, 14, 15))
-#  expect_equal(collect(select(df, dayofyear(df$b)))[, 1], c(348, 348, 349))
-#  expect_equal(collect(select(df, weekofyear(df$b)))[, 1], c(50, 50, 51))
-#  expect_equal(collect(select(df, year(df$b)))[, 1], c(2012, 2013, 2014))
-#  expect_equal(collect(select(df, month(df$b)))[, 1], c(12, 12, 12))
-#  expect_equal(collect(select(df, last_day(df$b)))[, 1],
-#               c(as.Date("2012-12-31"), as.Date("2013-12-31"), as.Date("2014-12-31")))
-#  expect_equal(collect(select(df, next_day(df$b, "MONDAY")))[, 1],
-#               c(as.Date("2012-12-17"), as.Date("2013-12-16"), as.Date("2014-12-22")))
-#  expect_equal(collect(select(df, date_format(df$b, "y")))[, 1], c("2012", "2013", "2014"))
-#
-#  l2 <- list(list(a = 1L, b = as.POSIXlt("2012-12-13 12:34:00", tz = "UTC")),
-#            list(a = 2L, b = as.POSIXlt("2014-12-15 01:24:34", tz = "UTC")))
-#  df2 <- createDataFrame(sqlContext, l2)
-#  expect_equal(collect(select(df2, minute(df2$b)))[, 1], c(34, 24))
-#  expect_equal(collect(select(df2, second(df2$b)))[, 1], c(0, 34))
-#  expect_equal(collect(select(df2, from_utc_timestamp(df2$b, "JST")))[, 1],
-#               c(as.POSIXlt("2012-12-13 21:34:00 UTC"), as.POSIXlt("2014-12-15 10:24:34 UTC")))
-#  expect_equal(collect(select(df2, to_utc_timestamp(df2$b, "JST")))[, 1],
-#               c(as.POSIXlt("2012-12-13 03:34:00 UTC"), as.POSIXlt("2014-12-14 16:24:34 UTC")))
-#  Sys.setenv(TZ = .originalTimeZone)
-#})
+test_that("date functions on a DataFrame", {
+  .originalTimeZone <- Sys.getenv("TZ")
+  Sys.setenv(TZ = "UTC")
+  l <- list(list(a = 1L, b = as.Date("2012-12-13")),
+            list(a = 2L, b = as.Date("2013-12-14")),
+            list(a = 3L, b = as.Date("2014-12-15")))
+  df <- createDataFrame(sqlContext, l)
+  expect_equal(collect(select(df, dayofmonth(df$b)))[, 1], c(13, 14, 15))
+  expect_equal(collect(select(df, dayofyear(df$b)))[, 1], c(348, 348, 349))
+  expect_equal(collect(select(df, weekofyear(df$b)))[, 1], c(50, 50, 51))
+  expect_equal(collect(select(df, year(df$b)))[, 1], c(2012, 2013, 2014))
+  expect_equal(collect(select(df, month(df$b)))[, 1], c(12, 12, 12))
+  expect_equal(collect(select(df, last_day(df$b)))[, 1],
+               c(as.Date("2012-12-31"), as.Date("2013-12-31"), as.Date("2014-12-31")))
+  expect_equal(collect(select(df, next_day(df$b, "MONDAY")))[, 1],
+               c(as.Date("2012-12-17"), as.Date("2013-12-16"), as.Date("2014-12-22")))
+  expect_equal(collect(select(df, date_format(df$b, "y")))[, 1], c("2012", "2013", "2014"))
+  expect_equal(collect(select(df, add_months(df$b, 3)))[, 1],
+               c(as.Date("2013-03-13"), as.Date("2014-03-14"), as.Date("2015-03-15")))
+  expect_equal(collect(select(df, date_add(df$b, 1)))[, 1],
+               c(as.Date("2012-12-14"), as.Date("2013-12-15"), as.Date("2014-12-16")))
+  expect_equal(collect(select(df, date_sub(df$b, 1)))[, 1],
+               c(as.Date("2012-12-12"), as.Date("2013-12-13"), as.Date("2014-12-14")))
+
+  l2 <- list(list(a = 1L, b = as.POSIXlt("2012-12-13 12:34:00", tz = "UTC")),
+            list(a = 2L, b = as.POSIXlt("2014-12-15 01:24:34", tz = "UTC")))
+  df2 <- createDataFrame(sqlContext, l2)
+  expect_equal(collect(select(df2, minute(df2$b)))[, 1], c(34, 24))
+  expect_equal(collect(select(df2, second(df2$b)))[, 1], c(0, 34))
+  expect_equal(collect(select(df2, from_utc_timestamp(df2$b, "JST")))[, 1],
+               c(as.POSIXlt("2012-12-13 21:34:00 UTC"), as.POSIXlt("2014-12-15 10:24:34 UTC")))
+  expect_equal(collect(select(df2, to_utc_timestamp(df2$b, "JST")))[, 1],
+               c(as.POSIXlt("2012-12-13 03:34:00 UTC"), as.POSIXlt("2014-12-14 16:24:34 UTC")))
+  Sys.setenv(TZ = .originalTimeZone)
+})
 
 #test_that("greatest() and least() on a DataFrame", {
 #  l <- list(list(a = 1, b = 2), list(a = 3, b = 4))
