@@ -578,6 +578,11 @@ writeLines(mockLinesNa, jsonPathNa)
 #  expect_equal(count(selected2), 3)
 #})
 #
+test_that("expr() on a DataFrame", {
+  df <- jsonFile(sqlContext, jsonPath)
+  expect_equal(collect(select(df, expr("abs(-123)")))[1, 1], 123)
+})
+#
 #test_that("column calculation", {
 #  df <- jsonFile(sqlContext, jsonPath)
 #  d <- collect(select(df, alias(df$age + 1, "age2")))

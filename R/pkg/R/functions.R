@@ -287,10 +287,9 @@ setMethod("conv", signature(x = "Column", y = "numeric", z = "numeric"),
 
 #' complicated def expr(expr: String): Column
 #' rdname functions
-setMethod("expr", signature(x = "Column"),
+setMethod("expr", signature(x = "character"),
           function(x) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "expr", x@jc)
+            jc <- callJStatic("org.apache.spark.sql.functions", "expr", x)
             column(jc)
           })
 
