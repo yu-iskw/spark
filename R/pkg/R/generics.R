@@ -903,6 +903,117 @@ setGeneric("weekofyear", function(x) { standardGeneric("weekofyear") })
 setGeneric("year", function(x) { standardGeneric("year") })
 
 
+#' complicated def array_contains(column: Column, value: Any): Column
+#' @rdname functions
+#' @export
+setGeneric("array_contains", function(x, y) { standardGeneric("array_contains") })
+
+#' complicated def concat_ws(sep: String, exprs: Column*): Column
+#' @rdname functions
+#' @export
+setGeneric("concat_ws", function(x, y) { standardGeneric("concat_ws") })
+
+#' complicated def conv(num: Column, fromBase: Int, toBase: Int): Column
+#' @rdname functions
+#' @export
+setGeneric("conv", function(x, y, z) { standardGeneric("conv") })
+
+#' complicated def expr(expr: String): Column
+#' @rdname functions
+#' @export
+setGeneric("expr", function(x) { standardGeneric("expr") })
+
+#' complicated def format_string(format: String, arguments: Column*): Column
+#' @rdname functions
+#' @export
+setGeneric("format_string", function(x, y, ...) { standardGeneric("format_string") })
+
+#' complicated def from_unixtime(ut: Column): Column
+#' complicated def from_unixtime(ut: Column, f: String): Column
+#' @rdname functions
+#' @export
+setGeneric("from_unixtime", function(x, y) { standardGeneric("from_unixtime") })
+
+
+#' complicated def lead(columnName: String, offset: Int): Column
+#' complicated def lead(e: Column, offset: Int, defaultValue: Any): Column
+#' complicated def lead(e: Column, offset: Int): Column
+#' complicated def lead(columnName: String, offset: Int, defaultValue: Any): Column
+#' @rdname functions
+#' @export
+setGeneric("lead", function(x, y, z) { standardGeneric("lead") })
+
+#' complicated def locate(substr: String, str: Column): Column
+#' complicated def locate(substr: String, str: Column, pos: Int): Column
+#' @rdname functions
+#' @export
+setGeneric("locate", function(x, y, z) { standardGeneric("locate") })
+
+#' complicated def lpad(str: Column, len: Int, pad: String): Column
+#' @rdname functions
+#' @export
+setGeneric("lpad", function(x, y, z) { standardGeneric("lpad") })
+
+#' complicated def ntile(n: Int): Column
+#' @rdname functions
+#' @export
+setGeneric("ntile", function(x) { standardGeneric("ntile") })
+
+#' complicated def rand(seed: Long): Column
+#' complicated def rand(): Column
+#' @rdname functions
+#' @export
+setGeneric("rand", function(x) { standardGeneric("rand") })
+
+#' complicated def randn(): Column
+#' complicated def randn(seed: Long): Column
+#' @rdname functions
+#' @export
+setGeneric("randn", function(x) { standardGeneric("randn") })
+
+#' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
+#' @rdname functions
+#' @export
+setGeneric("regexp_extract", function(x, y, z) { standardGeneric("regexp_extract") })
+
+#' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
+#' @rdname functions
+#' @export
+setGeneric("regexp_replace", function(x, y, z) { standardGeneric("regexp_replace") })
+
+#' complicated def rpad(str: Column, len: Int, pad: String): Column
+#' @rdname functions
+#' @export
+setGeneric("rpad", function(x, y, z) { standardGeneric("rpad") })
+
+#' complicated def sort_array(e: Column, asc: Boolean): Column
+#' complicated def sort_array(e: Column): Column
+#' @rdname functions
+#' @export
+setGeneric("sort_array", function(x, y) { standardGeneric("sort_array") })
+
+#' complicated def substring_index(str: Column, delim: String, count: Int): Column
+#' @rdname functions
+#' @export
+setGeneric("substring_index", function(x, y, z) { standardGeneric("substring_index") })
+
+#' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
+#' @rdname functions
+#' @export
+setGeneric("translate", function(x, y, z) { standardGeneric("translate") })
+
+#' complicated def unix_timestamp(s: Column, p: String): Column
+#' complicated def unix_timestamp(): Column
+#' complicated def unix_timestamp(s: Column): Column
+#' @rdname functions
+#' @export
+setGeneric("unix_timestamp", function(x, y) { standardGeneric("unix_timestamp") })
+
+#' complicated def when(condition: Column, value: Any): Column
+#' @rdname functions
+#' @export
+setGeneric("when", function(x, y) { standardGeneric("when") })
+
 #' @rdname glm
 #' @export
 setGeneric("glm")

@@ -643,32 +643,35 @@ writeLines(mockLinesNa, jsonPathNa)
 #  c5 <- c2 ^ c3 ^ c4
 #})
 #
-#test_that("column functions", {
-#  c <- SparkR:::col("a")
-#  c1 <- abs(c) + acos(c) + approxCountDistinct(c) + ascii(c) + asin(c) + atan(c)
-#  c2 <- avg(c) + base64(c) + bin(c) + bitwiseNOT(c) + cbrt(c) + ceil(c) + cos(c)
-#  c3 <- cosh(c) + count(c) + crc32(c) + exp(c)
-#  c4 <- explode(c) + expm1(c) + factorial(c) + first(c) + floor(c) + hex(c)
-#  c5 <- hour(c) + initcap(c) + isNaN(c) + last(c) + last_day(c) + length(c)
-#  c6 <- log(c) + (c) + log1p(c) + log2(c) + lower(c) + ltrim(c) + max(c) + md5(c)
-#  c7 <- mean(c) + min(c) + month(c) + negate(c) + quarter(c)
-#  c8 <- reverse(c) + rint(c) + round(c) + rtrim(c) + sha1(c)
-#  c9 <- signum(c) + sin(c) + sinh(c) + size(c) + soundex(c) + sqrt(c) + sum(c)
-#  c10 <- sumDistinct(c) + tan(c) + tanh(c) + toDegrees(c) + toRadians(c)
-#  c11 <- to_date(c) + trim(c) + unbase64(c) + unhex(c) + upper(c)
-#
-#  df <- jsonFile(sqlContext, jsonPath)
-#  df2 <- select(df, between(df$age, c(20, 30)), between(df$age, c(10, 20)))
-#  expect_equal(collect(df2)[[2, 1]], TRUE)
-#  expect_equal(collect(df2)[[2, 2]], FALSE)
-#  expect_equal(collect(df2)[[3, 1]], FALSE)
-#  expect_equal(collect(df2)[[3, 2]], TRUE)
-#
-#  df3 <- select(df, between(df$name, c("Apache", "Spark")))
-#  expect_equal(collect(df3)[[1, 1]], TRUE)
-#  expect_equal(collect(df3)[[2, 1]], FALSE)
-#  expect_equal(collect(df3)[[3, 1]], TRUE)
-#})
+test_that("column functions", {
+  c <- SparkR:::col("a")
+  c1 <- abs(c) + acos(c) + approxCountDistinct(c) + ascii(c) + asin(c) + atan(c)
+  c2 <- avg(c) + base64(c) + bin(c) + bitwiseNOT(c) + cbrt(c) + ceil(c) + cos(c)
+  c3 <- cosh(c) + count(c) + crc32(c) + exp(c)
+  c4 <- explode(c) + expm1(c) + factorial(c) + first(c) + floor(c) + hex(c)
+  c5 <- hour(c) + initcap(c) + isNaN(c) + last(c) + last_day(c) + length(c)
+  c6 <- log(c) + (c) + log1p(c) + log2(c) + lower(c) + ltrim(c) + max(c) + md5(c)
+  c7 <- mean(c) + min(c) + month(c) + negate(c) + quarter(c)
+  c8 <- reverse(c) + rint(c) + round(c) + rtrim(c) + sha1(c)
+  c9 <- signum(c) + sin(c) + sinh(c) + size(c) + soundex(c) + sqrt(c) + sum(c)
+  c10 <- sumDistinct(c) + tan(c) + tanh(c) + toDegrees(c) + toRadians(c)
+  c11 <- to_date(c) + trim(c) + unbase64(c) + unhex(c) + upper(c)
+
+  df <- jsonFile(sqlContext, jsonPath)
+  df2 <- select(df, between(df$age, c(20, 30)), between(df$age, c(10, 20)))
+  expect_equal(collect(df2)[[2, 1]], TRUE)
+  expect_equal(collect(df2)[[2, 2]], FALSE)
+  expect_equal(collect(df2)[[3, 1]], FALSE)
+  expect_equal(collect(df2)[[3, 2]], TRUE)
+
+  df3 <- select(df, between(df$name, c("Apache", "Spark")))
+  expect_equal(collect(df3)[[1, 1]], TRUE)
+  expect_equal(collect(df3)[[2, 1]], FALSE)
+  expect_equal(collect(df3)[[3, 1]], TRUE)
+
+  df4 <- createDataFrame(sqlContext, list(list(a = "010101")))
+  expect_equal(collect(select(df4, conv(df4$a, 2, 16)))[1, 1], "15")
+})
 #
 test_that("column binary mathfunctions", {
   lines <- c("{\"a\":1, \"b\":5}",

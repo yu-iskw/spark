@@ -256,3 +256,211 @@ setMethod("shiftRightUnsigned", signature(y = "Column", x = "numeric"),
             jc <- callJStatic("org.apache.spark.sql.functions", "shiftRightUnsigned", y@jc, as.integer(x))
             column(jc)
           })
+
+#' complicated def array_contains(column: Column, value: Any): Column
+#' rdname functions
+setMethod("array_contains", signature(x = "Column"),
+          function(x, y) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "array_contains", x@jc, y)
+            column(jc)
+          })
+
+#' complicated def concat_ws(sep: String, exprs: Column*): Column
+#' rdname functions
+setMethod("concat_ws", signature(x = "Column"),
+          function(x, y) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "concat_ws", x@jc, y)
+            column(jc)
+          })
+
+#' complicated def conv(num: Column, fromBase: Int, toBase: Int): Column
+#' rdname functions
+setMethod("conv", signature(x = "Column", y = "numeric", z = "numeric"),
+          function(x, y, z) {
+            y <- as.integer(y)
+            z <- as.integer(z)
+            jc <- callJStatic("org.apache.spark.sql.functions", "conv", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def expr(expr: String): Column
+#' rdname functions
+setMethod("expr", signature(x = "Column"),
+          function(x) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "expr", x@jc)
+            column(jc)
+          })
+
+#' complicated def format_string(format: String, arguments: Column*): Column
+#' rdname functions
+setMethod("format_string", signature(x = "character", y = "Column"),
+          function(x, y, ...) {
+            jcols <- lapply(list(y, ...), function(x) { x@jc })
+            jc <- callJStatic("org.apache.spark.sql.functions", "format_string", x, jcols)
+            column(jc)
+          })
+
+#' complicated def from_unixtime(ut: Column): Column
+#' complicated def from_unixtime(ut: Column, f: String): Column
+#' rdname functions
+setMethod("from_unixtime", signature(x = "Column"),
+          function(x, y) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "from_unixtime", x@jc, y)
+            column(jc)
+          })
+
+#' complicated def lead(columnName: String, offset: Int): Column
+#' complicated def lead(e: Column, offset: Int, defaultValue: Any): Column
+#' complicated def lead(e: Column, offset: Int): Column
+#' complicated def lead(columnName: String, offset: Int, defaultValue: Any): Column
+#' rdname functions
+setMethod("lead", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "lead", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def lit(literal: Any): Column
+#' rdname functions
+setMethod("lit", signature(x = "Column"),
+          function(x) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "lit", x@jc)
+            column(jc)
+          })
+
+#' complicated def locate(substr: String, str: Column): Column
+#' complicated def locate(substr: String, str: Column, pos: Int): Column
+#' rdname functions
+setMethod("locate", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "locate", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def lpad(str: Column, len: Int, pad: String): Column
+#' rdname functions
+setMethod("lpad", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "lpad", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def monotonicallyIncreasingId(): Column
+
+#' complicated def ntile(n: Int): Column
+#' rdname functions
+setMethod("ntile", signature(x = "Column"),
+          function(x) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "ntile", x@jc)
+            column(jc)
+          })
+
+
+#' complicated def rand(seed: Long): Column
+#' complicated def rand(): Column
+#' rdname functions
+setMethod("rand", signature(x = "Column"),
+          function(x) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "rand", x@jc)
+            column(jc)
+          })
+
+#' complicated def randn(): Column
+#' complicated def randn(seed: Long): Column
+#' rdname functions
+setMethod("randn", signature(x = "Column"),
+          function(x) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "randn", x@jc)
+            column(jc)
+          })
+
+#' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
+#' rdname functions
+setMethod("regexp_extract", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "regexp_extract", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
+#' rdname functions
+setMethod("regexp_replace", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "regexp_replace", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def rowNumber(): Column
+
+#' complicated def rpad(str: Column, len: Int, pad: String): Column
+#' rdname functions
+setMethod("rpad", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "rpad", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def sort_array(e: Column): Column
+#' complicated def sort_array(e: Column, asc: Boolean): Column
+#' rdname functions
+setMethod("sort_array", signature(x = "Column", y = "logical"),
+          function(x, y) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "sort_array", x@jc, y)
+            column(jc)
+          })
+
+#' complicated def sparkPartitionId(): Column
+
+#' complicated def substring_index(str: Column, delim: String, count: Int): Column
+#' rdname functions
+setMethod("substring_index", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "substring_index", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
+#' rdname functions
+setMethod("translate", signature(x = "Column"),
+          function(x, y, z) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "translate", x@jc, y, z)
+            column(jc)
+          })
+
+#' complicated def unix_timestamp(s: Column, p: String): Column
+#' complicated def unix_timestamp(): Column
+#' complicated def unix_timestamp(s: Column): Column
+#' rdname functions
+setMethod("unix_timestamp", signature(x = "Column"),
+          function(x, y) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc, y)
+            column(jc)
+          })
+
+#' complicated def when(condition: Column, value: Any): Column
+#' rdname functions
+setMethod("when", signature(x = "Column"),
+          function(x, y) {
+            # TODO
+            jc <- callJStatic("org.apache.spark.sql.functions", "when", x@jc, y)
+            column(jc)
+          })
+
