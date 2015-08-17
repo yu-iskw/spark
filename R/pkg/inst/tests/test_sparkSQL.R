@@ -727,6 +727,11 @@ test_that("string operators", {
   expect_equal(collect(select(df2, locate("aa", df2$a, 1)))[1, 1], 2)
   expect_equal(collect(select(df2, lpad(df2$a, 8, "#")))[1, 1], "###aaads")
   expect_equal(collect(select(df2, rpad(df2$a, 8, "#")))[1, 1], "aaads###")
+
+  l3 <- list(list(a = "a.b.c.d"))
+  df3 <- createDataFrame(sqlContext, l3)
+  expect_equal(collect(select(df3, substring_index(df3$a, ".", 2)))[1, 1], "a.b")
+  expect_equal(collect(select(df3, substring_index(df3$a, ".", -3)))[1, 1], "b.c.d")
 })
 
 test_that("date functions on a DataFrame", {

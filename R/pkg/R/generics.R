@@ -973,16 +973,10 @@ setGeneric("regexp_replace", function(x, pattern, replacement) { standardGeneric
 #' @export
 setGeneric("rpad", function(x, len, pad) { standardGeneric("rpad") })
 
-#' complicated def sort_array(e: Column, asc: Boolean): Column
-#' complicated def sort_array(e: Column): Column
-#' @rdname functions
-#' @export
-setGeneric("sort_array", function(x, y) { standardGeneric("sort_array") })
-
 #' complicated def substring_index(str: Column, delim: String, count: Int): Column
 #' @rdname functions
 #' @export
-setGeneric("substring_index", function(x, y, z) { standardGeneric("substring_index") })
+setGeneric("substring_index", function(x, delim, count) { standardGeneric("substring_index") })
 
 #' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
 #' @rdname functions

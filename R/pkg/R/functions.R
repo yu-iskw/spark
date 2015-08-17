@@ -381,22 +381,11 @@ setMethod("rpad", signature(x = "Column", len = "numeric", pad = "character"),
             column(jc)
           })
 
-#' complicated def sort_array(e: Column): Column
-#' complicated def sort_array(e: Column, asc: Boolean): Column
-#' rdname functions
-setMethod("sort_array", signature(x = "Column", y = "logical"),
-          function(x, y) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "sort_array", x@jc, y)
-            column(jc)
-          })
-
 #' complicated def substring_index(str: Column, delim: String, count: Int): Column
 #' rdname functions
-setMethod("substring_index", signature(x = "Column"),
-          function(x, y, z) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "substring_index", x@jc, y, z)
+setMethod("substring_index", signature(x = "Column", delim = "character", count = "numeric"),
+          function(x, delim, count) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "substring_index", x@jc, delim, as.integer(count))
             column(jc)
           })
 
