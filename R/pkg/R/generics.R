@@ -944,7 +944,7 @@ setGeneric("locate", function(x, y, ...) { standardGeneric("locate") })
 #' complicated def lpad(str: Column, len: Int, pad: String): Column
 #' @rdname functions
 #' @export
-setGeneric("lpad", function(x, y, z) { standardGeneric("lpad") })
+setGeneric("lpad", function(x, len, pad) { standardGeneric("lpad") })
 
 #' complicated def rand(seed: Long): Column
 #' complicated def rand(): Column

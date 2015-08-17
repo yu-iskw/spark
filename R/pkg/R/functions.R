@@ -322,10 +322,9 @@ setMethod("locate", signature(x = "character", y = "Column"),
 
 #' complicated def lpad(str: Column, len: Int, pad: String): Column
 #' rdname functions
-setMethod("lpad", signature(x = "Column"),
-          function(x, y, z) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "lpad", x@jc, y, z)
+setMethod("lpad", signature(x = "Column", len = "numeric", pad = "character"),
+          function(x, len, pad) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "lpad", x@jc, as.integer(len), pad)
             column(jc)
           })
 
