@@ -699,6 +699,10 @@ test_that("column binary mathfunctions", {
   expect_equal(collect(select(df, shiftLeft(df$b, 1)))[4, 1], 16)
   expect_equal(collect(select(df, shiftRight(df$b, 1)))[4, 1], 4)
   expect_equal(collect(select(df, shiftRightUnsigned(df$b, 1)))[4, 1], 4)
+  expect_equal(class(collect(select(df, rand()))[2, 1]), "numeric")
+  expect_equal(collect(select(df, rand(1)))[1, 1], 0.45, tolerance = 0.01)
+  expect_equal(class(collect(select(df, randn()))[2, 1]), "numeric")
+  expect_equal(collect(select(df, randn(1)))[1, 1], -0.0111, tolerance = 0.01)
 })
 
 test_that("string operators", {

@@ -950,13 +950,13 @@ setGeneric("lpad", function(x, len, pad) { standardGeneric("lpad") })
 #' complicated def rand(): Column
 #' @rdname functions
 #' @export
-setGeneric("rand", function(x) { standardGeneric("rand") })
+setGeneric("rand", function(seed) { standardGeneric("rand") })
 
 #' complicated def randn(): Column
 #' complicated def randn(seed: Long): Column
 #' @rdname functions
 #' @export
-setGeneric("randn", function(x) { standardGeneric("randn") })
+setGeneric("randn", function(seed) { standardGeneric("randn") })
 
 #' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
 #' @rdname functions

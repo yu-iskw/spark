@@ -331,20 +331,28 @@ setMethod("lpad", signature(x = "Column", len = "numeric", pad = "character"),
 #' complicated def rand(seed: Long): Column
 #' complicated def rand(): Column
 #' rdname functions
-setMethod("rand", signature(x = "Column"),
-          function(x) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "rand", x@jc)
+setMethod("rand", signature(seed = "missing"),
+          function(seed) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "rand")
+            column(jc)
+          })
+setMethod("rand", signature(seed = "numeric"),
+          function(seed) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "rand", as.integer(seed))
             column(jc)
           })
 
 #' complicated def randn(): Column
 #' complicated def randn(seed: Long): Column
 #' rdname functions
-setMethod("randn", signature(x = "Column"),
-          function(x) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "randn", x@jc)
+setMethod("randn", signature(seed = "missing"),
+          function(seed) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "randn")
+            column(jc)
+          })
+setMethod("randn", signature(seed = "numeric"),
+          function(seed) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "randn", as.integer(seed))
             column(jc)
           })
 
