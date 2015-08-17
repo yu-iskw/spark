@@ -961,7 +961,7 @@ setGeneric("randn", function(seed) { standardGeneric("randn") })
 #' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
 #' @rdname functions
 #' @export
-setGeneric("regexp_extract", function(x, y, z) { standardGeneric("regexp_extract") })
+setGeneric("regexp_extract", function(x, pattern, idx) { standardGeneric("regexp_extract") })
 
 #' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
 #' @rdname functions

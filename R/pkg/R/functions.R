@@ -358,10 +358,9 @@ setMethod("randn", signature(seed = "numeric"),
 
 #' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
 #' rdname functions
-setMethod("regexp_extract", signature(x = "Column"),
-          function(x, y, z) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "regexp_extract", x@jc, y, z)
+setMethod("regexp_extract", signature(x = "Column", pattern = "character", idx = "numeric"),
+          function(x, pattern, idx) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "regexp_extract", x@jc, pattern, as.integer(idx))
             column(jc)
           })
 
