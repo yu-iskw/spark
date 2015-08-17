@@ -971,7 +971,7 @@ setGeneric("regexp_replace", function(x, pattern, replacement) { standardGeneric
 #' complicated def rpad(str: Column, len: Int, pad: String): Column
 #' @rdname functions
 #' @export
-setGeneric("rpad", function(x, y, z) { standardGeneric("rpad") })
+setGeneric("rpad", function(x, len, pad) { standardGeneric("rpad") })
 
 #' complicated def sort_array(e: Column, asc: Boolean): Column
 #' complicated def sort_array(e: Column): Column

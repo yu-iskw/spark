@@ -375,10 +375,9 @@ setMethod("regexp_replace", signature(x = "Column", pattern = "character", repla
 
 #' complicated def rpad(str: Column, len: Int, pad: String): Column
 #' rdname functions
-setMethod("rpad", signature(x = "Column"),
-          function(x, y, z) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "rpad", x@jc, y, z)
+setMethod("rpad", signature(x = "Column", len = "numeric", pad = "character"),
+          function(x, len, pad) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "rpad", x@jc, as.integer(len), pad)
             column(jc)
           })
 
