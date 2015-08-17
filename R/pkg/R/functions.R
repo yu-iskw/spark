@@ -366,10 +366,10 @@ setMethod("regexp_extract", signature(x = "Column", pattern = "character", idx =
 
 #' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
 #' rdname functions
-setMethod("regexp_replace", signature(x = "Column"),
-          function(x, y, z) {
+setMethod("regexp_replace", signature(x = "Column", pattern = "character", replacement = "character"),
+          function(x, pattern, replacement) {
             # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "regexp_replace", x@jc, y, z)
+            jc <- callJStatic("org.apache.spark.sql.functions", "regexp_replace", x@jc, pattern, replacement)
             column(jc)
           })
 

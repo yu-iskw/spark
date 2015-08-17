@@ -719,6 +719,7 @@ test_that("string operators", {
                "80f2aed3c618c423ddf05a2891229fba44942d907173152442cf6591441ed6dc")
   expect_equal(collect(select(df, format_string("%s, %d", df$name, df$age)))[2, 1], "Andy, 30")
   expect_equal(collect(select(df, regexp_extract(df$name, "(n.y)", 1)))[2, 1], "ndy")
+  expect_equal(collect(select(df, regexp_replace(df$name, "(n.y)", "ydn")))[2, 1], "Aydn")
 
   l2 <- list(list(a = "aaads"))
   df2 <- createDataFrame(sqlContext, l2)

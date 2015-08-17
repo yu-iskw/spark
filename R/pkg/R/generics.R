@@ -966,7 +966,7 @@ setGeneric("regexp_extract", function(x, pattern, idx) { standardGeneric("regexp
 #' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
 #' @rdname functions
 #' @export
-setGeneric("regexp_replace", function(x, y, z) { standardGeneric("regexp_replace") })
+setGeneric("regexp_replace", function(x, pattern, replacement) { standardGeneric("regexp_replace") })
 
 #' complicated def rpad(str: Column, len: Int, pad: String): Column
 #' @rdname functions
