@@ -391,10 +391,10 @@ setMethod("substring_index", signature(x = "Column", delim = "character", count 
 
 #' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
 #' rdname functions
-setMethod("translate", signature(x = "Column"),
-          function(x, y, z) {
+setMethod("translate", signature(x = "Column", matchingString = "character", replaceString = "character"),
+          function(x, matchingString, replaceString) {
             # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "translate", x@jc, y, z)
+            jc <- callJStatic("org.apache.spark.sql.functions", "translate", x@jc, matchingString, replaceString)
             column(jc)
           })
 

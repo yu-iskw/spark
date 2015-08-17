@@ -732,6 +732,7 @@ test_that("string operators", {
   df3 <- createDataFrame(sqlContext, l3)
   expect_equal(collect(select(df3, substring_index(df3$a, ".", 2)))[1, 1], "a.b")
   expect_equal(collect(select(df3, substring_index(df3$a, ".", -3)))[1, 1], "b.c.d")
+  expect_equal(collect(select(df3, translate(df3$a, "bc", "12")))[1, 1], "a.1.2.d")
 })
 
 test_that("date functions on a DataFrame", {

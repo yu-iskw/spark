@@ -981,7 +981,7 @@ setGeneric("substring_index", function(x, delim, count) { standardGeneric("subst
 #' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
 #' @rdname functions
 #' @export
-setGeneric("translate", function(x, y, z) { standardGeneric("translate") })
+setGeneric("translate", function(x, matchingString, replaceString) { standardGeneric("translate") })
 
 #' complicated def unix_timestamp(s: Column, p: String): Column
 #' complicated def unix_timestamp(): Column
