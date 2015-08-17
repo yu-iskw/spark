@@ -935,29 +935,16 @@ setGeneric("format_string", function(x, y, ...) { standardGeneric("format_string
 setGeneric("from_unixtime", function(x, ...) { standardGeneric("from_unixtime") })
 
 
-#' complicated def lead(columnName: String, offset: Int): Column
-#' complicated def lead(e: Column, offset: Int, defaultValue: Any): Column
-#' complicated def lead(e: Column, offset: Int): Column
-#' complicated def lead(columnName: String, offset: Int, defaultValue: Any): Column
-#' @rdname functions
-#' @export
-setGeneric("lead", function(x, y, z) { standardGeneric("lead") })
-
 #' complicated def locate(substr: String, str: Column): Column
 #' complicated def locate(substr: String, str: Column, pos: Int): Column
 #' @rdname functions
 #' @export
-setGeneric("locate", function(x, y, z) { standardGeneric("locate") })
+setGeneric("locate", function(x, y, ...) { standardGeneric("locate") })
 
 #' complicated def lpad(str: Column, len: Int, pad: String): Column
 #' @rdname functions
 #' @export
 setGeneric("lpad", function(x, y, z) { standardGeneric("lpad") })
-
-#' complicated def ntile(n: Int): Column
-#' @rdname functions
-#' @export
-setGeneric("ntile", function(x) { standardGeneric("ntile") })
 
 #' complicated def rand(seed: Long): Column
 #' complicated def rand(): Column

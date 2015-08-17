@@ -311,34 +311,12 @@ setMethod("from_unixtime", signature(x = "Column"),
             column(jc)
           })
 
-#' complicated def lead(columnName: String, offset: Int): Column
-#' complicated def lead(e: Column, offset: Int, defaultValue: Any): Column
-#' complicated def lead(e: Column, offset: Int): Column
-#' complicated def lead(columnName: String, offset: Int, defaultValue: Any): Column
-#' rdname functions
-setMethod("lead", signature(x = "Column"),
-          function(x, y, z) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "lead", x@jc, y, z)
-            column(jc)
-          })
-
-#' complicated def lit(literal: Any): Column
-#' rdname functions
-setMethod("lit", signature(x = "Column"),
-          function(x) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "lit", x@jc)
-            column(jc)
-          })
-
 #' complicated def locate(substr: String, str: Column): Column
 #' complicated def locate(substr: String, str: Column, pos: Int): Column
 #' rdname functions
-setMethod("locate", signature(x = "Column"),
-          function(x, y, z) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "locate", x@jc, y, z)
+setMethod("locate", signature(x = "character", y = "Column"),
+          function(x, y, pos = 0) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "locate", x, y@jc, as.integer(pos))
             column(jc)
           })
 
@@ -350,18 +328,6 @@ setMethod("lpad", signature(x = "Column"),
             jc <- callJStatic("org.apache.spark.sql.functions", "lpad", x@jc, y, z)
             column(jc)
           })
-
-#' complicated def monotonicallyIncreasingId(): Column
-
-#' complicated def ntile(n: Int): Column
-#' rdname functions
-setMethod("ntile", signature(x = "Column"),
-          function(x) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "ntile", x@jc)
-            column(jc)
-          })
-
 
 #' complicated def rand(seed: Long): Column
 #' complicated def rand(): Column
@@ -401,8 +367,6 @@ setMethod("regexp_replace", signature(x = "Column"),
             column(jc)
           })
 
-#' complicated def rowNumber(): Column
-
 #' complicated def rpad(str: Column, len: Int, pad: String): Column
 #' rdname functions
 setMethod("rpad", signature(x = "Column"),
@@ -421,8 +385,6 @@ setMethod("sort_array", signature(x = "Column", y = "logical"),
             jc <- callJStatic("org.apache.spark.sql.functions", "sort_array", x@jc, y)
             column(jc)
           })
-
-#' complicated def sparkPartitionId(): Column
 
 #' complicated def substring_index(str: Column, delim: String, count: Int): Column
 #' rdname functions
