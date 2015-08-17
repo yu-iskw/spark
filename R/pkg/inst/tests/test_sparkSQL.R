@@ -713,6 +713,7 @@ test_that("string operators", {
   expect_equal(collect(select(df, sha1(df$name)))[2, 1], "ab5a000e88b5d9d0fa2575f5c6263eb93452405d")
   expect_equal(collect(select(df, sha2(df$name, 256)))[2, 1],
                "80f2aed3c618c423ddf05a2891229fba44942d907173152442cf6591441ed6dc")
+  expect_equal(collect(select(df, format_string("%s, %d", df$name, df$age)))[2, 1], "Andy, 30")
 })
 
 test_that("date functions on a DataFrame", {

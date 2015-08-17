@@ -297,7 +297,7 @@ setMethod("expr", signature(x = "character"),
 #' rdname functions
 setMethod("format_string", signature(x = "character", y = "Column"),
           function(x, y, ...) {
-            jcols <- lapply(list(y, ...), function(x) { x@jc })
+            jcols <- listToSeq(lapply(list(y, ...), function(x) { x@jc }))
             jc <- callJStatic("org.apache.spark.sql.functions", "format_string", x, jcols)
             column(jc)
           })
