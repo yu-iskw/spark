@@ -306,9 +306,8 @@ setMethod("format_string", signature(x = "character", y = "Column"),
 #' complicated def from_unixtime(ut: Column, f: String): Column
 #' rdname functions
 setMethod("from_unixtime", signature(x = "Column"),
-          function(x, y) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "from_unixtime", x@jc, y)
+          function(x, format = "yyyy-MM-dd HH:mm:ss") {
+            jc <- callJStatic("org.apache.spark.sql.functions", "from_unixtime", x@jc, format)
             column(jc)
           })
 

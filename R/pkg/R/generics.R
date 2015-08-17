@@ -932,7 +932,7 @@ setGeneric("format_string", function(x, y, ...) { standardGeneric("format_string
 #' complicated def from_unixtime(ut: Column, f: String): Column
 #' @rdname functions
 #' @export
-setGeneric("from_unixtime", function(x, y) { standardGeneric("from_unixtime") })
+setGeneric("from_unixtime", function(x, ...) { standardGeneric("from_unixtime") })
 
 
 #' complicated def lead(columnName: String, offset: Int): Column
