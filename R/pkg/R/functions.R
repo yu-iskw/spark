@@ -402,10 +402,19 @@ setMethod("translate", signature(x = "Column", matchingString = "character", rep
 #' complicated def unix_timestamp(): Column
 #' complicated def unix_timestamp(s: Column): Column
 #' rdname functions
-setMethod("unix_timestamp", signature(x = "Column"),
-          function(x, y) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc, y)
+setMethod("unix_timestamp", signature(x = "missing", format = "missing"),
+          function(x, format) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp")
+            column(jc)
+          })
+setMethod("unix_timestamp", signature(x = "Column", format = "missing"),
+          function(x, format) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc)
+            column(jc)
+          })
+setMethod("unix_timestamp", signature(x = "Column", format = "character"),
+          function(x, format = 'yyyy-MM-dd HH:mm:ss') {
+            jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc, format)
             column(jc)
           })
 

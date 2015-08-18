@@ -768,6 +768,9 @@ test_that("date functions on a DataFrame", {
                c(as.POSIXlt("2012-12-13 21:34:00 UTC"), as.POSIXlt("2014-12-15 10:24:34 UTC")))
   expect_equal(collect(select(df2, to_utc_timestamp(df2$b, "JST")))[, 1],
                c(as.POSIXlt("2012-12-13 03:34:00 UTC"), as.POSIXlt("2014-12-14 16:24:34 UTC")))
+  expect_more_than(collect(select(df2, unix_timestamp()))[1, 1], 0)
+  expect_equal(collect(select(df2, unix_timestamp(df2$b)))[1, 1], 1355402040)
+  expect_equal(collect(select(df2, unix_timestamp(lit("2015-01-01"), "yyyy-MM-dd")))[1, 1], 1420038000)
 
   l3 <- list(list(a = 1000), list(a = -1000))
   df3 <- createDataFrame(sqlContext, l3)

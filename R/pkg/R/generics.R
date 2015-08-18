@@ -988,7 +988,7 @@ setGeneric("translate", function(x, matchingString, replaceString) { standardGen
 #' complicated def unix_timestamp(s: Column): Column
 #' @rdname functions
 #' @export
-setGeneric("unix_timestamp", function(x, y) { standardGeneric("unix_timestamp") })
+setGeneric("unix_timestamp", function(x, format) { standardGeneric("unix_timestamp") })
 
 #' complicated def when(condition: Column, value: Any): Column
 #' @rdname functions
