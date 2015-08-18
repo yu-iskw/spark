@@ -692,7 +692,7 @@ setGeneric("concat", function(x, ...) { standardGeneric("concat") })
 
 #' @rdname functions
 #' @export
-setGeneric("concat_ws", function(sep, x) { standardGeneric("concat_ws") })
+setGeneric("concat_ws", function(sep, x, ...) { standardGeneric("concat_ws") })
 
 #' @rdname functions
 #' @export
@@ -852,7 +852,8 @@ setGeneric("regexp_extract", function(x, pattern, idx) { standardGeneric("regexp
 
 #' @rdname functions
 #' @export
-setGeneric("regexp_replace", function(x, pattern, replacement) { standardGeneric("regexp_replace") })
+setGeneric("regexp_replace",
+           function(x, pattern, replacement) { standardGeneric("regexp_replace") })
 
 #' @rdname functions
 #' @export
