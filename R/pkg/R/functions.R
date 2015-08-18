@@ -417,13 +417,3 @@ setMethod("unix_timestamp", signature(x = "Column", format = "character"),
             jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc, format)
             column(jc)
           })
-
-#' complicated def when(condition: Column, value: Any): Column
-#' rdname functions
-setMethod("when", signature(x = "Column"),
-          function(x, y) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "when", x@jc, y)
-            column(jc)
-          })
-

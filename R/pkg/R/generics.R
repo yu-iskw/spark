@@ -993,7 +993,7 @@ setGeneric("unix_timestamp", function(x, format) { standardGeneric("unix_timesta
 #' complicated def when(condition: Column, value: Any): Column
 #' @rdname functions
 #' @export
-setGeneric("when", function(x, y) { standardGeneric("when") })
+setGeneric("when", function(condition, value) { standardGeneric("when") })
 
 #' @rdname glm
 #' @export
