@@ -585,6 +585,14 @@ setGeneric("cast", function(x, dataType) { standardGeneric("cast") })
 
 #' @rdname column
 #' @export
+setGeneric("col", function(x) { standardGeneric("col") })
+
+#' @rdname column
+#' @export
+setGeneric("column", function(jc) { standardGeneric("column") })
+
+#' @rdname column
+#' @export
 setGeneric("contains", function(x, ...) { standardGeneric("contains") })
 
 #' @rdname column

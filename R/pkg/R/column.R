@@ -37,13 +37,25 @@ setMethod("initialize", "Column", function(.Object, jc) {
   .Object
 })
 
-column <- function(jc) {
-  new("Column", jc)
-}
+#' column
+#'
+#' Returns a Column based on the given column name. Alias of col.
+#'
+#' @rdname column
+setMethod("column", signature(jc = "character"),
+          function(jc) {
+            new("Column", jc)
+          })
 
-col <- function(x) {
-  column(callJStatic("org.apache.spark.sql.functions", "col", x))
-}
+#' col
+#'
+#' Returns a Column based on the given column name.
+#'
+#' @rdname column
+setMethod("col", signature(x = "character"),
+          function(x) {
+            column(callJStatic("org.apache.spark.sql.functions", "col", x))
+          })
 
 #' @rdname show
 setMethod("show", "Column",
