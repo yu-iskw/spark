@@ -692,6 +692,14 @@ setGeneric("concat", function(x, ...) { standardGeneric("concat") })
 
 #' @rdname functions
 #' @export
+setGeneric("concat_ws", function(sep, x) { standardGeneric("concat_ws") })
+
+#' @rdname functions
+#' @export
+setGeneric("conv", function(x, fromBase, toBase) { standardGeneric("conv") })
+
+#' @rdname functions
+#' @export
 setGeneric("crc32", function(x) { standardGeneric("crc32") })
 
 #' @rdname functions
@@ -724,11 +732,23 @@ setGeneric("explode", function(x) { standardGeneric("explode") })
 
 #' @rdname functions
 #' @export
+setGeneric("expr", function(x) { standardGeneric("expr") })
+
+#' @rdname functions
+#' @export
 setGeneric("from_utc_timestamp", function(y, x) { standardGeneric("from_utc_timestamp") })
 
 #' @rdname functions
 #' @export
 setGeneric("format_number", function(y, x) { standardGeneric("format_number") })
+
+#' @rdname functions
+#' @export
+setGeneric("format_string", function(format, x, ...) { standardGeneric("format_string") })
+
+#' @rdname functions
+#' @export
+setGeneric("from_unixtime", function(x, ...) { standardGeneric("from_unixtime") })
 
 #' @rdname column
 #' @export
@@ -768,7 +788,15 @@ setGeneric("levenshtein", function(y, x) { standardGeneric("levenshtein") })
 
 #' @rdname functions
 #' @export
+setGeneric("locate", function(substr, str, ...) { standardGeneric("locate") })
+
+#' @rdname functions
+#' @export
 setGeneric("lower", function(x) { standardGeneric("lower") })
+
+#' @rdname functions
+#' @export
+setGeneric("lpad", function(x, len, pad) { standardGeneric("lpad") })
 
 #' @rdname functions
 #' @export
@@ -812,7 +840,27 @@ setGeneric("quarter", function(x) { standardGeneric("quarter") })
 
 #' @rdname functions
 #' @export
+setGeneric("rand", function(seed) { standardGeneric("rand") })
+
+#' @rdname functions
+#' @export
+setGeneric("randn", function(seed) { standardGeneric("randn") })
+
+#' @rdname functions
+#' @export
+setGeneric("regexp_extract", function(x, pattern, idx) { standardGeneric("regexp_extract") })
+
+#' @rdname functions
+#' @export
+setGeneric("regexp_replace", function(x, pattern, replacement) { standardGeneric("regexp_replace") })
+
+#' @rdname functions
+#' @export
 setGeneric("reverse", function(x) { standardGeneric("reverse") })
+
+#' @rdname functions
+#' @export
+setGeneric("rpad", function(x, len, pad) { standardGeneric("rpad") })
 
 #' @rdname functions
 #' @export
@@ -860,6 +908,10 @@ setGeneric("struct", function(x, ...) { standardGeneric("struct") })
 
 #' @rdname functions
 #' @export
+setGeneric("substring_index", function(x, delim, count) { standardGeneric("substring_index") })
+
+#' @rdname functions
+#' @export
 setGeneric("sumDistinct", function(x) { standardGeneric("sumDistinct") })
 
 #' @rdname functions
@@ -880,6 +932,10 @@ setGeneric("to_utc_timestamp", function(y, x) { standardGeneric("to_utc_timestam
 
 #' @rdname functions
 #' @export
+setGeneric("translate", function(x, matchingString, replaceString) { standardGeneric("translate") })
+
+#' @rdname functions
+#' @export
 setGeneric("trim", function(x) { standardGeneric("trim") })
 
 #' @rdname functions
@@ -889,6 +945,10 @@ setGeneric("unbase64", function(x) { standardGeneric("unbase64") })
 #' @rdname functions
 #' @export
 setGeneric("unhex", function(x) { standardGeneric("unhex") })
+
+#' @rdname functions
+#' @export
+setGeneric("unix_timestamp", function(x, format) { standardGeneric("unix_timestamp") })
 
 #' @rdname functions
 #' @export
@@ -902,98 +962,6 @@ setGeneric("weekofyear", function(x) { standardGeneric("weekofyear") })
 #' @export
 setGeneric("year", function(x) { standardGeneric("year") })
 
-
-#' complicated def array_contains(column: Column, value: Any): Column
-#' @rdname functions
-#' @export
-setGeneric("array_contains", function(x, y) { standardGeneric("array_contains") })
-
-#' complicated def concat_ws(sep: String, exprs: Column*): Column
-#' @rdname functions
-#' @export
-setGeneric("concat_ws", function(x, y) { standardGeneric("concat_ws") })
-
-#' complicated def conv(num: Column, fromBase: Int, toBase: Int): Column
-#' @rdname functions
-#' @export
-setGeneric("conv", function(x, y, z) { standardGeneric("conv") })
-
-#' complicated def expr(expr: String): Column
-#' @rdname functions
-#' @export
-setGeneric("expr", function(x) { standardGeneric("expr") })
-
-#' complicated def format_string(format: String, arguments: Column*): Column
-#' @rdname functions
-#' @export
-setGeneric("format_string", function(x, y, ...) { standardGeneric("format_string") })
-
-#' complicated def from_unixtime(ut: Column): Column
-#' complicated def from_unixtime(ut: Column, f: String): Column
-#' @rdname functions
-#' @export
-setGeneric("from_unixtime", function(x, ...) { standardGeneric("from_unixtime") })
-
-
-#' complicated def locate(substr: String, str: Column): Column
-#' complicated def locate(substr: String, str: Column, pos: Int): Column
-#' @rdname functions
-#' @export
-setGeneric("locate", function(x, y, ...) { standardGeneric("locate") })
-
-#' complicated def lpad(str: Column, len: Int, pad: String): Column
-#' @rdname functions
-#' @export
-setGeneric("lpad", function(x, len, pad) { standardGeneric("lpad") })
-
-#' complicated def rand(seed: Long): Column
-#' complicated def rand(): Column
-#' @rdname functions
-#' @export
-setGeneric("rand", function(seed) { standardGeneric("rand") })
-
-#' complicated def randn(): Column
-#' complicated def randn(seed: Long): Column
-#' @rdname functions
-#' @export
-setGeneric("randn", function(seed) { standardGeneric("randn") })
-
-#' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
-#' @rdname functions
-#' @export
-setGeneric("regexp_extract", function(x, pattern, idx) { standardGeneric("regexp_extract") })
-
-#' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
-#' @rdname functions
-#' @export
-setGeneric("regexp_replace", function(x, pattern, replacement) { standardGeneric("regexp_replace") })
-
-#' complicated def rpad(str: Column, len: Int, pad: String): Column
-#' @rdname functions
-#' @export
-setGeneric("rpad", function(x, len, pad) { standardGeneric("rpad") })
-
-#' complicated def substring_index(str: Column, delim: String, count: Int): Column
-#' @rdname functions
-#' @export
-setGeneric("substring_index", function(x, delim, count) { standardGeneric("substring_index") })
-
-#' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
-#' @rdname functions
-#' @export
-setGeneric("translate", function(x, matchingString, replaceString) { standardGeneric("translate") })
-
-#' complicated def unix_timestamp(s: Column, p: String): Column
-#' complicated def unix_timestamp(): Column
-#' complicated def unix_timestamp(s: Column): Column
-#' @rdname functions
-#' @export
-setGeneric("unix_timestamp", function(x, format) { standardGeneric("unix_timestamp") })
-
-#' complicated def when(condition: Column, value: Any): Column
-#' @rdname functions
-#' @export
-setGeneric("when", function(condition, value) { standardGeneric("when") })
 
 #' @rdname glm
 #' @export

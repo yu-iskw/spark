@@ -257,80 +257,97 @@ setMethod("shiftRightUnsigned", signature(y = "Column", x = "numeric"),
             column(jc)
           })
 
-#' complicated def array_contains(column: Column, value: Any): Column
-#' rdname functions
-setMethod("array_contains", signature(x = "Column"),
-          function(x, y) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "array_contains", x@jc, y)
-            column(jc)
-          })
-
-#' complicated def concat_ws(sep: String, exprs: Column*): Column
-#' rdname functions
+#' concat_ws
+#'
+#' Concatenates multiple input string columns together into a single string column,
+#' using the given separator.
+#'
+#' @rdname functions
 setMethod("concat_ws", signature(x = "Column"),
-          function(x, y) {
-            # TODO
-            jc <- callJStatic("org.apache.spark.sql.functions", "concat_ws", x@jc, y)
+          function(sep, x) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "concat_ws", x@jc, sep)
             column(jc)
           })
 
-#' complicated def conv(num: Column, fromBase: Int, toBase: Int): Column
-#' rdname functions
-setMethod("conv", signature(x = "Column", y = "numeric", z = "numeric"),
-          function(x, y, z) {
-            y <- as.integer(y)
-            z <- as.integer(z)
-            jc <- callJStatic("org.apache.spark.sql.functions", "conv", x@jc, y, z)
+#' conv
+#'
+#' Convert a number in a string column from one base to another.
+#'
+#' @rdname functions
+setMethod("conv", signature(x = "Column", fromBase = "numeric", toBase = "numeric"),
+          function(x, fromBase, toBase) {
+            fromBase <- as.integer(fromBase)
+            toBase <- as.integer(toBase)
+            jc <- callJStatic("org.apache.spark.sql.functions", "conv", x@jc, fromBase, toBase)
             column(jc)
           })
 
-#' complicated def expr(expr: String): Column
-#' rdname functions
+#' expr
+#'
+#' Parses the expression string into the column that it represents, similar to
+#' DataFrame.selectExpr
+#'
+#' @rdname functions
 setMethod("expr", signature(x = "character"),
           function(x) {
             jc <- callJStatic("org.apache.spark.sql.functions", "expr", x)
             column(jc)
           })
 
-#' complicated def format_string(format: String, arguments: Column*): Column
-#' rdname functions
-setMethod("format_string", signature(x = "character", y = "Column"),
-          function(x, y, ...) {
-            jcols <- listToSeq(lapply(list(y, ...), function(x) { x@jc }))
-            jc <- callJStatic("org.apache.spark.sql.functions", "format_string", x, jcols)
+#' format_string
+#'
+#' Formats the arguments in printf-style and returns the result as a string column.
+#'
+#' @rdname functions
+setMethod("format_string", signature(format = "character", x = "Column"),
+          function(format, x, ...) {
+            jcols <- listToSeq(lapply(list(x, ...), function(arg) { arg@jc }))
+            jc <- callJStatic("org.apache.spark.sql.functions", "format_string", format, jcols)
             column(jc)
           })
 
-#' complicated def from_unixtime(ut: Column): Column
-#' complicated def from_unixtime(ut: Column, f: String): Column
-#' rdname functions
+#' from_unixtime
+#'
+#' Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string
+#' representing the timestamp of that moment in the current system time zone in the given
+#' format.
+#'
+#' @rdname functions
 setMethod("from_unixtime", signature(x = "Column"),
           function(x, format = "yyyy-MM-dd HH:mm:ss") {
             jc <- callJStatic("org.apache.spark.sql.functions", "from_unixtime", x@jc, format)
             column(jc)
           })
 
-#' complicated def locate(substr: String, str: Column): Column
-#' complicated def locate(substr: String, str: Column, pos: Int): Column
-#' rdname functions
-setMethod("locate", signature(x = "character", y = "Column"),
-          function(x, y, pos = 0) {
-            jc <- callJStatic("org.apache.spark.sql.functions", "locate", x, y@jc, as.integer(pos))
+#' locate
+#'
+#' Locate the position of the first occurrence of substr.
+#' NOTE: The position is not zero based, but 1 based index, returns 0 if substr
+#' could not be found in str.
+#'
+#' @rdname functions
+setMethod("locate", signature(substr = "character", str = "Column"),
+          function(substr, str, pos = 0) {
+            jc <- callJStatic("org.apache.spark.sql.functions", "locate", substr, str@jc, as.integer(pos))
             column(jc)
           })
 
-#' complicated def lpad(str: Column, len: Int, pad: String): Column
-#' rdname functions
+#' lpad
+#'
+#' Left-pad the string column with
+#'
+#' @rdname functions
 setMethod("lpad", signature(x = "Column", len = "numeric", pad = "character"),
           function(x, len, pad) {
             jc <- callJStatic("org.apache.spark.sql.functions", "lpad", x@jc, as.integer(len), pad)
             column(jc)
           })
 
-#' complicated def rand(seed: Long): Column
-#' complicated def rand(): Column
-#' rdname functions
+#' rand
+#'
+#' Generate a random column with i.i.d. samples from U[0.0, 1.0].
+#'
+#' @rdname functions
 setMethod("rand", signature(seed = "missing"),
           function(seed) {
             jc <- callJStatic("org.apache.spark.sql.functions", "rand")
@@ -342,9 +359,11 @@ setMethod("rand", signature(seed = "numeric"),
             column(jc)
           })
 
-#' complicated def randn(): Column
-#' complicated def randn(seed: Long): Column
-#' rdname functions
+#' randn
+#'
+#' Generate a column with i.i.d. samples from the standard normal distribution.
+#'
+#' @rdname functions
 setMethod("randn", signature(seed = "missing"),
           function(seed) {
             jc <- callJStatic("org.apache.spark.sql.functions", "randn")
@@ -356,62 +375,95 @@ setMethod("randn", signature(seed = "numeric"),
             column(jc)
           })
 
-#' complicated def regexp_extract(e: Column, exp: String, groupIdx: Int): Column
-#' rdname functions
+#' regexp_extract
+#'
+#' Extract a specific(idx) group identified by a java regex, from the specified string column.
+#'
+#' @rdname functions
 setMethod("regexp_extract", signature(x = "Column", pattern = "character", idx = "numeric"),
           function(x, pattern, idx) {
             jc <- callJStatic("org.apache.spark.sql.functions", "regexp_extract", x@jc, pattern, as.integer(idx))
             column(jc)
           })
 
-#' complicated def regexp_replace(e: Column, pattern: String, replacement: String): Column
-#' rdname functions
+#' regexp_replace
+#'
+#' Replace all substrings of the specified string value that match regexp with rep.
+#'
+#' @rdname functions
 setMethod("regexp_replace", signature(x = "Column", pattern = "character", replacement = "character"),
           function(x, pattern, replacement) {
-            # TODO
             jc <- callJStatic("org.apache.spark.sql.functions", "regexp_replace", x@jc, pattern, replacement)
             column(jc)
           })
 
-#' complicated def rpad(str: Column, len: Int, pad: String): Column
-#' rdname functions
+#' rpad
+#'
+#' Right-padded with pad to a length of len.
+#'
+#' @rdname functions
 setMethod("rpad", signature(x = "Column", len = "numeric", pad = "character"),
           function(x, len, pad) {
             jc <- callJStatic("org.apache.spark.sql.functions", "rpad", x@jc, as.integer(len), pad)
             column(jc)
           })
 
-#' complicated def substring_index(str: Column, delim: String, count: Int): Column
-#' rdname functions
+#' substring_index
+#'
+#' Returns the substring from string str before count occurrences of the delimiter delim.
+#' If count is positive, everything the left of the final delimiter (counting from left) is
+#' returned. If count is negative, every to the right of the final delimiter (counting from the
+#' right) is returned. substring <- index performs a case-sensitive match when searching for delim.
+#'
+#' @rdname functions
 setMethod("substring_index", signature(x = "Column", delim = "character", count = "numeric"),
           function(x, delim, count) {
             jc <- callJStatic("org.apache.spark.sql.functions", "substring_index", x@jc, delim, as.integer(count))
             column(jc)
           })
 
-#' complicated def translate(src: Column, matchingString: String, replaceString: String): Column
-#' rdname functions
+#' translate
+#'
+#' Translate any character in the src by a character in replaceString.
+#' The characters in replaceString is corresponding to the characters in matchingString.
+#' The translate will happen when any character in the string matching with the character
+#' in the matchingString.
+#'
+#' @rdname functions
 setMethod("translate", signature(x = "Column", matchingString = "character", replaceString = "character"),
           function(x, matchingString, replaceString) {
-            # TODO
             jc <- callJStatic("org.apache.spark.sql.functions", "translate", x@jc, matchingString, replaceString)
             column(jc)
           })
 
-#' complicated def unix_timestamp(s: Column, p: String): Column
-#' complicated def unix_timestamp(): Column
-#' complicated def unix_timestamp(s: Column): Column
-#' rdname functions
+#' unix_timestamp
+#'
+#' Gets current Unix timestamp in seconds.
+#'
+#' @rdname functions
 setMethod("unix_timestamp", signature(x = "missing", format = "missing"),
           function(x, format) {
             jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp")
             column(jc)
           })
+#' unix_timestamp
+#'
+#' Converts time string in format yyyy-MM-dd HH:mm:ss to Unix timestamp (in seconds),
+#' using the default timezone and the default locale, return null if fail.
+#'
+#' @rdname functions
 setMethod("unix_timestamp", signature(x = "Column", format = "missing"),
           function(x, format) {
             jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc)
             column(jc)
           })
+#' unix_timestamp
+#'
+#' Convert time string with given pattern
+#' (see [http://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html])
+#' to Unix time stamp (in seconds), return null if fail.
+#'
+#' @rdname functions
 setMethod("unix_timestamp", signature(x = "Column", format = "character"),
           function(x, format = 'yyyy-MM-dd HH:mm:ss') {
             jc <- callJStatic("org.apache.spark.sql.functions", "unix_timestamp", x@jc, format)
