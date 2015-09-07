@@ -610,7 +610,7 @@ class StreamingKMeans(object):
         return dstream.mapValues(lambda x: self._model.predict(x))
 
 
-class LDAModel(JavaModelWrapper):
+class LDAModel(JavaModelWrapper, JavaSaveable, Loader):
 
     """ A clustering model derived from the LDA method.
 
@@ -633,6 +633,21 @@ class LDAModel(JavaModelWrapper):
     >>> model = LDA.train(rdd, k=2)
     >>> model.vocabSize()
     2
+    >>> topics = model.describeTopics()
+    >>> len(topics)
+    2
+    >>> len(list(topics[0])[0])
+    2
+    >>> len(list(topics[0])[1])
+    2
+    >>> topics = model.describeTopics(1)
+    >>> len(topics)
+    2
+    >>> len(list(topics[0])[0])
+    1
+    >>> len(list(topics[0])[1])
+    1
+
     >>> topics = model.topicsMatrix()
     >>> topics_expect = array([[0.5,  0.5], [0.5, 0.5]])
     >>> assert_almost_equal(topics, topics_expect, 1)
@@ -659,17 +674,27 @@ class LDAModel(JavaModelWrapper):
         """Vocabulary size (number of terms or terms in the vocabulary)"""
         return self.call("vocabSize")
 
-    def save(self, sc, path):
-        """Save the LDAModel on to disk.
+    def describeTopics(self, maxTermsPerTopic=None):
+        """Return the topics described by weighted terms.
 
-        :param sc: SparkContext
-        :param path: str, path to where the model needs to be stored.
+        WARNING: If vocabSize and k are large, this can return a large object!
         """
-        if not isinstance(sc, SparkContext):
-            raise TypeError("sc should be a SparkContext, got type %s" % type(sc))
-        if not isinstance(path, basestring):
-            raise TypeError("path should be a basestring, got type %s" % type(path))
-        self._java_model.save(sc._jsc.sc(), path)
+        if maxTermsPerTopic is None:
+            topics = self.call("describeTopics")
+        else:
+            topics = self.call("describeTopics", maxTermsPerTopic)
+
+        # Converts the result to make the format similar to Scala.
+        # The returned value is mixed up with topics and topi weights.
+        converted = []
+        for elms in [list(elms) for elms in topics]:
+            half_len = int(len(elms) / 2)
+            topics = elms[:half_len]
+            topicWeights = elms[(-1 * half_len):]
+            if len(topics) != len(topicWeights):
+                raise TypeError("Something wrong with a return value: %s" % (topics))
+            converted.append((topics, topicWeights))
+        return converted
 
     @classmethod
     def load(cls, sc, path):
@@ -678,13 +703,8 @@ class LDAModel(JavaModelWrapper):
         :param sc: SparkContext
         :param path: str, path to where the model is stored.
         """
-        if not isinstance(sc, SparkContext):
-            raise TypeError("sc should be a SparkContext, got type %s" % type(sc))
-        if not isinstance(path, basestring):
-            raise TypeError("path should be a basestring, got type %s" % type(path))
-        java_model = sc._jvm.org.apache.spark.mllib.clustering.DistributedLDAModel.load(
-            sc._jsc.sc(), path)
-        return cls(java_model)
+        wrapper_model = callMLlibFunc("loadLDAModel", sc, path)
+        return LDAModel(wrapper_model)
 
 
 class LDA(object):
@@ -706,10 +726,10 @@ class LDA(object):
         :param optimizer:           LDAOptimizer used to perform the actual calculation.
             Currently "em", "online" are supported. Default to "em".
         """
-        model = callMLlibFunc("trainLDAModel", rdd, k, maxIterations,
-                              docConcentration, topicConcentration, seed,
-                              checkpointInterval, optimizer)
-        return LDAModel(model)
+        wrapper_model = callMLlibFunc("trainLDAModel", rdd, k, maxIterations,
+                                      docConcentration, topicConcentration, seed,
+                                      checkpointInterval, optimizer)
+        return LDAModel(wrapper_model)
 
 
 def _test():
