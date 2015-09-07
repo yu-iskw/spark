@@ -327,21 +327,7 @@ pyspark_mllib = Module(
         "python/pyspark/mllib"
     ],
     python_test_goals=[
-        "pyspark.mllib.classification",
         "pyspark.mllib.clustering",
-        "pyspark.mllib.evaluation",
-        "pyspark.mllib.feature",
-        "pyspark.mllib.fpm",
-        "pyspark.mllib.linalg.__init__",
-        "pyspark.mllib.linalg.distributed",
-        "pyspark.mllib.random",
-        "pyspark.mllib.recommendation",
-        "pyspark.mllib.regression",
-        "pyspark.mllib.stat._statistics",
-        "pyspark.mllib.stat.KernelDensity",
-        "pyspark.mllib.tree",
-        "pyspark.mllib.util",
-        "pyspark.mllib.tests",
     ],
     blacklisted_python_implementations=[
         "PyPy"  # Skip these tests under PyPy since they require numpy and it isn't available there
