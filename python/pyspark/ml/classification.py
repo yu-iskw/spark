@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+from pyspark import since
 from pyspark.ml.util import keyword_only
 from pyspark.ml.wrapper import JavaEstimator, JavaModel
 from pyspark.ml.param.shared import *
@@ -64,6 +65,8 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
     Traceback (most recent call last):
         ...
     TypeError: Method setParams forces keyword arguments.
+
+    .. addedversion:: 1.3.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -96,6 +99,7 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
         self._checkThresholdConsistency()
 
     @keyword_only
+    @since("1.3.0")
     def setParams(self, featuresCol="features", labelCol="label", predictionCol="prediction",
                   maxIter=100, regParam=0.1, elasticNetParam=0.0, tol=1e-6, fitIntercept=True,
                   threshold=0.5, thresholds=None, probabilityCol="probability",
@@ -116,6 +120,37 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
     def _create_model(self, java_model):
         return LogisticRegressionModel(java_model)
 
+    @since("1.4.0")
+    def setElasticNetParam(self, value):
+        """
+        Sets the value of :py:attr:`elasticNetParam`.
+        """
+        self._paramMap[self.elasticNetParam] = value
+        return self
+
+    @since("1.4.0")
+    def getElasticNetParam(self):
+        """
+        Gets the value of elasticNetParam or its default value.
+        """
+        return self.getOrDefault(self.elasticNetParam)
+
+    @since("1.4.0")
+    def setFitIntercept(self, value):
+        """
+        Sets the value of :py:attr:`fitIntercept`.
+        """
+        self._paramMap[self.fitIntercept] = value
+        return self
+
+    @since("1.4.0")
+    def getFitIntercept(self):
+        """
+        Gets the value of fitIntercept or its default value.
+        """
+        return self.getOrDefault(self.fitIntercept)
+
+    @since("1.4.0")
     def setThreshold(self, value):
         """
         Sets the value of :py:attr:`threshold`.
@@ -126,6 +161,7 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
             del self._paramMap[self.thresholds]
         return self
 
+    @since("1.4.0")
     def getThreshold(self):
         """
         Gets the value of threshold or its default value.
@@ -141,6 +177,7 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
         else:
             return self.getOrDefault(self.threshold)
 
+    @since("1.5.0")
     def setThresholds(self, value):
         """
         Sets the value of :py:attr:`thresholds`.
@@ -151,6 +188,7 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
             del self._paramMap[self.threshold]
         return self
 
+    @since("1.5.0")
     def getThresholds(self):
         """
         If :py:attr:`thresholds` is set, return its value.
@@ -182,9 +220,12 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
 class LogisticRegressionModel(JavaModel):
     """
     Model fitted by LogisticRegression.
+
+    .. addedversion:: 1.3.0
     """
 
     @property
+    @since("1.4.0")
     def weights(self):
         """
         Model weights.
@@ -192,6 +233,7 @@ class LogisticRegressionModel(JavaModel):
         return self._call_java("weights")
 
     @property
+    @since("1.4.0")
     def intercept(self):
         """
         Model intercept.
@@ -202,6 +244,8 @@ class LogisticRegressionModel(JavaModel):
 class TreeClassifierParams(object):
     """
     Private class to track supported impurity measures.
+
+    .. addedversion:: 1.4.0
     """
     supportedImpurities = ["entropy", "gini"]
 
@@ -209,6 +253,8 @@ class TreeClassifierParams(object):
 class GBTParams(object):
     """
     Private class to track supported GBT params.
+
+    .. addedversion:: 1.4.0
     """
     supportedLossTypes = ["logistic"]
 
@@ -248,6 +294,8 @@ class DecisionTreeClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
     >>> test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], ["features"])
     >>> model.transform(test1).head().prediction
     1.0
+
+    .. addedversion:: 1.4.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -281,6 +329,7 @@ class DecisionTreeClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self.setParams(**kwargs)
 
     @keyword_only
+    @since("1.4.0")
     def setParams(self, featuresCol="features", labelCol="label", predictionCol="prediction",
                   probabilityCol="probability", rawPredictionCol="rawPrediction",
                   maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0,
@@ -299,6 +348,7 @@ class DecisionTreeClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
     def _create_model(self, java_model):
         return DecisionTreeClassificationModel(java_model)
 
+    @since("1.4.0")
     def setImpurity(self, value):
         """
         Sets the value of :py:attr:`impurity`.
@@ -306,6 +356,7 @@ class DecisionTreeClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self._paramMap[self.impurity] = value
         return self
 
+    @since("1.4.0")
     def getImpurity(self):
         """
         Gets the value of impurity or its default value.
@@ -317,6 +368,8 @@ class DecisionTreeClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
 class DecisionTreeClassificationModel(DecisionTreeModel):
     """
     Model fitted by DecisionTreeClassifier.
+
+    .. addedversion:: 1.4.0
     """
 
 
@@ -355,6 +408,8 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
     >>> test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], ["features"])
     >>> model.transform(test1).head().prediction
     1.0
+
+    .. addedversion:: 1.4.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -410,6 +465,7 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self.setParams(**kwargs)
 
     @keyword_only
+    @since("1.4.0")
     def setParams(self, featuresCol="features", labelCol="label", predictionCol="prediction",
                   probabilityCol="probability", rawPredictionCol="rawPrediction",
                   maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0,
@@ -429,6 +485,7 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
     def _create_model(self, java_model):
         return RandomForestClassificationModel(java_model)
 
+    @since("1.4.0")
     def setImpurity(self, value):
         """
         Sets the value of :py:attr:`impurity`.
@@ -436,12 +493,14 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self._paramMap[self.impurity] = value
         return self
 
+    @since("1.4.0")
     def getImpurity(self):
         """
         Gets the value of impurity or its default value.
         """
         return self.getOrDefault(self.impurity)
 
+    @since("1.4.0")
     def setSubsamplingRate(self, value):
         """
         Sets the value of :py:attr:`subsamplingRate`.
@@ -449,12 +508,14 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self._paramMap[self.subsamplingRate] = value
         return self
 
+    @since("1.4.0")
     def getSubsamplingRate(self):
         """
         Gets the value of subsamplingRate or its default value.
         """
         return self.getOrDefault(self.subsamplingRate)
 
+    @since("1.4.0")
     def setNumTrees(self, value):
         """
         Sets the value of :py:attr:`numTrees`.
@@ -462,12 +523,14 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self._paramMap[self.numTrees] = value
         return self
 
+    @since("1.4.0")
     def getNumTrees(self):
         """
         Gets the value of numTrees or its default value.
         """
         return self.getOrDefault(self.numTrees)
 
+    @since("1.4.0")
     def setFeatureSubsetStrategy(self, value):
         """
         Sets the value of :py:attr:`featureSubsetStrategy`.
@@ -475,6 +538,7 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
         self._paramMap[self.featureSubsetStrategy] = value
         return self
 
+    @since("1.4.0")
     def getFeatureSubsetStrategy(self):
         """
         Gets the value of featureSubsetStrategy or its default value.
@@ -485,6 +549,8 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
 class RandomForestClassificationModel(TreeEnsembleModels):
     """
     Model fitted by RandomForestClassifier.
+
+    .. addedversion:: 1.4.0
     """
 
 
@@ -516,6 +582,8 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
     >>> test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], ["features"])
     >>> model.transform(test1).head().prediction
     1.0
+
+    .. addedversion:: 1.4.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -563,6 +631,7 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
         self.setParams(**kwargs)
 
     @keyword_only
+    @since("1.4.0")
     def setParams(self, featuresCol="features", labelCol="label", predictionCol="prediction",
                   maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0,
                   maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10,
@@ -580,6 +649,7 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
     def _create_model(self, java_model):
         return GBTClassificationModel(java_model)
 
+    @since("1.4.0")
     def setLossType(self, value):
         """
         Sets the value of :py:attr:`lossType`.
@@ -587,12 +657,14 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
         self._paramMap[self.lossType] = value
         return self
 
+    @since("1.4.0")
     def getLossType(self):
         """
         Gets the value of lossType or its default value.
         """
         return self.getOrDefault(self.lossType)
 
+    @since("1.4.0")
     def setSubsamplingRate(self, value):
         """
         Sets the value of :py:attr:`subsamplingRate`.
@@ -600,12 +672,14 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
         self._paramMap[self.subsamplingRate] = value
         return self
 
+    @since("1.4.0")
     def getSubsamplingRate(self):
         """
         Gets the value of subsamplingRate or its default value.
         """
         return self.getOrDefault(self.subsamplingRate)
 
+    @since("1.4.0")
     def setStepSize(self, value):
         """
         Sets the value of :py:attr:`stepSize`.
@@ -613,6 +687,7 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
         self._paramMap[self.stepSize] = value
         return self
 
+    @since("1.4.0")
     def getStepSize(self):
         """
         Gets the value of stepSize or its default value.
@@ -623,6 +698,8 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
 class GBTClassificationModel(TreeEnsembleModels):
     """
     Model fitted by GBTClassifier.
+
+    .. addedversion:: 1.4.0
     """
 
 
@@ -662,6 +739,8 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
     >>> test1 = sc.parallelize([Row(features=Vectors.sparse(2, [0], [1.0]))]).toDF()
     >>> model.transform(test1).head().prediction
     1.0
+
+    .. addedversion:: 1.5.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -694,6 +773,7 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
         self.setParams(**kwargs)
 
     @keyword_only
+    @since("1.5.0")
     def setParams(self, featuresCol="features", labelCol="label", predictionCol="prediction",
                   probabilityCol="probability", rawPredictionCol="rawPrediction", smoothing=1.0,
                   modelType="multinomial"):
@@ -709,6 +789,7 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
     def _create_model(self, java_model):
         return NaiveBayesModel(java_model)
 
+    @since("1.5.0")
     def setSmoothing(self, value):
         """
         Sets the value of :py:attr:`smoothing`.
@@ -716,12 +797,14 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
         self._paramMap[self.smoothing] = value
         return self
 
+    @since("1.5.0")
     def getSmoothing(self):
         """
         Gets the value of smoothing or its default value.
         """
         return self.getOrDefault(self.smoothing)
 
+    @since("1.5.0")
     def setModelType(self, value):
         """
         Sets the value of :py:attr:`modelType`.
@@ -729,6 +812,7 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
         self._paramMap[self.modelType] = value
         return self
 
+    @since("1.5.0")
     def getModelType(self):
         """
         Gets the value of modelType or its default value.
@@ -739,9 +823,12 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
 class NaiveBayesModel(JavaModel):
     """
     Model fitted by NaiveBayes.
+
+    .. addedversion:: 1.5.0
     """
 
     @property
+    @since("1.5.0")
     def pi(self):
         """
         log of class priors.
@@ -749,6 +836,7 @@ class NaiveBayesModel(JavaModel):
         return self._call_java("pi")
 
     @property
+    @since("1.5.0")
     def theta(self):
         """
         log of class conditional probabilities.
