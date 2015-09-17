@@ -66,7 +66,7 @@ class LogisticRegression(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredicti
         ...
     TypeError: Method setParams forces keyword arguments.
 
-    .. addedversion:: 1.3.0
+    .. versionadded:: 1.3.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -221,7 +221,7 @@ class LogisticRegressionModel(JavaModel):
     """
     Model fitted by LogisticRegression.
 
-    .. addedversion:: 1.3.0
+    .. versionadded:: 1.3.0
     """
 
     @property
@@ -245,7 +245,7 @@ class TreeClassifierParams(object):
     """
     Private class to track supported impurity measures.
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
     supportedImpurities = ["entropy", "gini"]
 
@@ -254,7 +254,7 @@ class GBTParams(object):
     """
     Private class to track supported GBT params.
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
     supportedLossTypes = ["logistic"]
 
@@ -295,7 +295,7 @@ class DecisionTreeClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
     >>> model.transform(test1).head().prediction
     1.0
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -369,7 +369,7 @@ class DecisionTreeClassificationModel(DecisionTreeModel):
     """
     Model fitted by DecisionTreeClassifier.
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
 
 
@@ -409,7 +409,7 @@ class RandomForestClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPred
     >>> model.transform(test1).head().prediction
     1.0
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -550,7 +550,7 @@ class RandomForestClassificationModel(TreeEnsembleModels):
     """
     Model fitted by RandomForestClassifier.
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
 
 
@@ -583,7 +583,7 @@ class GBTClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol
     >>> model.transform(test1).head().prediction
     1.0
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -699,7 +699,7 @@ class GBTClassificationModel(TreeEnsembleModels):
     """
     Model fitted by GBTClassifier.
 
-    .. addedversion:: 1.4.0
+    .. versionadded:: 1.4.0
     """
 
 
@@ -740,7 +740,7 @@ class NaiveBayes(JavaEstimator, HasFeaturesCol, HasLabelCol, HasPredictionCol, H
     >>> model.transform(test1).head().prediction
     1.0
 
-    .. addedversion:: 1.5.0
+    .. versionadded:: 1.5.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -824,7 +824,7 @@ class NaiveBayesModel(JavaModel):
     """
     Model fitted by NaiveBayes.
 
-    .. addedversion:: 1.5.0
+    .. versionadded:: 1.5.0
     """
 
     @property
