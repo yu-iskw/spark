@@ -876,6 +876,8 @@ class MultilayerPerceptronClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol,
     |[0.0,0.0]|       0.0|
     +---------+----------+
     ...
+
+    .. versionadded:: 1.6.0
     """
 
     # a placeholder to make it appear in the generated doc
@@ -910,6 +912,7 @@ class MultilayerPerceptronClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol,
         self.setParams(**kwargs)
 
     @keyword_only
+    @since("1.6.0")
     def setParams(self, featuresCol="features", labelCol="label", predictionCol="prediction",
                   maxIter=100, tol=1e-4, seed=None, layers=None, blockSize=128):
         """
@@ -926,6 +929,7 @@ class MultilayerPerceptronClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol,
     def _create_model(self, java_model):
         return MultilayerPerceptronClassificationModel(java_model)
 
+    @since("1.6.0")
     def setLayers(self, value):
         """
         Sets the value of :py:attr:`layers`.
@@ -933,12 +937,14 @@ class MultilayerPerceptronClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol,
         self._paramMap[self.layers] = value
         return self
 
+    @since("1.6.0")
     def getLayers(self):
         """
         Gets the value of layers or its default value.
         """
         return self.getOrDefault(self.layers)
 
+    @since("1.6.0")
     def setBlockSize(self, value):
         """
         Sets the value of :py:attr:`blockSize`.
@@ -946,6 +952,7 @@ class MultilayerPerceptronClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol,
         self._paramMap[self.blockSize] = value
         return self
 
+    @since("1.6.0")
     def getBlockSize(self):
         """
         Gets the value of blockSize or its default value.
@@ -956,9 +963,12 @@ class MultilayerPerceptronClassifier(JavaEstimator, HasFeaturesCol, HasLabelCol,
 class MultilayerPerceptronClassificationModel(JavaModel):
     """
     Model fitted by MultilayerPerceptronClassifier.
+
+    .. versionadded:: 1.6.0
     """
 
     @property
+    @since("1.6.0")
     def layers(self):
         """
         array of layer sizes including input and output layers.
@@ -966,6 +976,7 @@ class MultilayerPerceptronClassificationModel(JavaModel):
         return self._call_java("javaLayers")
 
     @property
+    @since("1.6.0")
     def weights(self):
         """
         vector of initial weights for the model that consists of the weights of layers.
