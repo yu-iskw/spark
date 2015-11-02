@@ -162,32 +162,26 @@ class DpMeans private (
         }
       }
 
-      // Find the sum and count of points belonging to each cluster
-      case class WeightedPoint(vector: Vector, count: Long)
-      val mergeClusters = (x: WeightedPoint, y: WeightedPoint) => {
-        axpy(1.0, y.vector, x.vector)
-        WeightedPoint(x.vector, x.count + y.count)
-      }
-
-      val dims = globalCenters(0).vector.size
-      val clusterStat = zippedData.mapPartitions { points =>
-        val activeCenters = globalCenters
-        val k = activeCenters.length
-
-        val sums = Array.fill(k)(Vectors.zeros(dims))
-        val counts = Array.fill(k)(0L)
-        val totalCost = Array.fill(k)(0.0D)
-        points.foreach { point =>
-          val (currentCenter, cost) = DpMeans.assignCluster(activeCenters, point)
-          totalCost(currentCenter) += cost
-          val currentSum = sums(currentCenter)
-          axpy(1.0, point.vector, currentSum)
-          counts(currentCenter) += 1
+      val dims = globalCenters.head.vector.size
+      val zeroValue = List.tabulate(globalCenters.size) { i =>
+        (i, (Vectors.zeros(dims), 0L))
+      }.toMap
+      val clusterStat = zippedData.aggregate(zeroValue)(
+        seqOp = (counts: Map[Int, (Vector, Long)], p: VectorWithNorm) => {
+          val (closestIdx, _) = DpMeans.assignCluster(globalCenters, p)
+          val (sum, n) = counts(closestIdx)
+          axpy(1.0, p.vector, sum)
+          counts + (closestIdx ->(sum, n + 1L))
+        },
+        combOp = (agg1: Map[Int, (Vector, Long)], agg2: Map[Int, (Vector, Long)]) => {
+          agg1.keySet.map { case idx =>
+            val (sum1, n1) = agg1(idx)
+            val (sum2, n2) = agg2(idx)
+            axpy(1.0, sum2, sum1)
+            (idx, (sum1, n1 + n2))
+          }.toMap
         }
-        val result = Iterator.tabulate(k) { i => (i, WeightedPoint(sums(i), counts(i))) }
-        result
-      }.aggregateByKey(WeightedPoint(Vectors.zeros(dims), 0L))(mergeClusters, mergeClusters)
-        .collectAsMap()
+      )
 
       // Update the cluster centers and convergence check
       var changed = false
@@ -195,7 +189,7 @@ class DpMeans private (
       val currentK = clusterStat.size
 
       while (j < currentK) {
-        val (sumOfPoints, count) = (clusterStat(j).vector, clusterStat(j).count)
+        val (sumOfPoints, count) = clusterStat(j)
         if (count != 0) {
           scal(1.0 / count, sumOfPoints)
           val newCenter = new VectorWithNorm(sumOfPoints)
