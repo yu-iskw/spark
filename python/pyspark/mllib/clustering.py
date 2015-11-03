@@ -40,7 +40,7 @@ from pyspark.streaming import DStream
 __all__ = ['KMeansModel', 'KMeans', 'GaussianMixtureModel', 'GaussianMixture',
            'PowerIterationClusteringModel', 'PowerIterationClustering',
            'StreamingKMeans', 'StreamingKMeansModel',
-           'LDA', 'LDAModel']
+           'LDA', 'LDAModel', 'BisectingKMeans', 'BisectingKMeansModel']
 
 
 @inherit_doc
@@ -710,6 +710,53 @@ class LDA(object):
                               docConcentration, topicConcentration, seed,
                               checkpointInterval, optimizer)
         return LDAModel(model)
+
+
+class BisectingKMeansModel(JavaModelWrapper):
+    """ Train a bisecting k-means model.
+
+    >>> from pyspark.mllib.linalg import Vectors
+    >>> from numpy.testing import assert_almost_equal, assert_equal
+    >>> data = [
+    ...     Vectors.dense([0.9, 0.9]),
+    ...     Vectors.dense([1.1, 1.1]),
+    ...     Vectors.dense([10.9, 10.9]),
+    ...     Vectors.dense([11.1, 11.1]),
+    ...     Vectors.dense([100.9, 100.9]),
+    ...     Vectors.dense([101.1, 101.1]),
+    ... ]
+    >>> rdd = sc.parallelize(data)
+    >>> model = BisectingKMeans.train(rdd, 3, 20, 1)
+    >>> model.getCenters()
+    [array([ 1.,  1.]), array([ 11.,  11.]), array([ 101.,  101.])]
+    >>> model.predict(data[0]) == model.predict(data[1])
+    True
+    >>> model.predict(data[2]) == model.predict(data[3])
+    True
+    >>> model.predict(data[4]) == model.predict(data[5])
+    True
+    >>> model.predict(rdd).collect()
+    [0, 0, 1, 1, 2, 2]
+    """
+
+    def getCenters(self):
+        centers = self.call("getCenters")
+        return [c.toArray() for c in centers]
+
+    def predict(self, x):
+        if isinstance(x, RDD):
+            return self.call("predict", x.map(_convert_to_vector))
+        else:
+            return self.call("predict", _convert_to_vector(x))
+
+
+class BisectingKMeans(object):
+
+    @classmethod
+    def train(cls, rdd, k, maxIterations=20, seed=None):
+        model = callMLlibFunc("trainBisectingKMeansModel", rdd.map(_convert_to_vector),
+                              k, maxIterations, seed)
+        return BisectingKMeansModel(model)
 
 
 def _test():
