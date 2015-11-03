@@ -32,7 +32,9 @@ private[python] class LDAModelWrapper(model: LDAModel) {
   def describeTopics(): Array[Byte] = describeTopics(this.model.vocabSize)
 
   def describeTopics(maxTermsPerTopic: Int): Array[Byte]  = {
-    val topics = model.describeTopics(maxTermsPerTopic)
+    val topics = model.describeTopics(maxTermsPerTopic).map { case (terms, termWeights) =>
+      Array[Any](terms, termWeights)
+    }
     SerDe.dumps(topics)
   }
 

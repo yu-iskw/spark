@@ -690,8 +690,11 @@ class LDAModel(JavaModelWrapper, JavaSaveable, Loader):
     >>> model = LDA.train(rdd, k=2, seed = 1)
     >>> model.vocabSize()
     2
-    >>> model.describeTopics()
-    [([1, 0], [0.5..., 0.49...]), ([0, 1], [0.5..., 0.49...])]
+    >>> topics = model.describeTopics()
+    >>> topics[0]
+    (array('i', [1, 0]), array('d', [0.5..., 0.49...]))
+    >>> topics[1]
+    (array('i', [0, 1]), array('d', [0.5..., 0.49...]))
 
     >>> topics = model.topicsMatrix()
     >>> topics_expect = array([[0.5,  0.5], [0.5, 0.5]])
@@ -723,6 +726,7 @@ class LDAModel(JavaModelWrapper, JavaSaveable, Loader):
         """Vocabulary size (number of terms or terms in the vocabulary)"""
         return self.call("vocabSize")
 
+    @since('1.6.0')
     def describeTopics(self, maxTermsPerTopic=None):
         """Return the topics described by weighted terms.
 
