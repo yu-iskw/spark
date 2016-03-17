@@ -17,7 +17,7 @@
 
 package org.apache.spark.mllib.optimization
 
-import breeze.linalg.{DenseVector => BDV, mpow, norm}
+import breeze.linalg.{DenseVector => BDV, norm}
 import org.apache.spark.annotation.{DeveloperApi, Experimental}
 import org.apache.spark.internal.Logging
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
@@ -227,7 +227,8 @@ object AdaGrad extends Logging {
 
     var converged = false // indicates whether converged based on convergenceTol
     var i = 1
-    var cumGradient = BDV.zeros[Double](n)
+//    var cumGradient = BDV.zeros[Double](n)
+    var cumGradient = 0.0
     while (!converged && i <= numIterations) {
       val bcWeights = data.context.broadcast(weights)
       val bcCumGradient = data.context.broadcast(cumGradient)
@@ -251,13 +252,16 @@ object AdaGrad extends Logging {
           * lossSum is computed using the weights from the previous iteration
           * and regVal is the regularization value computed in the previous iteration as well.
           */
-        cumGradient += gradientSquaredSum / miniBatchSize.toDouble
+//        cumGradient += gradientSquaredSum / miniBatchSize.toDouble
         val gradientMean: BDV[Double] = gradientSum / miniBatchSize.toDouble
-        val eps = BDV.fill[Double](n, 1e-8)
+//        val eps = BDV.fill[Double](n, 1e-8)
+        val eps = 1e-8
+        cumGradient += math.sqrt(norm(gradientMean, 2.0))
         stochasticLossHistory.append(lossSum / miniBatchSize + regVal)
+        println(lossSum / miniBatchSize + regVal)
         val update = updater.compute(
           weights,
-          Vectors.fromBreeze(gradientMean :/ (breeze.numerics.pow(cumGradient, 0.5) + eps)),
+          Vectors.fromBreeze(gradientMean / (cumGradient + eps)),
           stepSize, i, regParam)
         weights = update._1
         regVal = update._2

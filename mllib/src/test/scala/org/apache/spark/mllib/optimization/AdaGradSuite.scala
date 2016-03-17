@@ -27,11 +27,11 @@ import org.apache.spark.mllib.util.{MLlibTestSparkContext, MLUtils}
 class AdaGradSuite extends SparkFunSuite with MLlibTestSparkContext with Matchers {
 
   test("Assert the loss is decreasing.") {
-    val nPoints = 10000
-    val A = 20000.0
+    val nPoints = 100000
+    val A = 2000.0
     val B = -100000.5
 
-    val initialB = -1.0
+    val initialB = -1000.0
     val initialWeights = Array(initialB)
 
     val gradient = new LeastSquaresGradient()
