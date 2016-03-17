@@ -227,8 +227,8 @@ object AdaGrad extends Logging {
 
     var converged = false // indicates whether converged based on convergenceTol
     var i = 1
-//    var cumGradient = BDV.zeros[Double](n)
-    var cumGradient = 0.0
+    var cumGradient = BDV.zeros[Double](n)
+//    var cumGradient = 0.0
     while (!converged && i <= numIterations) {
       val bcWeights = data.context.broadcast(weights)
       val bcCumGradient = data.context.broadcast(cumGradient)
@@ -239,8 +239,9 @@ object AdaGrad extends Logging {
           .treeAggregate((BDV.zeros[Double](n), BDV.zeros[Double](n), 0.0, 0L))(
             seqOp = (c, v) => {
               // c: (grad, loss, count), v: (label, features)
-              val l = gradient.compute(v._2, v._1, bcWeights.value, Vectors.fromBreeze(c._1))
-              (c._1, c._1 :* c._1, c._3 + l, c._4 + 1)
+//              val l = gradient.compute(v._2, v._1, bcWeights.value, Vectors.fromBreeze(c._1))
+              val (grad, loss) = gradient.compute(v._2, v._1, bcWeights.value)
+              (c._1 += grad.toBreeze, grad.toBreeze.toDenseVector :* grad.toBreeze.toDenseVector, c._3 + loss, c._4 + 1)
             },
             combOp = (c1, c2) => {
               // c: (grad, loss, count)
@@ -252,16 +253,20 @@ object AdaGrad extends Logging {
           * lossSum is computed using the weights from the previous iteration
           * and regVal is the regularization value computed in the previous iteration as well.
           */
-//        cumGradient += gradientSquaredSum / miniBatchSize.toDouble
+        cumGradient += gradientSquaredSum / miniBatchSize.toDouble
+//        cumGradient += gradientSquaredSum / (miniBatchSize.toDouble * miniBatchSize)
         val gradientMean: BDV[Double] = gradientSum / miniBatchSize.toDouble
-//        val eps = BDV.fill[Double](n, 1e-8)
-        val eps = 1e-8
-        cumGradient += math.sqrt(norm(gradientMean, 2.0))
+        val eps = BDV.fill(n, 1e-8)
         stochasticLossHistory.append(lossSum / miniBatchSize + regVal)
-        println(lossSum / miniBatchSize + regVal)
+        val hoge = gradientMean :/ (breeze.numerics.pow(cumGradient, 0.5) + eps)
+        val hoge2 = gradientMean / (breeze.numerics.pow(cumGradient, 0.5) + eps)
+        val hoge3 = (breeze.numerics.pow(cumGradient, 0.5) + eps)
+        val hoge4 = (gradientMean, cumGradient, hoge, hoge2, hoge3)
+        println(s"${i}:${lossSum / miniBatchSize + regVal}")
         val update = updater.compute(
           weights,
-          Vectors.fromBreeze(gradientMean / (cumGradient + eps)),
+          Vectors.fromBreeze(gradientMean / (breeze.numerics.pow(cumGradient, 0.5) + eps)),
+//          Vectors.fromBreeze(gradientMean),
           stepSize, i, regParam)
         weights = update._1
         regVal = update._2
