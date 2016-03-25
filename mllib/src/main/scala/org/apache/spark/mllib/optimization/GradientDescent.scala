@@ -230,35 +230,40 @@ object GradientDescent extends Logging {
     var i = 1
     while (!converged && i <= numIterations) {
       val bcWeights = data.context.broadcast(weights)
+      val bcRegVal = data.context.broadcast(regVal)
       // Sample a subset (fraction miniBatchFraction) of the total data
       // compute and sum up the subgradients on this subset (this is one map-reduce)
-      val (gradientSum, lossSum, miniBatchSize) = data.sample(false, miniBatchFraction, 42 + i)
-        .treeAggregate((BDV.zeros[Double](n), 0.0, 0L))(
+      val localWeights = weights.copy
+      val (avgWeights, avgRegVal, lossSum, batchSize) = data
+        .sample(false, miniBatchFraction, 42 + i)
+        .treeAggregate((localWeights, 0.0, 0.0, 0L))(
           seqOp = (c, v) => {
-            // c: (grad, loss, count), v: (label, features)
-            val l = gradient.compute(v._2, v._1, bcWeights.value, Vectors.fromBreeze(c._1))
-            (c._1, c._2 + l, c._3 + 1)
+            // c: (weights, regVal, lossSumm, count), v: (label, features)
+            val (grad, loss) = gradient.compute(v._2, v._1, c._1)
+            val (w, r) = updater.compute(c._1, grad, stepSize, i, regParam)
+            (w, r, c._3 + loss, c._4 + 1)
           },
           combOp = (c1, c2) => {
-            // c: (grad, loss, count)
-            (c1._1 += c2._1, c1._2 + c2._2, c1._3 + c2._3)
+            // c: (avgWeights, avgRegVal, lossSumm, count)
+            val w = (c1._1.toBreeze * c1._4.toDouble + c2._1.toBreeze * c2._4.toDouble) /
+                (c1._4 + c2._4).toDouble
+            val r = (c1._2 * c1._4 + c2._2 * c2._4) / (c1._4 + c2._4)
+            (Vectors.fromBreeze(w), r, c1._3 + c2._3, c1._4 + c2._4)
           })
 
-      if (miniBatchSize > 0) {
+      if (batchSize > 0) {
         /**
          * lossSum is computed using the weights from the previous iteration
          * and regVal is the regularization value computed in the previous iteration as well.
          */
-        stochasticLossHistory.append(lossSum / miniBatchSize + regVal)
-        val update = updater.compute(
-          weights, Vectors.fromBreeze(gradientSum / miniBatchSize.toDouble),
-          stepSize, i, regParam)
-        weights = update._1
-        regVal = update._2
+        stochasticLossHistory.append(lossSum / batchSize + regVal)
+        println(s"${i}: ${lossSum / batchSize + regVal}")
+        weights = avgWeights
+        regVal = avgRegVal
 
         previousWeights = currentWeights
         currentWeights = Some(weights)
-        if (previousWeights != None && currentWeights != None) {
+        if (previousWeights.isDefined && currentWeights.isDefined) {
           converged = isConverged(previousWeights.get,
             currentWeights.get, convergenceTol)
         }
