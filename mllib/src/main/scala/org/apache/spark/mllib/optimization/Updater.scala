@@ -39,6 +39,9 @@ import org.apache.spark.mllib.linalg.{Vector, Vectors}
  */
 @DeveloperApi
 abstract class Updater extends Serializable {
+  // Type for a status to target updater
+  type Status
+
   /**
    * Compute an updated value for weights given the gradient, stepSize, iteration number and
    * regularization parameter. Also returns the regularization value regParam * R(w)
@@ -49,16 +52,25 @@ abstract class Updater extends Serializable {
    * @param stepSize - step size across iterations
    * @param iter - Iteration number
    * @param regParam - Regularization parameter
+   * @param status - Updater status
    *
-   * @return A tuple of 2 elements. The first element is a column matrix containing updated weights,
+   * @return A tuple of e elements. The first element is a column matrix containing updated weights,
    *         and the second element is the regularization value computed using updated weights.
+   *         The third element is the updated status.
    */
   def compute(
       weightsOld: Vector,
       gradient: Vector,
       stepSize: Double,
       iter: Int,
-      regParam: Double): (Vector, Double)
+      regParam: Double,
+      status: Status): (Vector, Double, Status)
+
+  // Gets an initialized status of a updater.
+  def initStatus(): Status
+
+  // Class for a status of updater
+  abstract class UpdaterStatus extends Serializable
 }
 
 /**
@@ -68,17 +80,22 @@ abstract class Updater extends Serializable {
  */
 @DeveloperApi
 class SimpleUpdater extends Updater {
+  override type Status = Unit
+
+  override def initStatus(): Status = ()
+
   override def compute(
       weightsOld: Vector,
       gradient: Vector,
       stepSize: Double,
       iter: Int,
-      regParam: Double): (Vector, Double) = {
+      regParam: Double,
+      status: Status): (Vector, Double, Status) = {
     val thisIterStepSize = stepSize / math.sqrt(iter)
     val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
     brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
 
-    (Vectors.fromBreeze(brzWeights), 0)
+    (Vectors.fromBreeze(brzWeights), 0, status)
   }
 }
 
@@ -103,12 +120,17 @@ class SimpleUpdater extends Updater {
  */
 @DeveloperApi
 class L1Updater extends Updater {
+  override type Status = Unit
+
+  override def initStatus(): Status = ()
+
   override def compute(
       weightsOld: Vector,
       gradient: Vector,
       stepSize: Double,
       iter: Int,
-      regParam: Double): (Vector, Double) = {
+      regParam: Double,
+      status: Status): (Vector, Double, Status) = {
     val thisIterStepSize = stepSize / math.sqrt(iter)
     // Take gradient step
     val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
@@ -123,7 +145,7 @@ class L1Updater extends Updater {
       i += 1
     }
 
-    (Vectors.fromBreeze(brzWeights), brzNorm(brzWeights, 1.0) * regParam)
+    (Vectors.fromBreeze(brzWeights), brzNorm(brzWeights, 1.0) * regParam, status)
   }
 }
 
@@ -135,12 +157,17 @@ class L1Updater extends Updater {
  */
 @DeveloperApi
 class SquaredL2Updater extends Updater {
+  override type Status = Unit
+
+  override def initStatus(): Status = ()
+
   override def compute(
       weightsOld: Vector,
       gradient: Vector,
       stepSize: Double,
       iter: Int,
-      regParam: Double): (Vector, Double) = {
+      regParam: Double,
+      status: Status): (Vector, Double, Status) = {
     // add up both updates from the gradient of the loss (= step) as well as
     // the gradient of the regularizer (= regParam * weightsOld)
     // w' = w - thisIterStepSize * (gradient + regParam * w)
@@ -151,7 +178,114 @@ class SquaredL2Updater extends Updater {
     brzAxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
     val norm = brzNorm(brzWeights, 2.0)
 
-    (Vectors.fromBreeze(brzWeights), 0.5 * regParam * norm * norm)
+    (Vectors.fromBreeze(brzWeights), 0.5 * regParam * norm * norm, status)
   }
 }
 
+/**
+  * :: DeveloperApi ::
+  * Updater for AdaGrad.
+  *          r = r + grad * grad
+  *          w = w_old - lr * grad / (sqrt(r) + eps)
+  * Uses a step-size decreasing with the square root of the number of iterations.
+  *
+  * https://en.wikipedia.org/wiki/Stochastic_gradient_descent#AdaGrad
+  *
+  * @param eps epsilon
+  */
+@DeveloperApi
+class AdaGradUpdater(val eps: Double) extends Updater {
+  def this() = this(1e-8)
+
+  override type Status = AdaGradUpdaterStatus
+
+  override def initStatus(): Status = new Status()
+
+  override def compute(
+      weightsOld: Vector,
+      gradient: Vector,
+      stepSize: Double,
+      iter: Int,
+      regParam: Double,
+      status: Status): (Vector, Double, Status) = {
+    val updatedStatus = status.update(gradient)
+    val accumSquaredGrad = updatedStatus.accumSquaredGradient.get
+    val g = gradient.toBreeze / (breeze.numerics.pow(accumSquaredGrad.toBreeze, 0.5) + this.eps)
+
+    val thisIterStepSize = stepSize / math.sqrt(iter)
+    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
+    brzAxpy(-thisIterStepSize, g, brzWeights)
+
+    (Vectors.fromBreeze(brzWeights), 0.0, updatedStatus)
+  }
+  class AdaGradUpdaterStatus(val accumSquaredGradient: Option[Vector]) extends UpdaterStatus {
+    def this() = this(None)
+
+    def update(gradient: Vector): AdaGradUpdaterStatus = {
+      val squaredGrad = gradient.toBreeze :* gradient.toBreeze
+      val updated = accumSquaredGradient match {
+        case None => squaredGrad
+        case _ => accumSquaredGradient.get.toBreeze + squaredGrad
+      }
+      new AdaGradUpdaterStatus(Some(Vectors.fromBreeze(updated)))
+    }
+  }
+}
+
+/**
+  * :: DeveloperApi ::
+  * Updater for Adam.
+  *          v <- beta * v - (1 - beta) * grad
+  *          r <- gamma * r - (1 - gamma) * grad * grad
+  *          w <- w - (learning_rate / (sqrt(r / 1 - r ^ t) + eps)) * (v / (1 - beta ^ t))
+  * Uses a step-size decreasing with the square root of the number of iterations.
+  *
+  * @param eps epsilon
+  */
+@DeveloperApi
+class AdamUpdater(val beta: Double, val gamma: Double, val eps: Double)
+  extends Updater {
+
+  def this() = this(0.9, 0.999, 1e-8)
+
+  override type Status = AdamUpdaterStatus
+
+  override def initStatus(): Status = {
+    new AdamUpdaterStatus()
+  }
+
+  override def compute(weightsOld: Vector,
+    gradient: Vector,
+    stepSize: Double,
+    iter: Int,
+    regParam: Double,
+    status: Status): (Vector, Double, Status) = {
+    val updatedStatus = status.update(gradient, beta, gamma)
+    val (v, r) = (updatedStatus.v.get, updatedStatus.r.get)
+    val fix1 = breeze.numerics.pow(1.0 - breeze.numerics.pow(r.toBreeze, iter.toDouble), 0.5) + eps
+    val thisIterStepSize = stepSize / math.sqrt(iter)
+    val learningRage = thisIterStepSize / (1.0 - math.pow(beta, iter))
+    val g = v.toBreeze / fix1
+    val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
+    brzAxpy(-learningRage, g, brzWeights)
+
+    (Vectors.fromBreeze(brzWeights), 0.0, updatedStatus)
+  }
+
+  class AdamUpdaterStatus(val v: Option[Vector], val r: Option[Vector]) extends UpdaterStatus {
+    def this() = this(None, None)
+
+    def update(gradient: Vector, beta: Double, gamma: Double): AdamUpdaterStatus = {
+      val squaredGrad = gradient.toBreeze :* gradient.toBreeze
+      val updated = v.isEmpty && r.isEmpty match {
+        case true => (gradient.toBreeze * (1 - beta), squaredGrad * (1 - gamma))
+        case false => (
+          this.v.get.toBreeze * beta + gradient.toBreeze * (1 - beta),
+          this.r.get.toBreeze * gamma + squaredGrad * (1 - gamma))
+      }
+      new AdamUpdaterStatus(
+        Some(Vectors.fromBreeze(updated._1)),
+        Some(Vectors.fromBreeze(updated._2)))
+    }
+  }
+}

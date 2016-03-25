@@ -749,17 +749,21 @@ private[ann] class DataStacker(stackSize: Int, inputSize: Int, outputSize: Int)
  * Simple updater
  */
 private[ann] class ANNUpdater extends Updater {
+  type Status = Unit
+
+  override def initStatus(): Status = ()
 
   override def compute(
     weightsOld: Vector,
     gradient: Vector,
     stepSize: Double,
     iter: Int,
-    regParam: Double): (Vector, Double) = {
+    regParam: Double,
+    status: Status): (Vector, Double, Status) = {
     val thisIterStepSize = stepSize
     val brzWeights: BV[Double] = weightsOld.toBreeze.toDenseVector
     Baxpy(-thisIterStepSize, gradient.toBreeze, brzWeights)
-    (Vectors.fromBreeze(brzWeights), 0)
+    (Vectors.fromBreeze(brzWeights), 0, status)
   }
 }
 
