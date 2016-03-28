@@ -223,8 +223,9 @@ object GradientDescent extends Logging {
      * For the first iteration, the regVal will be initialized as sum of weight squares
      * if it's L2 updater; for L1 updater, the same logic is followed.
      */
+    val status = updater.initStatus()
     var regVal = updater.compute(
-      weights, Vectors.zeros(weights.size), 0, 1, regParam)._2
+      weights, Vectors.zeros(weights.size), 0, 1, regParam, status)._2
 
     var converged = false // indicates whether converged based on convergenceTol
     var i = 1
@@ -233,23 +234,30 @@ object GradientDescent extends Logging {
       val bcRegVal = data.context.broadcast(regVal)
       // Sample a subset (fraction miniBatchFraction) of the total data
       // compute and sum up the subgradients on this subset (this is one map-reduce)
-      val localWeights = weights.copy
       val (avgWeights, avgRegVal, lossSum, batchSize) = data
         .sample(false, miniBatchFraction, 42 + i)
-        .treeAggregate((localWeights, 0.0, 0.0, 0L))(
-          seqOp = (c, v) => {
-            // c: (weights, regVal, lossSumm, count), v: (label, features)
-            val (grad, loss) = gradient.compute(v._2, v._1, c._1)
-            val (w, r) = updater.compute(c._1, grad, stepSize, i, regParam)
-            (w, r, c._3 + loss, c._4 + 1)
-          },
-          combOp = (c1, c2) => {
-            // c: (avgWeights, avgRegVal, lossSumm, count)
-            val w = (c1._1.toBreeze * c1._4.toDouble + c2._1.toBreeze * c2._4.toDouble) /
-                (c1._4 + c2._4).toDouble
-            val r = (c1._2 * c1._4 + c2._2 * c2._4) / (c1._4 + c2._4)
-            (Vectors.fromBreeze(w), r, c1._3 + c2._3, c1._4 + c2._4)
-          })
+        .mapPartitions { iter =>
+          var localStatus = updater.initStatus()
+          var localWeights = bcWeights.value
+          var localRegVal = 0.0
+          var localLossSum = 0.0
+          var count: Long = 0L
+          iter.foreach { case (label, data) =>
+            val (grad, loss) = gradient.compute(data, label, localWeights)
+            val updated = updater.compute(localWeights, grad, stepSize, i, regParam, localStatus)
+            localWeights = updated._1
+            localRegVal = updated._2
+            localStatus = updated._3
+            localLossSum += loss
+            count += 1
+          }
+          Iterator.single((localWeights, localRegVal, localLossSum, count))
+        }.treeReduce{ case ((w1, rv1, ls1, c1), (w2, rv2, ls2, c2)) =>
+          val avgWeights =
+            (w1.toBreeze * c1.toDouble + w2.toBreeze * c2.toDouble) / (c1 + c2).toDouble
+          val avgRegVal = (rv1 * c1.toDouble + rv2 * c2.toDouble) / (c1 + c2).toDouble
+          (Vectors.fromBreeze(avgWeights), avgRegVal, ls1 + ls2, c1 + c2)
+        }
 
       if (batchSize > 0) {
         /**

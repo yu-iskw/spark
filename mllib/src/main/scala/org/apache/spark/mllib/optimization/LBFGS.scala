@@ -264,7 +264,8 @@ object LBFGS extends Logging {
        * regVal is sum of weight squares if it's L2 updater;
        * for other updater, the same logic is followed.
        */
-      val regVal = updater.compute(w, Vectors.zeros(n), 0, 1, regParam)._2
+      val status = updater.initStatus()
+      val regVal = updater.compute(w, Vectors.zeros(n), 0, 1, regParam, status)._2
 
       val loss = lossSum / numExamples + regVal
       /**
@@ -285,7 +286,7 @@ object LBFGS extends Logging {
       // The following gradientTotal is actually the regularization part of gradient.
       // Will add the gradientSum computed from the data with weights in the next step.
       val gradientTotal = w.copy
-      axpy(-1.0, updater.compute(w, Vectors.zeros(n), 1, 1, regParam)._1, gradientTotal)
+      axpy(-1.0, updater.compute(w, Vectors.zeros(n), 1, 1, regParam, status)._1, gradientTotal)
 
       // gradientTotal = gradientSum / numExamples + gradientTotal
       axpy(1.0 / numExamples, gradientSum, gradientTotal)
